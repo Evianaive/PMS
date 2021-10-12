@@ -1,0 +1,13 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.PMS.cpp.obj": [
+			"PMSGraph.cpp.obj",
+			"PMSModule.cpp.obj"
+		],
+		"Module.PMS.gen.cpp.obj": [
+			"PMS.init.gen.cpp.obj",
+			"PMSGraph.gen.cpp.obj"
+		]
+	}
+}

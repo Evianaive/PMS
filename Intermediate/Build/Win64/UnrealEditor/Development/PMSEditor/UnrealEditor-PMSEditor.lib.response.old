@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-PMSEditor.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"D:\Program Files\Epic Games\UE_5.0_main\Engine\Intermediate\Build\Win64\UnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h.obj"
+"D:\UnrealProject\ProceduralModeling\Plugins\PMS\Intermediate\Build\Win64\UnrealEditor\Development\PMSEditor\Module.PMSEditor.cpp.obj"
+"D:\Program Files\Epic Games\UE_5.0_main\Engine\Intermediate\Build\Win64\UnrealEditor\Development\Default.rc2.res"
+/OUT:"D:\UnrealProject\ProceduralModeling\Plugins\PMS\Intermediate\Build\Win64\UnrealEditor\Development\PMSEditor\UnrealEditor-PMSEditor.lib"

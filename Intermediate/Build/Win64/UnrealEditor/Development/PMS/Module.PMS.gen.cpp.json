@@ -1,0 +1,23 @@
+{
+    "Version": "1.1",
+    "Data": {
+        "Source": "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\intermediate\\build\\win64\\unrealeditor\\development\\pms\\module.pms.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "d:\\program files\\epic games\\ue_5.0_main\\engine\\intermediate\\build\\win64\\unrealeditor\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\intermediate\\build\\win64\\unrealeditor\\development\\pms\\definitions.pms.h",
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\intermediate\\build\\win64\\unrealeditor\\inc\\pms\\pms.init.gen.cpp",
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\intermediate\\build\\win64\\unrealeditor\\inc\\pms\\pmsgraph.gen.cpp",
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\source\\pms\\public\\pmsgraph.h",
+            "d:\\program files\\epic games\\ue_5.0_main\\engine\\source\\runtime\\coreuobject\\public\\uobject\\noexporttypes.h",
+            "d:\\program files\\epic games\\ue_5.0_main\\engine\\source\\runtime\\coreuobject\\public\\uobject\\propertyaccessutil.h",
+            "d:\\program files\\epic games\\ue_5.0_main\\engine\\source\\runtime\\core\\public\\math\\unitconversion.h",
+            "d:\\program files\\epic games\\ue_5.0_main\\engine\\source\\runtime\\core\\public\\math\\unitconversion.inl",
+            "d:\\program files\\epic games\\ue_5.0_main\\engine\\source\\runtime\\core\\public\\internationalization\\polyglottextdata.h",
+            "d:\\program files\\epic games\\ue_5.0_main\\engine\\source\\runtime\\coreuobject\\public\\assetregistry\\arfilter.h",
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\intermediate\\build\\win64\\unrealeditor\\inc\\pms\\pmsgraph.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

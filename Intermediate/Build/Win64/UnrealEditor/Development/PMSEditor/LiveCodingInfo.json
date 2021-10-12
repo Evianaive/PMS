@@ -1,0 +1,15 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.PMSEditor.cpp.obj": [
+			"PMSFactory.cpp.obj",
+			"AssetTypeActions_PMS.cpp.obj",
+			"PMSEditor.cpp.obj",
+			"PMSEditorModule.cpp.obj"
+		],
+		"Module.PMSEditor.gen.cpp.obj": [
+			"PMSEditor.init.gen.cpp.obj",
+			"PMSFactory.gen.cpp.obj"
+		]
+	}
+}

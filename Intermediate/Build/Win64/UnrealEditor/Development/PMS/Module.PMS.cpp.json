@@ -1,0 +1,16 @@
+{
+    "Version": "1.1",
+    "Data": {
+        "Source": "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\intermediate\\build\\win64\\unrealeditor\\development\\pms\\module.pms.cpp",
+        "ProvidedModule": "",
+        "PCH": "d:\\program files\\epic games\\ue_5.0_main\\engine\\intermediate\\build\\win64\\unrealeditor\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\intermediate\\build\\win64\\unrealeditor\\development\\pms\\definitions.pms.h",
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\source\\pms\\private\\pmsgraph.cpp",
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\source\\pms\\private\\pmsmodule.cpp",
+            "d:\\unrealproject\\proceduralmodeling\\plugins\\pms\\source\\pms\\public\\pmsmodule.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
