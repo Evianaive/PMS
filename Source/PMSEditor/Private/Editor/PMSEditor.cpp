@@ -3,6 +3,8 @@
 //#include "..\..\Public\Editor\PMSEditor.h"
 //#include <Framework/Docking/TabManager.h>
 
+#include "Editor/PMSEdGraph.h"
+
 #define LOCTEXT_NAMESPACE "ProceduralModelingSystemEditor"
 
 const FName FPMSEditor::PMSDetailsTabId(TEXT("PMSDetailsTabId"));
@@ -44,7 +46,8 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
         PMSGraphAsset->EdGraph->Schema = UEdGraphSchema::StaticClass();
         //Give the schema a chance to fill out any required nodes (like the results node)
         const UEdGraphSchema* Schema = PMSGraphAsset->EdGraph->GetSchema();
-        //Schema->CreateDefaultNodesForGraph(*PMSGraphAsset->EdGraph);
+        //Cast<UPMSEdGraph>(PMSGraphAsset->EdGraph)->AddTestNode();
+        Schema->CreateDefaultNodesForGraph(*PMSGraphAsset->EdGraph);
     }
     //check(PMSGraphAsset->EdGraph != nullptr)
 

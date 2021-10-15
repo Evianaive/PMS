@@ -14,4 +14,6 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 {
 	GENERATED_BODY()
 	
+public:
+	//void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const override;
 };
