@@ -27,7 +27,7 @@ public:
 	//Test adjust width
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)
 		//FMargin Margin = FMargin(2.f, 2.f);
-		FVector2D Margin = FVector2D(2.f, 2.f);
+		FVector2D Margin = FVector2D(36.f, 12.f);
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)
 		FString IconName = TEXT("polyexpand2d.svg");
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)

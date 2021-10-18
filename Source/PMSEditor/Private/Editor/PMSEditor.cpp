@@ -66,6 +66,9 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
         //PMSEdGraph->AddTestNode();
         //Schema->CreateDefaultNodesForGraph(*PMSGraphAsset->EdGraph);
     }
+    else {
+        PMSGraph = Cast<UPMSEdGraph>(PMSGraphAsset->EdGraph);
+    }
     //check(PMSGraphAsset->EdGraph != nullptr)
 
         TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("PMS_Test")
