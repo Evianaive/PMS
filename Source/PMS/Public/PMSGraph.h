@@ -22,3 +22,9 @@ public:
 	//T* SpawnNodeInsideGraph()
 //#endif
 };
+
+
+/*是否可以只声明
+class UPMSEdGraph;
+这样就不用#include
+*/

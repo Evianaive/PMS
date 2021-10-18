@@ -17,6 +17,7 @@ public class PMSEditor : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
+				//"Runtime/AppFramework/Private/Framework/Testing",
 				// ... add other private include paths required here ...
 			}
 			);
@@ -45,6 +46,8 @@ public class PMSEditor : ModuleRules
 				"GraphEditor",
 				"ApplicationCore",
 				"ToolMenus",
+
+				//"AppFramework",
 
 				"PMS",
 				// ... add private dependencies that you statically link with here ...	

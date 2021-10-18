@@ -16,4 +16,5 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 	
 public:
 	//void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const override;
+	virtual void CreateDefaultNodesForGraph(UEdGraph& Graph) const override;
 };

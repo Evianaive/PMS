@@ -16,6 +16,13 @@
 
 //FPMSEditor contains a UPMSGraph
 #include "PMSGraph.h"
+#include "Editor/PMSEdGraph.h"
+
+#define test 0
+#if test
+//#include "Framework/Testing/SStarshipGallery.h"
+//#include "D:\Program Files\Epic Games\UE_5.0_main\Engine\Source\Runtime\AppFramework\Private\Framework\Testing\SStarshipGallery.h"
+#endif
 
 class PMSEDITOR_API FPMSEditor : public FWorkflowCentricApplication, public FEditorUndoClient, public FNotifyHook
 {
@@ -39,9 +46,19 @@ private:
 	static const FName PMSGraphTabId;
 
 	UPMS_Graph* PMSGraphAsset;
+	UPMSEdGraph* PMSGraph;
+
 	TSharedPtr<SGraphEditor> EdGraphEditor;
 	TSharedPtr<IDetailsView> DetailsWidget;
 
+
+
 	TSharedRef<SDockTab> SpawnTab_UpdateGraph(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Details(const FSpawnTabArgs& Args);
+
+
+#if test
+	//TArray< TUniquePtr< FSlateBrush > > DynamicBrushes;
+	//TSharedRef<SWidget> ConstructIconsGallery();
+#endif
 };

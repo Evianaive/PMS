@@ -3,3 +3,6 @@
 
 #include "Editor/PMSEdGraphSchema.h"
 
+void UPMSEdGraphSchema::CreateDefaultNodesForGraph(UEdGraph& Graph) const {
+
+}

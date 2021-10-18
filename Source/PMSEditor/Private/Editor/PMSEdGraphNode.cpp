@@ -3,3 +3,10 @@
 
 #include "Editor/PMSEdGraphNode.h"
 
+#include "Editor/SlateWidgets/SPMSEdGraphNode.h"
+
+TSharedPtr<SGraphNode> UPMSEdGraphNode::CreateVisualWidget()
+{
+	SlateNode = SNew(SPMSEdGraphNode, this);
+	return SlateNode;
+}

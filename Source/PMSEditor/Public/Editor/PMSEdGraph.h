@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include <EdGraph/EdGraph.h>
+#include "Editor/PMSEdGraphNode.h"
 #include "PMSEdGraph.generated.h"
 
 /**
@@ -16,4 +17,6 @@ class PMSEDITOR_API UPMSEdGraph : public UEdGraph
 
 public:
 	void AddTestNode();
+	
+	UPMSEdGraphNode* SelectNode;
 };
