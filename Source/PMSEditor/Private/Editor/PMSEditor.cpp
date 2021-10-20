@@ -151,7 +151,9 @@ TSharedRef<SDockTab> FPMSEditor::SpawnTab_Details(const FSpawnTabArgs& Args)
     ];
 #else
     FDetailsViewArgs DetailsViewArgs;
+    //remeber to check this starts
     DetailsViewArgs.bUpdatesFromSelection = false;
+    //remeber to check this ends
     DetailsViewArgs.bCustomNameAreaLocation = false;
     DetailsViewArgs.bLockable = false;
     DetailsViewArgs.NameAreaSettings = FDetailsViewArgs::HideNameArea;

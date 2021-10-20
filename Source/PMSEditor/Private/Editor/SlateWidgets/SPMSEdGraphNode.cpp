@@ -250,18 +250,19 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		.BorderBackgroundColor(*NodeColor)
 		[
 			SNew(SVerticalBox)
+			//+ SVerticalBox::Slot()
+			////.AutoHeight()
+   //         .VAlign(VAlign_Fill)
+   //         .HAlign(HAlign_Fill)
+			//[
+			//	SNew(SHorizontalBox)
+			//	+SHorizontalBox::Slot()
+			//	.AutoWidth()
+			//]
 			+ SVerticalBox::Slot()
 			//.AutoHeight()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
-			[
-				SNew(SHorizontalBox)
-				+SHorizontalBox::Slot()
-				.AutoWidth()
-			]
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-            .VAlign(VAlign_Fill)
 			[
 				SNew(SHorizontalBox)
 				/* + SHorizontalBox::Slot()
@@ -275,7 +276,9 @@ void SPMSEdGraphNode::UpdateGraphNode()
 				]
                 */
                 +SHorizontalBox::Slot()
-                .AutoWidth()
+                .VAlign(VAlign_Fill)
+                .HAlign(HAlign_Fill)
+                //.AutoWidth()
                 [
                     SNew(SCheckBox)
                     .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
