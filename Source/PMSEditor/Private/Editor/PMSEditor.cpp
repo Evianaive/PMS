@@ -4,7 +4,7 @@
 //#include <Framework/Docking/TabManager.h>
 
 #include "Editor/PMSEdGraph.h"
-
+#include "Editor/PMSEdGraphSchema.h"
 #include "Editor/PMSEdGraphNode.h"
 
 #define LOCTEXT_NAMESPACE "ProceduralModelingSystemEditor"
@@ -48,26 +48,28 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
         
         PMSGraph->bAllowDeletion = false;
         
-        PMSGraph->Schema = UEdGraphSchema::StaticClass();
+        PMSGraph->Schema = UPMSEdGraphSchema::StaticClass();
         //Give the schema a chance to fill out any required nodes (like the results node)
         const UEdGraphSchema* Schema = PMSGraph->GetSchema();
         
         //
-        UPMSEdGraphNode * TestNode = NewObject<UPMSEdGraphNode>(PMSGraph);
-        PMSGraph->Modify();
-        TestNode->SetFlags(RF_Transactional);
-        PMSGraph->AddNode(TestNode);
-        PMSGraph->SelectNode = TestNode;
+        // UPMSEdGraphNode * TestNode = NewObject<UPMSEdGraphNode>(PMSGraph);
+        // PMSGraph->Modify();
+        // TestNode->SetFlags(RF_Transactional);
+        // PMSGraph->AddNode(TestNode);
+        // PMSGraph->SelectNode = TestNode;
 
         
 
         PMSGraphAsset->EdGraph = Cast<UEdGraph>(PMSGraph);
+        //PMSGraphAsset->EdGraph = PMSGraph;
         //UPMSEdGraph* PMSEdGraph = Cast<UPMSEdGraph>(PMSGraphAsset->EdGraph);
         //PMSEdGraph->AddTestNode();
         //Schema->CreateDefaultNodesForGraph(*PMSGraphAsset->EdGraph);
     }
     else {
         PMSGraph = Cast<UPMSEdGraph>(PMSGraphAsset->EdGraph);
+        //PMSGraph = PMSGraphAsset->EdGraph;
     }
     //check(PMSGraphAsset->EdGraph != nullptr)
 

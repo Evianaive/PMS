@@ -9,9 +9,11 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(abstract)
 class PMS_API UPMSGraphNode : public UObject
 {
-	GENERATED_BODY()
-	
+	GENERATED_UCLASS_BODY()
+public:
+	UPROPERTY()
+	FString IconName;
 };

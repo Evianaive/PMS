@@ -3,3 +3,7 @@
 //#include "PMS.h"
 #include "PMSGraphNode.h"
 
+UPMSGraphNode::UPMSGraphNode(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
