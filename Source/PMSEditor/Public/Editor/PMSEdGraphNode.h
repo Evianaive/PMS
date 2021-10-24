@@ -20,9 +20,13 @@ class PMSEDITOR_API UPMSEdGraphNode : public UEdGraphNode
 	GENERATED_BODY()
 	
 public:
-	TSharedPtr<SGraphNode> CreateVisualWidget() override;
+	/*
+	 *store a Ptr of PMSGraphNode and use the PMSGraphNode in AllocateDefaultPins()
+	 */
 	TSharedPtr<SGraphNode>SlateNode;
 	//TArray<UEdGraphPin> Pins;
+	virtual TSharedPtr<SGraphNode> CreateVisualWidget() override;
+	virtual void AllocateDefaultPins() override;
 
 	//Test adjust width
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)

@@ -27,6 +27,8 @@ UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNo
 	PMSEdGraphNodeToSpawn->NodePosX = Location.X;
 	PMSEdGraphNodeToSpawn->NodePosY = Location.Y;
 	PMSEdGraphNodeToSpawn->CreateNewGuid();
+	PMSEdGraphNodeToSpawn->PostPasteNode();
+	PMSEdGraphNodeToSpawn->AllocateDefaultPins();
 	PMSEdGraphNodeToSpawn->IconName = Cast<UPMSGraphNode>(InPMSGraphNodeClass->GetDefaultObject())->IconName;
 
 	ParentGraph->AddNode(PMSEdGraphNodeToSpawn);
@@ -58,7 +60,7 @@ void UPMSEdGraphSchema::GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMen
 		//if(PMSGraphNodeClass){
 		UPMSGraphNode* PMSGraphNode = PMSGraphNodeClass->GetDefaultObject<UPMSGraphNode>();
 		//UPMSGraphNode子类节点名字，用于后面显示提示用
-		const FText NodeName = FText::FromString(PMSGraphNodeClass->GetName());
+		const FText NodeName = FText::FromString(PMSGraphNodeClass->GetName().RightChop(3));
 		//可以用arguments的名称来格式化字符串，用于后面构建提示
 		FFormatNamedArguments TooltipArgs;
 		TooltipArgs.Add(TEXT("Name"), NodeName);

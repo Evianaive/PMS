@@ -26,9 +26,18 @@ public:
 	// SGraphNode implementation
 	virtual void UpdateGraphNode() override;
 	// End SGraphNode implementation
+	
+	virtual void CreatePinWidgets() override;
 	virtual void MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty = true) override;
-
+	
+	//SetOwner is used in AddPin，These two function are related to LeftNodeBox and RightNodeBox
+	virtual void SetOwner(const TSharedRef<SGraphPanel>& OwnerPanel) override;
+	virtual void AddPin(const TSharedRef<SGraphPin>& PinToAdd) override;
+	
 	FVector2D* NodeMargin;
 	FString* IconName;
 	FLinearColor* NodeColor;
+	//TODO Check SAIGraphNode如何实现上下的节点输入Box
+	TSharedPtr<SHorizontalBox> TopNodeBox;
+	TSharedPtr<SHorizontalBox> BottomNodeBox;
 };

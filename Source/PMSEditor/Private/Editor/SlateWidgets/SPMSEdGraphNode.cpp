@@ -10,7 +10,11 @@
 #include "HAL/FileManager.h"
 
 //#include "Widgets/Input/"
+#include "SGraphPin.h"
 #include "Slate.h"
+
+//Used in SetOwner
+#include "SGraphPanel.h"
 
 
 //可以把所有图标用它那个search svg的东西画在左边，然后拖到场景中的方式
@@ -241,6 +245,13 @@ TSharedRef<SWidget> ConstructIconsGallery()
 
 void SPMSEdGraphNode::UpdateGraphNode()
 {
+	InputPins.Empty();
+	OutputPins.Empty();
+
+	// Reset variables that are going to be exposed, in case we are refreshing an already setup node.
+	TopNodeBox.Reset();
+	BottomNodeBox.Reset();
+	
 	GetOrAddSlot(ENodeZone::Center)
 	[
 
@@ -250,15 +261,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		.BorderBackgroundColor(*NodeColor)
 		[
 			SNew(SVerticalBox)
-			//+ SVerticalBox::Slot()
-			////.AutoHeight()
-   //         .VAlign(VAlign_Fill)
-   //         .HAlign(HAlign_Fill)
-			//[
-			//	SNew(SHorizontalBox)
-			//	+SHorizontalBox::Slot()
-			//	.AutoWidth()
-			//]
+			+ SVerticalBox::Slot()
+			[
+				SAssignNew(TopNodeBox, SHorizontalBox)
+			]
 			+ SVerticalBox::Slot()
 			//.AutoHeight()
             .VAlign(VAlign_Fill)
@@ -316,19 +322,19 @@ void SPMSEdGraphNode::UpdateGraphNode()
                     [
                         SNew(SCheckBox)
                         .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
-                    //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-                    //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                    .CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
-                    .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
-                    .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
-                    .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
-                    .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
-                    ]
+		                //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+		                //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+		                .CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
+		                .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
+		                .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
+		                .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
+		                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
+					]
                 + SHorizontalBox::Slot()
-                    .AutoWidth()
-                    [
-                        SNew(SCheckBox)
-                        .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+                .AutoWidth()
+                [
+                    SNew(SCheckBox)
+                    .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
                     //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
                     //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
                     .CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
@@ -336,10 +342,86 @@ void SPMSEdGraphNode::UpdateGraphNode()
                     .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
                     .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
                     .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-                    ]
+                ]            
+			]
+			+ SVerticalBox::Slot()
+			[
+				SAssignNew(BottomNodeBox, SHorizontalBox)
 			]
 		]
 	];
+	CreatePinWidgets();
+}
+void SPMSEdGraphNode::SetOwner(const TSharedRef<SGraphPanel>& OwnerPanel)
+{
+	//TODO: I am not sure this variable should be named like this
+	check( !OwnerGraphPanelPtr.IsValid() );
+	SetParentPanel(OwnerPanel);
+	OwnerGraphPanelPtr = OwnerPanel;
+	GraphNode->DEPRECATED_NodeWidget = SharedThis(this);
+
+	/*Once we have an owner, and if hide Unused pins is enabled, we need to remake our pins to drop the hidden ones*/
+	if(OwnerGraphPanelPtr.Pin()->GetPinVisibility() != SGraphEditor::Pin_Show 
+		&& TopNodeBox.IsValid()
+		&& BottomNodeBox.IsValid())
+	{
+		this->TopNodeBox->ClearChildren();
+		this->BottomNodeBox->ClearChildren();
+		CreatePinWidgets();
+	}
+}
+void SPMSEdGraphNode::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
+{
+	//SGraphNode::AddPin(PinToAdd);
+	
+	//TODO This is for Horizontal Layout for Houdini Style
+	PinToAdd->SetOwner(SharedThis(this));
+
+	const UEdGraphPin* PinObj = PinToAdd->GetPinObj();
+	const bool bAdvancedParameter = (PinObj != nullptr) && PinObj->bAdvancedView;
+	if (bAdvancedParameter)
+	{
+		PinToAdd->SetVisibility( TAttribute<EVisibility>(PinToAdd, &SGraphPin::IsPinVisibleAsAdvanced) );
+	}
+	//TODO Need to figure out why Settings->GetInputPinPadding() can not be used
+	if (PinToAdd->GetDirection() == EEdGraphPinDirection::EGPD_Input)
+	{
+		TopNodeBox->AddSlot()
+		.AutoWidth()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		.Padding(FMargin(4.0f,4.0f))
+		[
+			PinToAdd
+		];
+		InputPins.Add(PinToAdd);
+	}
+	else // Direction == EEdGraphPinDirection::EGPD_Output
+		{
+		BottomNodeBox->AddSlot()
+		.AutoWidth()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Bottom)
+		.Padding(FMargin(4.0f,4.0f))
+		[
+			PinToAdd
+		];
+		OutputPins.Add(PinToAdd);
+		}
+}
+
+void SPMSEdGraphNode::CreatePinWidgets()
+{
+	UPMSEdGraphNode* PMSEdGraphNode = CastChecked<UPMSEdGraphNode>(GraphNode);
+	for(auto Pin:PMSEdGraphNode->Pins)
+	{
+		if(!Pin->bHidden)
+		{
+			/*TODO SGraphPin 要改为自己实现的子类来实现不一样的外观*/
+			TSharedPtr<SGraphPin>NewPin = SNew(SGraphPin, Pin);
+			AddPin(NewPin.ToSharedRef());
+		}
+	}
 }
 
 void SPMSEdGraphNode::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty) {
