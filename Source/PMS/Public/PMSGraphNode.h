@@ -17,3 +17,13 @@ public:
 	UPROPERTY()
 	FString IconName;
 };
+
+
+#define PMSNODE_BGEIN_ARGS(NodeName) \
+	class PMS_API U##NodeName## : public UPMSGraphNode \
+	{ \
+		GENERATED_BODY() \
+	public:\
+		U##NodeName##();
+#define PMSNODE_END_ARGS() \
+	};
