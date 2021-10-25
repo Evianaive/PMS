@@ -35,9 +35,10 @@ public:
 	virtual void AddPin(const TSharedRef<SGraphPin>& PinToAdd) override;
 	
 	FVector2D* NodeMargin;
+	FVector2D* Pd;
 	FString* IconName;
 	FLinearColor* NodeColor;
-	//TODO Check SAIGraphNode如何实现上下的节点输入Box
+	//为了实现上下的节点输入Box
 	TSharedPtr<SHorizontalBox> TopNodeBox;
 	TSharedPtr<SHorizontalBox> BottomNodeBox;
 };

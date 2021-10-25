@@ -12,6 +12,7 @@
 //#include "Widgets/Input/"
 #include "SGraphPin.h"
 #include "Slate.h"
+#include "Editor/SlateWidgets/SPMSEdGraphPin.h"
 
 //Used in SetOwner
 #include "SGraphPanel.h"
@@ -24,6 +25,7 @@ void SPMSEdGraphNode::Construct(const FArguments& InArgs, UPMSEdGraphNode* InNod
     IconName = &(InNode->IconName);
     NodeMargin = &(InNode->Margin);
     NodeColor = &(InNode->Color);
+	Pd = &(InNode->Pd);
 	UpdateGraphNode();
 }
 
@@ -64,184 +66,23 @@ auto LeftRightLabel = [](const FName& InIconName = FName(), const FText& InLabel
 	return SNew(SBox).HeightOverride(16.f)[HBox.ToSharedRef()];
 };
 
-auto NodeIcon = [](FString NodeName) -> TSharedRef<SImage>
+auto NodeIcon = [](FString NodeName, FVector2D NodeMargin) -> TSharedRef<SImage>
 {
 	/*FString SearchDir = FPaths::ProjectPluginsDir().Append("HoudiniEdGraph/Resources/SOP/");
 	TArray<FString> FoundIcons;
 	IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDir, TEXT("*.svg"), true, false);*/
 	FString SopDir = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/SOP/");
 	FString NodeIconPath = SopDir.Append(NodeName);
-	const FVector2D IconSize(30.f, 30.f);
+	const FVector2D IconSize(32.f, 32.f);
 	UE_LOG(LogTemp, Log, TEXT("%s"), *NodeIconPath);
     
 	//return SNew(SImage)
 	//	.Image(new FSlateVectorImageBrush(NodeIconPath, IconSize, FLinearColor(1, 1, 1, 1)));
 
-    FSlateVectorImageBrush* VectorImageBrush1 = new FSlateVectorImageBrush(NodeIconPath, IconSize);
+    FSlateVectorImageBrush* VectorImageBrush1 = new FSlateVectorImageBrush(NodeIconPath, NodeMargin);
     return SNew(SImage)
         .Image(VectorImageBrush1);
 };
-
-
-
-/*
-TSharedRef<SWidget> ConstructIconsGallery()
-{
-    // auto GenerateColorButton = [] (FTex      t InTitle, FName StyleColorName, bool Inverted = false) -> TSharedRef<SWidget> 
-
-    auto GenerateIconLibrarySVG = [](FString InPath) -> TSharedRef<SWidget>
-    {
-        const FVector2D IconSize(20.f, 20.f);
-        TSharedPtr<SUniformWrapPanel> UniformWrapPanel = SNew(SUniformWrapPanel)
-            .HAlign(HAlign_Left)
-            .SlotPadding(FMargin(12.f, 12.f));
-
-        TArray<FString> FoundIcons;
-        FString SearchDirectory = FPaths::ProjectPluginsDir().Append(InPath);// TEXT("Editor/Slate/Icons/GeneralTools");
-        // IFileManager::Get().FindFiles(FoundIcons, *SearchDirectory, TEXT(".png"));//, true, true, false);
-        IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDirectory, TEXT("*.svg"), true, false);
-		TArray< TUniquePtr< FSlateBrush > > DynamicBrushes;
-        for (const FString& Filename : FoundIcons)
-        {
-            // FString IconPath = SearchDirectory / Filename;
-            FString IconPath = Filename;
-			UE_LOG(LogTemp, Log, TEXT("%s"), *IconPath);
-            DynamicBrushes.Add(TUniquePtr<FSlateVectorImageBrush>(new FSlateVectorImageBrush(IconPath, IconSize)));
-
-            UniformWrapPanel->AddSlot()
-                [
-                    SNew(SImage)
-                    .Image(DynamicBrushes.Last().Get())
-                .ToolTipText(FText::FromString(IconPath))
-                ];
-        }
-
-        return SNew(SVerticalBox)
-        + SVerticalBox::Slot()
-            [
-                UniformWrapPanel.ToSharedRef()
-            ];
-    };
-
-    return SNew(SBorder)
-        .BorderImage(FAppStyle::Get().GetBrush("ToolPanel.GroupBorder"))
-        [
-            SNew(SVerticalBox)
-            + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG("HoudiniEdGraph/Resources/SOP/test")]
-        ];
-}
-*/
-/*
-TArray< TUniquePtr< FSlateBrush > > DynamicBrushes;
-TSharedRef<SWidget> ConstructIconsGallery()
-{
-    // auto GenerateColorButton = [] (FTex      t InTitle, FName StyleColorName, bool Inverted = false) -> TSharedRef<SWidget> 
-
-    auto GenerateIconLibrary = [](FText InTitle, FString InPath) -> TSharedRef<SWidget>
-    {
-        const FVector2D IconSize(20.f, 20.f);
-        TSharedPtr<SUniformWrapPanel> UniformWrapPanel = SNew(SUniformWrapPanel)
-            .HAlign(HAlign_Left)
-            .SlotPadding(FMargin(12.f, 12.f));
-
-        TArray<FString> FoundIcons;
-        FString SearchDirectory = FPaths::EngineDir() / InPath;// TEXT("Editor/Slate/Icons/GeneralTools");
-        // IFileManager::Get().FindFiles(FoundIcons, *SearchDirectory, TEXT(".png"));//, true, true, false);
-        IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDirectory, TEXT("*.png"), true, false);
-        for (const FString& Filename : FoundIcons)
-        {
-            // FString IconPath = SearchDirectory / Filename;
-            FString IconPath = Filename;
-
-            DynamicBrushes.Add(TUniquePtr<FSlateDynamicImageBrush>(new FSlateDynamicImageBrush(FName(*IconPath), IconSize)));
-
-            UniformWrapPanel->AddSlot()
-                [
-                    SNew(SImage)
-                    .Image(DynamicBrushes.Last().Get())
-                .ToolTipText(FText::FromString(IconPath))
-                ];
-        }
-
-        return SNew(SVerticalBox)
-            + SVerticalBox::Slot()
-            .AutoHeight()
-            [
-                SNew(STextBlock).Text(InTitle)
-            ]
-
-        + SVerticalBox::Slot()
-            [
-                UniformWrapPanel.ToSharedRef()
-            ];
-    };
-
-    auto GenerateIconLibrarySVG = [](FText InTitle, FString InPath) -> TSharedRef<SWidget>
-    {
-        const FVector2D IconSize(20.f, 20.f);
-        TSharedPtr<SUniformWrapPanel> UniformWrapPanel = SNew(SUniformWrapPanel)
-            .HAlign(HAlign_Left)
-            .SlotPadding(FMargin(12.f, 12.f));
-
-        TArray<FString> FoundIcons;
-        FString SearchDirectory = FPaths::EngineDir() / InPath;// TEXT("Editor/Slate/Icons/GeneralTools");
-        // IFileManager::Get().FindFiles(FoundIcons, *SearchDirectory, TEXT(".png"));//, true, true, false);
-        IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDirectory, TEXT("*.svg"), true, false);
-        for (const FString& Filename : FoundIcons)
-        {
-            // FString IconPath = SearchDirectory / Filename;
-            FString IconPath = Filename;
-
-            DynamicBrushes.Add(TUniquePtr<FSlateVectorImageBrush>(new FSlateVectorImageBrush(IconPath, IconSize)));
-
-            UniformWrapPanel->AddSlot()
-                [
-                    SNew(SImage)
-                    .Image(DynamicBrushes.Last().Get())
-                .ToolTipText(FText::FromString(IconPath))
-                ];
-        }
-
-        return SNew(SVerticalBox)
-            + SVerticalBox::Slot()
-            .AutoHeight()
-            [
-                SNew(STextBlock).Text(InTitle)
-            ]
-
-        + SVerticalBox::Slot()
-            [
-                UniformWrapPanel.ToSharedRef()
-            ];
-    };
-
-
-
-    return SNew(SBorder)
-        .BorderImage(FAppStyle::Get().GetBrush("ToolPanel.GroupBorder"))
-        [
-            SNew(SVerticalBox)
-            + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "SlateCore", "Core"), "Content/Slate/Starship/Common")]
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "Editor Common", "Editor"), "Content/Editor/Slate/Starship/Common")]
-
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "SceneOutliner", "SceneOutliner"), "Content/Editor/Slate/Starship/SceneOutliner")]
-        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "LevelEditor", "LevelEditor"), "Content/Editor/Slate/Starship/LevelEditor/Menus")]
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "MainToolbar", "MainToolbar"), "Content/Editor/Slate/Starship/MainToolbar")]
-        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "FileMenu", "FileMenu"), "Content/Editor/Slate/Starship/Menus/File")]
-        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "EditMenu", "EditMenu"), "Content/Editor/Slate/Starship/Menus/Edit")]
-        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "HelpMenu", "HelpMenu"), "Content/Editor/Slate/Starship/Menus/Help")]
-
-        +SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "PaintIconTitle", "Paint"), "Content/Editor/Slate/Icons/Paint")]
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "LandscapeIconTitle", "Landscape"), "Content/Editor/Slate/Icons/Landscape")]
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "ModelingIconTitle", "Modeling"), "/Plugins/Experimental/ModelingToolsEditorMode/Content/Icons")]
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "FractureIconTitle", "Fracture"), "/Plugins/Experimental/ChaosEditor/Content")]
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "CurveEditorIconTitle", "CurveEditor"), "Content/Editor/Slate/GenericCurveEditor/Icons")]
-        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "GeneralIconTitle", "General"), "Content/Editor/Slate/Icons/GeneralTools")]
-        ];
-}
-*/
-
-
 
 void SPMSEdGraphNode::UpdateGraphNode()
 {
@@ -254,6 +95,127 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	
 	GetOrAddSlot(ENodeZone::Center)
 	[
+		 SNew(SBorder)
+		 .Padding(FMargin(0.f,0.f))
+		 //.ColorAndOpacity(FLinearColor(0,0,0,0))
+		 .BorderBackgroundColor(*NodeColor)
+		 //.FlipForRightToLeftFlowDirection(true)
+		 .BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+		// SNew(SHorizontalBox)
+		// + SHorizontalBox::Slot()
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Top)
+			.HAlign(HAlign_Fill)
+			.FillHeight(1.0f)
+			[
+				SAssignNew(TopNodeBox, SHorizontalBox).RenderTransform(FSlateRenderTransform(FVector2D(0.0f,0.0f)))
+			]
+			+ SVerticalBox::Slot()
+            .VAlign(VAlign_Fill)
+            .HAlign(HAlign_Fill)
+            .AutoHeight()
+			[
+				SNew(SBorder)
+				.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+				.BorderBackgroundColor(*NodeColor)
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Fill)
+				.Padding(FMargin(0.5f,0.5f))
+				[
+					SNew(SHorizontalBox)
+	                +SHorizontalBox::Slot()
+	                .VAlign(VAlign_Fill)
+	                .HAlign(HAlign_Fill)
+	                .FillWidth(1.0f)
+					.Padding(FMargin(0.5f,0.5f))
+	                [
+	                    SNew(SCheckBox)
+	                    .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+	                    //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+	                    //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+	                    .CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
+	                    .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
+	                    .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
+	                    .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    //.Padding(FMargin(0.0f,0.0f))
+	                ]
+					+ SHorizontalBox::Slot()
+	                .FillWidth(1.0f)
+	                .VAlign(VAlign_Fill)
+	                .HAlign(HAlign_Fill)
+					.Padding(FMargin(0.5f,0.5f))
+					[
+						SNew(SCheckBox)
+						.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+						//.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+						//.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+						.CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
+						.CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
+						.CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
+						.UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+						.UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    //.Padding(FMargin(0.0f,0.0f))
+					]
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+	                .VAlign(VAlign_Center)
+	                .HAlign(HAlign_Center)
+					.Padding(FMargin(*Pd))
+					[
+						NodeIcon(*IconName,*NodeMargin)
+					]
+	                + SHorizontalBox::Slot()
+					.AutoWidth()
+	                .VAlign(VAlign_Fill)
+	                .HAlign(HAlign_Fill)
+					.Padding(FMargin(0.5f,0.5f))
+                    [
+                        SNew(SCheckBox)
+                        .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+		                //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+		                //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+		                .CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
+		                .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
+		                .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
+		                .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
+		                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
+						//.Padding(FMargin(0.0f,0.0f))
+					]
+	                + SHorizontalBox::Slot()
+	                .FillWidth(1.0f)
+	                .VAlign(VAlign_Fill)
+	                .HAlign(HAlign_Fill)
+					.Padding(FMargin(0.5f,0.5f))
+	                [
+	                    SNew(SCheckBox)
+	                    .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+	                    //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+	                    //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+	                    .CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
+	                    .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
+	                    .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
+	                    .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    //.Padding(FMargin(0.0f,0.0f))
+	                ]
+				]
+				
+			]
+			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Bottom)
+			.HAlign(HAlign_Fill)
+			.AutoHeight()
+			[
+				SAssignNew(BottomNodeBox, SHorizontalBox)
+			]
+		]
+	];
+
+	/*GetOrAddSlot(ENodeZone::Center)
+	[
 
 		SNew(SBorder)
 		.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
@@ -262,6 +224,8 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		[
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Center)
 			[
 				SAssignNew(TopNodeBox, SHorizontalBox)
 			]
@@ -280,7 +244,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 						LeftRightLabel("Icons.box-perspective")
 					]
 				]
-                */
+                #1#
                 +SHorizontalBox::Slot()
                 .VAlign(VAlign_Fill)
                 .HAlign(HAlign_Fill)
@@ -345,11 +309,14 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 ]            
 			]
 			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Center)
 			[
 				SAssignNew(BottomNodeBox, SHorizontalBox)
 			]
 		]
-	];
+	];*/
+	
 	CreatePinWidgets();
 }
 void SPMSEdGraphNode::SetOwner(const TSharedRef<SGraphPanel>& OwnerPanel)
@@ -388,9 +355,10 @@ void SPMSEdGraphNode::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
 	{
 		TopNodeBox->AddSlot()
 		.AutoWidth()
-		.HAlign(HAlign_Center)
+		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Top)
-		.Padding(FMargin(4.0f,4.0f))
+		.FillWidth(1.0f)
+		.Padding(FMargin(1.0f,1.0f))
 		[
 			PinToAdd
 		];
@@ -400,9 +368,10 @@ void SPMSEdGraphNode::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
 		{
 		BottomNodeBox->AddSlot()
 		.AutoWidth()
-		.HAlign(HAlign_Center)
+		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Bottom)
-		.Padding(FMargin(4.0f,4.0f))
+		.FillWidth(1.0f)
+		.Padding(FMargin(1.0f,1.0f))
 		[
 			PinToAdd
 		];
@@ -418,7 +387,9 @@ void SPMSEdGraphNode::CreatePinWidgets()
 		if(!Pin->bHidden)
 		{
 			/*TODO SGraphPin 要改为自己实现的子类来实现不一样的外观*/
-			TSharedPtr<SGraphPin>NewPin = SNew(SGraphPin, Pin);
+			TSharedPtr<SGraphPin>NewPin = SNew(SPMSEdGraphPin, Pin);
+			/*可否编辑直接继承节点可否编辑*/
+			//NewPin->SetIsEditable(IsEditable);
 			AddPin(NewPin.ToSharedRef());
 		}
 	}

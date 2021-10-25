@@ -5,16 +5,189 @@
 
 #include "SlateOptMacros.h"
 
+#include "SPinTypeSelector.h"
+#include "Widgets/Layout/SWrapBox.h"
+#include "SLevelOfDetailBranchNode.h"
+
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 
-void SPMSEdGraphPin::Construct(const FArguments& InArgs)
+void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 {
-	/*
-	ChildSlot
-	[
-		// Populate the widget
-	];
-	*/
+	/*这几行主要是设置一下Cursor，check一下有没有节点，有没有Scheme*/
+	bUsePinColorForText = InArgs._UsePinColorForText;
+	this->SetCursor(EMouseCursor::Default);
+
+	SetVisibility(MakeAttributeSP(this, &SPMSEdGraphPin::GetPinVisiblity));
+
+	GraphPinObj = InPin;
+	check(GraphPinObj != NULL);
+
+	const UEdGraphSchema* Schema = GraphPinObj->GetSchema();
+	checkf(
+		Schema, 
+		TEXT("Missing schema for pin: %s with outer: %s of type %s"), 
+		*(GraphPinObj->GetName()),
+		GraphPinObj->GetOuter() ? *(GraphPinObj->GetOuter()->GetName()) : TEXT("NULL OUTER"), 
+		GraphPinObj->GetOuter() ? *(GraphPinObj->GetOuter()->GetClass()->GetName()) : TEXT("NULL OUTER")
+	);
+
+	const bool bIsInput = (GetDirection() == EGPD_Input);
+
+	// Create the pin icon widget
+	TSharedRef<SWidget> PinWidgetRef = SPinTypeSelector::ConstructPinTypeImage(
+		MakeAttributeSP(this, &SPMSEdGraphPin::GetPinIcon ),
+		MakeAttributeSP(this, &SPMSEdGraphPin::GetPinColor),
+		MakeAttributeSP(this, &SPMSEdGraphPin::GetSecondaryPinIcon),
+		MakeAttributeSP(this, &SPMSEdGraphPin::GetSecondaryPinColor));
+	PinImage = PinWidgetRef;
+
+	PinWidgetRef->SetCursor( 
+		TAttribute<TOptional<EMouseCursor::Type> >::Create (
+			TAttribute<TOptional<EMouseCursor::Type> >::FGetter::CreateRaw( this, &SPMSEdGraphPin::GetPinCursor )
+		)
+	);
+
+	// Create the pin indicator widget (used for watched values)
+	static const FName NAME_NoBorder("NoBorder");
+	TSharedRef<SWidget> PinStatusIndicator =
+		SNew(SButton)
+		.ButtonStyle(FEditorStyle::Get(), NAME_NoBorder)
+		.Visibility(this, &SPMSEdGraphPin::GetPinStatusIconVisibility)
+		.ContentPadding(0)
+		.OnClicked(this, &SPMSEdGraphPin::ClickedOnPinStatusIcon)
+		[
+			SNew(SImage)
+			.Image(this, &SPMSEdGraphPin::GetPinStatusIcon)
+		];
+
+	TSharedRef<SWidget> LabelWidget = GetLabelWidget(InArgs._PinLabelStyle);
+
+	// Create the widget used for the pin body (status indicator, label, and value)
+	LabelAndValue =
+		SNew(SWrapBox)
+		.PreferredSize(150.f);
+
+	if (!bIsInput)
+	{
+		LabelAndValue->AddSlot()
+			.VAlign(VAlign_Center)
+			[
+				LabelWidget
+			];
+	}
+	else
+	{
+		LabelAndValue->AddSlot()
+			.VAlign(VAlign_Center)
+			[
+				LabelWidget
+			];
+
+		/*如果这是Input就要设置参数框
+		ValueWidget = GetDefaultValueWidget();
+
+		if (ValueWidget != SNullWidget::NullWidget)
+		{
+			TSharedPtr<SBox> ValueBox;
+			LabelAndValue->AddSlot()
+				.Padding(bIsInput ? FMargin(InArgs._SideToSideMargin, 0, 0, 0) : FMargin(0, 0, InArgs._SideToSideMargin, 0))
+				.VAlign(VAlign_Center)
+				[
+					SAssignNew(ValueBox, SBox)
+					.Padding(0.0f)
+					[
+						ValueWidget.ToSharedRef()
+					]
+				];
+
+			if (!DoesWidgetHandleSettingEditingEnabled())
+			{
+				ValueBox->SetEnabled(TAttribute<bool>(this, &SGraphPin::IsEditingEnabled));
+			}
+		}
+		*/
+	}
+
+	TSharedPtr<SHorizontalBox> PinContent;
+	if (bIsInput)
+	{
+		// Input pin
+		FullPinHorizontalRowWidget = PinContent = 
+			SNew(SHorizontalBox)
+			+SHorizontalBox::Slot()
+			.FillWidth(1.0f)
+			.VAlign(VAlign_Center)
+			.Padding(0, 0, InArgs._SideToSideMargin, 0)
+			[
+				SNew(SVerticalBox)
+				+SVerticalBox::Slot()
+				.HAlign(HAlign_Center)
+				.VAlign(VAlign_Center)
+				[
+					PinWidgetRef
+				]	
+			]
+			// +SHorizontalBox::Slot()
+			// .AutoWidth()
+			// .VAlign(VAlign_Center)
+			// [
+			// 	LabelAndValue.ToSharedRef()
+			// ]
+		;
+	}
+	else
+	{
+		// Output pin
+		FullPinHorizontalRowWidget = PinContent = SNew(SHorizontalBox)
+			// +SHorizontalBox::Slot()
+			// .AutoWidth()
+			// .VAlign(VAlign_Center)
+			// [
+			// 	LabelAndValue.ToSharedRef()
+			// ]
+			+SHorizontalBox::Slot()
+			.FillWidth(1.0f)
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Fill)
+			.Padding(InArgs._SideToSideMargin, 0, 0, 0)
+			[
+				SNew(SVerticalBox)
+				+SVerticalBox::Slot()
+				.HAlign(HAlign_Center)
+				.AutoHeight()
+				[
+					PinWidgetRef
+				]				
+			]
+		;
+	}
+
+	// Set up a hover for pins that is tinted the color of the pin.
+	SBorder::Construct(SBorder::FArguments()
+		.BorderImage(this, &SPMSEdGraphPin::GetPinBorder)
+		.BorderBackgroundColor(this, &SPMSEdGraphPin::GetPinColor)
+		.OnMouseButtonDown(this, &SPMSEdGraphPin::OnPinNameMouseDown)
+		[
+			SNew(SLevelOfDetailBranchNode)
+			.UseLowDetailSlot(this, &SPMSEdGraphPin::UseLowDetailPinNames)
+			.LowDetail()
+			[
+				//@TODO: Try creating a pin-colored line replacement that doesn't measure text / call delegates but still renders
+				PinWidgetRef
+			]
+			.HighDetail()
+			[
+				PinContent.ToSharedRef()
+			]
+		]
+	);
+
+	TSharedPtr<IToolTip> TooltipWidget = SNew(SToolTip)
+		.Text(this, &SPMSEdGraphPin::GetTooltipText)
+		.IsInteractive(this, &SPMSEdGraphPin::IsTooltipInteractive)
+		.OnSetInteractiveWindowLocation(this, &SPMSEdGraphPin::OnSetInteractiveTooltipLocation);
+
+	SetToolTip(TooltipWidget);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

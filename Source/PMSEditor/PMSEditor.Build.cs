@@ -50,6 +50,7 @@ public class PMSEditor : ModuleRules
 				//"AppFramework",
 
 				"PMS",
+				"KismetWidgets",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
