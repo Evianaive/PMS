@@ -52,6 +52,19 @@ void UPMSEdGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Context
 
 }
 
+const FPinConnectionResponse UPMSEdGraphSchema::CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const
+{
+	return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_B,TEXT("Creat"));
+}
+
+FConnectionDrawingPolicy* UPMSEdGraphSchema::CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID,
+	float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements,
+	UEdGraph* InGraphObj) const
+{
+	return Super::CreateConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, InZoomFactor, InClippingRect,
+	                                            InDrawElements, InGraphObj);
+}
+
 void UPMSEdGraphSchema::GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMenuBuilder) const
 {
 	InitPMSGraphNodeClasses();

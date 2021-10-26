@@ -39,19 +39,25 @@ UCLASS()
 class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 {
 	GENERATED_UCLASS_BODY()
-	
-public:
+
 	//void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const override;
 	virtual void CreateDefaultNodesForGraph(UEdGraph& Graph) const override;
-
+	/*Right Click Menu*/
 	virtual void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const;
-
 	void GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMenuBuilder) const;
+	
+	/*Which Connection Between nodes are allowed*/
+	virtual const FPinConnectionResponse CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const override;
 
+	/*Define Drawing Policy*/
+	virtual FConnectionDrawingPolicy* CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID,
+		float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements,
+		UEdGraph* InGraphObj) const override;
 
 private:
 	static void InitPMSGraphNodeClasses();
 
+private:
 	static TArray<UClass*> PMSGraphNodeClasses;
 
 	static bool bPMSGraphNodeClassesInitialized;

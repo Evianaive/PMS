@@ -81,7 +81,8 @@ auto NodeIcon = [](FString NodeName, FVector2D NodeMargin) -> TSharedRef<SImage>
 
     FSlateVectorImageBrush* VectorImageBrush1 = new FSlateVectorImageBrush(NodeIconPath, NodeMargin);
     return SNew(SImage)
-        .Image(VectorImageBrush1);
+        .Image(VectorImageBrush1)
+		//.FlowDirectionPreference(EFlowDirectionPreference::RightToLeft);
 };
 
 void SPMSEdGraphNode::UpdateGraphNode()
@@ -210,6 +211,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 			.AutoHeight()
 			[
 				SAssignNew(BottomNodeBox, SHorizontalBox)
+				.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,20.0f)))
 			]
 		]
 	];
