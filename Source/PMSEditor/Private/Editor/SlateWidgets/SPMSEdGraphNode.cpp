@@ -17,7 +17,7 @@
 //Used in SetOwner
 #include "SGraphPanel.h"
 
-
+#define insert 0
 //可以把所有图标用它那个search svg的东西画在左边，然后拖到场景中的方式
 void SPMSEdGraphNode::Construct(const FArguments& InArgs, UPMSEdGraphNode* InNode)
 {
@@ -73,7 +73,7 @@ auto NodeIcon = [](FString NodeName, FVector2D NodeMargin) -> TSharedRef<SImage>
 	IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDir, TEXT("*.svg"), true, false);*/
 	FString SopDir = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/SOP/");
 	FString NodeIconPath = SopDir.Append(NodeName);
-	const FVector2D IconSize(32.f, 32.f);
+	const FVector2D IconSize(48.f, 48.f);
 	UE_LOG(LogTemp, Log, TEXT("%s"), *NodeIconPath);
     
 	//return SNew(SImage)
@@ -81,8 +81,8 @@ auto NodeIcon = [](FString NodeName, FVector2D NodeMargin) -> TSharedRef<SImage>
 
     FSlateVectorImageBrush* VectorImageBrush1 = new FSlateVectorImageBrush(NodeIconPath, NodeMargin);
     return SNew(SImage)
-        .Image(VectorImageBrush1)
-		//.FlowDirectionPreference(EFlowDirectionPreference::RightToLeft);
+		//.FlowDirectionPreference(EFlowDirectionPreference::RightToLeft)
+        .Image(VectorImageBrush1);
 };
 
 void SPMSEdGraphNode::UpdateGraphNode()
@@ -93,11 +93,13 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	// Reset variables that are going to be exposed, in case we are refreshing an already setup node.
 	TopNodeBox.Reset();
 	BottomNodeBox.Reset();
-	
+
+	FSlateFontInfo Font = FSlateFontInfo();
+	Font.Size = 100;
 	GetOrAddSlot(ENodeZone::Center)
 	[
 		 SNew(SBorder)
-		 .Padding(FMargin(0.f,0.f))
+		 .Padding(FMargin(0.5f,0.5f))
 		 //.ColorAndOpacity(FLinearColor(0,0,0,0))
 		 .BorderBackgroundColor(*NodeColor)
 		 //.FlipForRightToLeftFlowDirection(true)
@@ -105,74 +107,25 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		// SNew(SHorizontalBox)
 		// + SHorizontalBox::Slot()
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.VAlign(VAlign_Top)
-			.HAlign(HAlign_Fill)
-			.FillHeight(1.0f)
-			[
-				SAssignNew(TopNodeBox, SHorizontalBox).RenderTransform(FSlateRenderTransform(FVector2D(0.0f,0.0f)))
-			]
-			+ SVerticalBox::Slot()
+			SNew(SOverlay)
+			+ SOverlay::Slot()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
-            .AutoHeight()
 			[
 				SNew(SBorder)
 				.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+				//.BorderBackgroundColor(*NodeColor-FLinearColor(0.5f,0.5f,0.5f,0.0f))
 				.BorderBackgroundColor(*NodeColor)
 				.VAlign(VAlign_Fill)
 				.HAlign(HAlign_Fill)
-				.Padding(FMargin(0.5f,0.5f))
+				.Padding(FMargin(0.0f,0.0f))
 				[
-					SNew(SHorizontalBox)
-	                +SHorizontalBox::Slot()
-	                .VAlign(VAlign_Fill)
-	                .HAlign(HAlign_Fill)
-	                .FillWidth(1.0f)
-					.Padding(FMargin(0.5f,0.5f))
-	                [
-	                    SNew(SCheckBox)
-	                    .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
-	                    //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-	                    //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-	                    .CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
-	                    .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
-	                    .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
-	                    .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-	                    .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-	                    //.Padding(FMargin(0.0f,0.0f))
-	                ]
-					+ SHorizontalBox::Slot()
-	                .FillWidth(1.0f)
-	                .VAlign(VAlign_Fill)
-	                .HAlign(HAlign_Fill)
-					.Padding(FMargin(0.5f,0.5f))
-					[
-						SNew(SCheckBox)
-						.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
-						//.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-						//.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-						.CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
-						.CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
-						.CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
-						.UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-						.UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-	                    //.Padding(FMargin(0.0f,0.0f))
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-	                .VAlign(VAlign_Center)
-	                .HAlign(HAlign_Center)
-					.Padding(FMargin(*Pd))
-					[
-						NodeIcon(*IconName,*NodeMargin)
-					]
+					SNew(SHorizontalBox)	                
 	                + SHorizontalBox::Slot()
-					.AutoWidth()
+	                .FillWidth(0.145f)
 	                .VAlign(VAlign_Fill)
 	                .HAlign(HAlign_Fill)
-					.Padding(FMargin(0.5f,0.5f))
+					.Padding(FMargin(0.0f,0.5f))
                     [
                         SNew(SCheckBox)
                         .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
@@ -185,11 +138,95 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
 						//.Padding(FMargin(0.0f,0.0f))
 					]
+#if insert
+					+ SHorizontalBox::Slot()
+					.FillWidth(0.005f)
+					.VAlign(VAlign_Fill)
+					.HAlign(HAlign_Fill)
+					.Padding(FMargin(0.0f,0.5f))
+					[
+						SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
+					]
+#endif
 	                + SHorizontalBox::Slot()
-	                .FillWidth(1.0f)
+	                .FillWidth(0.145f)
 	                .VAlign(VAlign_Fill)
 	                .HAlign(HAlign_Fill)
-					.Padding(FMargin(0.5f,0.5f))
+					.Padding(FMargin(0.0f,0.5f))
+	                [
+	                    SNew(SCheckBox)
+	                    .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+	                    //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+	                    //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+	                    .CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
+	                    .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
+	                    .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
+	                    .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    //.Padding(FMargin(0.0f,0.0f))
+                    ]
+#if insert
+					+ SHorizontalBox::Slot()
+					.FillWidth(0.005f)
+					.VAlign(VAlign_Fill)
+					.HAlign(HAlign_Fill)
+					.Padding(FMargin(0.0f,0.5f))
+					[
+						SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
+					]
+#endif
+					+ SHorizontalBox::Slot()
+					//.AutoWidth()
+					.FillWidth(0.4f)
+	                .VAlign(VAlign_Center)
+	                .HAlign(HAlign_Center)
+					.Padding(FMargin(*Pd))
+					//.Padding(FMargin(0.5f,0.5f))
+					[
+						NodeIcon(*IconName,*NodeMargin)
+					]
+#if insert
+					+ SHorizontalBox::Slot()
+					.FillWidth(0.005f)
+					.VAlign(VAlign_Fill)
+					.HAlign(HAlign_Fill)
+					.Padding(FMargin(0.0f,0.5f))
+					[
+						SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
+					]
+#endif
+	                + SHorizontalBox::Slot()
+	                .FillWidth(0.145f)
+	                .VAlign(VAlign_Fill)
+	                .HAlign(HAlign_Fill)
+					.Padding(FMargin(0.0f,0.5f))
+                    [
+                        SNew(SCheckBox)
+                        .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+		                //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+		                //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+		                .CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
+		                .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
+		                .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
+		                .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
+		                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
+						//.Padding(FMargin(0.0f,0.0f))
+					]
+#if insert
+					+ SHorizontalBox::Slot()
+					.FillWidth(0.005f)
+					.VAlign(VAlign_Fill)
+					.HAlign(HAlign_Fill)
+					.Padding(FMargin(0.0f,0.5f))
+					[
+						SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
+					]
+#endif
+	                + SHorizontalBox::Slot()
+	                .FillWidth(0.145f)
+	                .VAlign(VAlign_Fill)
+	                .HAlign(HAlign_Fill)
+					.Padding(FMargin(0.0f,0.5f))
 	                [
 	                    SNew(SCheckBox)
 	                    .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
@@ -205,13 +242,28 @@ void SPMSEdGraphNode::UpdateGraphNode()
 				]
 				
 			]
-			+ SVerticalBox::Slot()
+			+ SOverlay::Slot()
 			.VAlign(VAlign_Bottom)
 			.HAlign(HAlign_Fill)
-			.AutoHeight()
 			[
 				SAssignNew(BottomNodeBox, SHorizontalBox)
 				.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,20.0f)))
+			]
+			+ SOverlay::Slot()
+			.VAlign(VAlign_Top)
+			.HAlign(HAlign_Fill)
+			[
+				SAssignNew(TopNodeBox, SHorizontalBox)
+				.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,-20.0f)))
+			]
+			+ SOverlay::Slot()
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Left)
+			[
+				SNew(STextBlock)
+				.RenderTransform(FSlateRenderTransform(FVector2D(250.0f,0.0f)))
+				.Text(FText::FromString("TestNodeName"))
+				//.Font(Font)
 			]
 		]
 	];
@@ -345,6 +397,7 @@ void SPMSEdGraphNode::AddPin(const TSharedRef<SGraphPin>& PinToAdd)
 	
 	//TODO This is for Horizontal Layout for Houdini Style
 	PinToAdd->SetOwner(SharedThis(this));
+	PinToAdd->SetColorAndOpacity(FLinearColor(0.9f,0.9f,0.9f,1.0f));
 
 	const UEdGraphPin* PinObj = PinToAdd->GetPinObj();
 	const bool bAdvancedParameter = (PinObj != nullptr) && PinObj->bAdvancedView;
