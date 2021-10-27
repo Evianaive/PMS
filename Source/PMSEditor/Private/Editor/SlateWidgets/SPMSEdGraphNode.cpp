@@ -97,6 +97,8 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	FSlateFontInfo Font = FSlateFontInfo();
 	Font.Size = 100;
 	GetOrAddSlot(ENodeZone::Center)
+	//TODO 可否通过设置SlotSize来限制节点大小
+	//.SlotSize(FVector2D(200.f,60.f))
 	[
 		 SNew(SBorder)
 		 .Padding(FMargin(0.5f,0.5f))
@@ -256,18 +258,22 @@ void SPMSEdGraphNode::UpdateGraphNode()
 				SAssignNew(TopNodeBox, SHorizontalBox)
 				.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,-20.0f)))
 			]
-			+ SOverlay::Slot()
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Left)
-			[
-				SNew(STextBlock)
-				.RenderTransform(FSlateRenderTransform(FVector2D(250.0f,0.0f)))
-				.Text(FText::FromString("TestNodeName"))
-				//.Font(Font)
-			]
 		]
 	];
 
+	/*TODO 确认是否可以将TopNodeBox移动到其他ENodeZone之中
+	 *猜测如果是没有被占用的ENodeZone就可以使用，否则得在类里面override掉
+	 *可以直接使用SlotOffset来移动Slot
+	 *Clip的设置
+	*/
+	GetOrAddSlot(ENodeZone::Right)
+	.SlotSize(FVector2D(500.f,100.f))
+	[
+		SNew(STextBlock)
+		.Text(FText::FromString("TestNodeName"))
+		.RenderTransform(FSlateRenderTransform(FVector2D(250.f,0.0f)))
+		.Font(Font)
+	];
 	/*GetOrAddSlot(ENodeZone::Center)
 	[
 
