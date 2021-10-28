@@ -177,6 +177,7 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 			]
 			.HighDetail()
 			[
+				//PinWidgetRef
 				PinContent.ToSharedRef()
 			]
 		]

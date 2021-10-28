@@ -35,7 +35,7 @@ public:
 	UPROPERTY(Category="NodeSetting",EditAnywhere)
 		FVector2D NodePadding = FVector2D(9.0f,6.0f);
 	UPROPERTY(Category="NodeSetting",EditAnywhere)
-		FVector2D NodeSize = FVector2D(100.0f,60.0f);
+		FVector2D NodeSize = FVector2D(200.0f,60.0f);
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)
 		FString IconName = TEXT("polyexpand2d.svg");
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)
