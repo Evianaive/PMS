@@ -25,7 +25,8 @@ void SPMSEdGraphNode::Construct(const FArguments& InArgs, UPMSEdGraphNode* InNod
     IconName = &(InNode->IconName);
     NodeMargin = &(InNode->Margin);
     NodeColor = &(InNode->Color);
-	Pd = &(InNode->Pd);
+	NodePadding = &(InNode->NodePadding);
+	NodeSize = &(InNode->NodeSize);
 	UpdateGraphNode();
 }
 
@@ -95,10 +96,13 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	BottomNodeBox.Reset();
 
 	FSlateFontInfo Font = FSlateFontInfo();
+	//FSlateFontInfo font = FSlateFontInfo()
+	//SNew(STextBlock);
 	Font.Size = 100;
 	GetOrAddSlot(ENodeZone::Center)
-	//TODO 可否通过设置SlotSize来限制节点大小
-	//.SlotSize(FVector2D(200.f,60.f))
+	//TODO 可否通过设置SlotSize来限制节点大小，确认为什么会有边框与节点大小不匹配的问题，如何让外边界clipping内部checkbox
+	
+	.SlotSize(*NodeSize)
 	[
 		 SNew(SBorder)
 		 .Padding(FMargin(0.5f,0.5f))
@@ -106,6 +110,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		 .BorderBackgroundColor(*NodeColor)
 		 //.FlipForRightToLeftFlowDirection(true)
 		 .BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+		 .Clipping(EWidgetClipping::ClipToBoundsAlways)
 		// SNew(SHorizontalBox)
 		// + SHorizontalBox::Slot()
 		[
@@ -138,7 +143,9 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		                .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
 		                .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
 		                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
-						//.Padding(FMargin(0.0f,0.0f))
+						.Clipping(EWidgetClipping::OnDemand)
+	                    //.Padding(FMargin(0.0f,0.0f))
+		                
 					]
 #if insert
 					+ SHorizontalBox::Slot()
@@ -165,6 +172,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	                    .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
 	                    .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
 	                    .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    .Clipping(EWidgetClipping::OnDemand)
 	                    //.Padding(FMargin(0.0f,0.0f))
                     ]
 #if insert
@@ -182,7 +190,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 					.FillWidth(0.4f)
 	                .VAlign(VAlign_Center)
 	                .HAlign(HAlign_Center)
-					.Padding(FMargin(*Pd))
+					.Padding(FMargin(*NodePadding))
 					//.Padding(FMargin(0.5f,0.5f))
 					[
 						NodeIcon(*IconName,*NodeMargin)
@@ -212,7 +220,8 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		                .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
 		                .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
 		                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
-						//.Padding(FMargin(0.0f,0.0f))
+						.Clipping(EWidgetClipping::OnDemand)
+	                    //.Padding(FMargin(0.0f,0.0f))
 					]
 #if insert
 					+ SHorizontalBox::Slot()
@@ -239,6 +248,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	                    .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
 	                    .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
 	                    .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+	                    .Clipping(EWidgetClipping::OnDemand)
 	                    //.Padding(FMargin(0.0f,0.0f))
 	                ]
 				]
@@ -272,7 +282,9 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		SNew(STextBlock)
 		.Text(FText::FromString("TestNodeName"))
 		.RenderTransform(FSlateRenderTransform(FVector2D(250.f,0.0f)))
+		.Clipping(EWidgetClipping::Inherit)
 		.Font(Font)
+		//.Font(Font)
 	];
 	/*GetOrAddSlot(ENodeZone::Center)
 	[

@@ -33,9 +33,13 @@ public:
 	//SetOwner is used in AddPin，These two function are related to LeftNodeBox and RightNodeBox
 	virtual void SetOwner(const TSharedRef<SGraphPanel>& OwnerPanel) override;
 	virtual void AddPin(const TSharedRef<SGraphPin>& PinToAdd) override;
-	
+
+
+	//TODO Parameter related with NodeShape, this should be moved to SLATE_BEGIN_ARGS
 	FVector2D* NodeMargin;
-	FVector2D* Pd;
+	FVector2D* NodePadding;
+	FVector2D* NodeSize;
+	
 	FString* IconName;
 	FLinearColor* NodeColor;
 	//为了实现上下的节点输入Box
