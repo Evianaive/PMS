@@ -54,7 +54,25 @@ void UPMSEdGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Context
 
 const FPinConnectionResponse UPMSEdGraphSchema::CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const
 {
-	return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_B,TEXT("Creat"));
+	if(A->GetOwningNode()==B->GetOwningNode())
+	{
+		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW,TEXT("You can't link Pins who belong to same Node"));
+	}
+	if(A->Direction==B->Direction)
+	{
+		FFormatNamedArguments InputType;
+		if(A->Direction==EEdGraphPinDirection::EGPD_Input)
+		{
+			InputType.Add(TEXT("PinType"),FText::FromString("input"));
+		}
+		else
+		{
+			InputType.Add(TEXT("PinType"),FText::FromString("output"));
+		}
+		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW,FText::Format(LOCTEXT("NewConnectionFailTips","You can't link two {PinType}"),InputType));
+	}
+	//TODO 需要添加检测是否连线成环的部分
+	return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_B,TEXT("Create"));
 }
 
 FConnectionDrawingPolicy* UPMSEdGraphSchema::CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID,
