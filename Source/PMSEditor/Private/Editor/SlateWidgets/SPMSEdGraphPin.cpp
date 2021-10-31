@@ -117,12 +117,13 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 			+SHorizontalBox::Slot()
 			.FillWidth(1.0f)
 			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Fill)
 			.Padding(0, 0, InArgs._SideToSideMargin, 0)
 			[
 				SNew(SVerticalBox)
 				+SVerticalBox::Slot()
 				.HAlign(HAlign_Center)
-				.VAlign(VAlign_Center)
+				.AutoHeight()
 				[
 					PinWidgetRef
 				]	
@@ -189,6 +190,38 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 		.OnSetInteractiveWindowLocation(this, &SPMSEdGraphPin::OnSetInteractiveTooltipLocation);
 
 	SetToolTip(TooltipWidget);
+}
+
+FSlateColor SPMSEdGraphPin::GetPinColor() const
+{
+	// UEdGraphPin* GraphPin = GetPinObj();
+	// if (GraphPin && !GraphPin->IsPendingKill())
+	// {
+	// 	if (GraphPin->bIsDiffing)
+	// 	{
+	// 		return FSlateColor(FLinearColor(0.9f, 0.2f, 0.15f));
+	// 	}
+	// 	if (GraphPin->bOrphanedPin)
+	// 	{
+	// 		return FSlateColor(FLinearColor::Red);
+	// 	}
+	// 	if (const UEdGraphSchema* Schema = GraphPin->GetSchema())
+	// 	{
+	// 		if (!GetPinObj()->GetOwningNode()->IsNodeEnabled() || GetPinObj()->GetOwningNode()->IsDisplayAsDisabledForced() || !IsEditingEnabled() || GetPinObj()->GetOwningNode()->IsNodeUnrelated())
+	// 		{
+	// 			return Schema->GetPinTypeColor(GraphPin->PinType) * FLinearColor(1.0f, 1.0f, 1.0f, 0.5f);
+	// 		}
+	//
+	// 		return Schema->GetPinTypeColor(GraphPin->PinType) * PinColorModifier;
+	// 	}
+	// }
+
+	return FLinearColor::White;
+}
+
+const FSlateBrush* SPMSEdGraphPin::GetPinIcon() const
+{
+	return SGraphPin::GetPinIcon();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

@@ -42,7 +42,11 @@ public:
 	
 	FString* IconName;
 	FLinearColor* NodeColor;
-	//为了实现上下的节点输入Box
+	//为了实现上下的节点输入Box，原先为LeftNodeBox和RightNodeBox
 	TSharedPtr<SHorizontalBox> TopNodeBox;
 	TSharedPtr<SHorizontalBox> BottomNodeBox;
+
+	//为了实现侧边浮动可编辑的Label
+	TSharedPtr<SEditableText> Label;
+	
 };

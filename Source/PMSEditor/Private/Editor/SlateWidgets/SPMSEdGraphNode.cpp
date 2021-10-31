@@ -97,10 +97,12 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	TopNodeBox.Reset();
 	BottomNodeBox.Reset();
 
-	FSlateFontInfo Font = FSlateFontInfo();
+	//FSlateFontInfo Font = FSlateFontInfo();
+	int32 FontSize = 20;
+	FSlateFontInfo FontDefault = FCoreStyle::GetDefaultFontStyle("Regular", FontSize);
 	//FSlateFontInfo font = FSlateFontInfo()
 	//SNew(STextBlock);
-	Font.Size = 100;
+	//Font.Size = 100;
 
 	FVector2D PinHorizontalBoxSize = FVector2D(NodeSize->X*0.6,NodeSize->Y*0.25);
 	
@@ -252,15 +254,13 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	 *ClipµÄÉèÖÃ
 	*/
 	GetOrAddSlot(ENodeZone::Right)
-	.SlotSize(FVector2D(100.f,100.f))
+	.SlotSize(PinHorizontalBoxSize)
+	.SlotOffset(FVector2D((NodeSize->X-PinHorizontalBoxSize.X)/2,(+NodeSize->Y+5)))
 	.HAlign(HAlign_Center)
+	//.VAlign(VAlign_Center)
 	[
-		SNew(STextBlock)
-		.Text(FText::FromString("TestNodeName"))
-		.RenderTransform(FSlateRenderTransform(FVector2D(250.f,0.0f)))
-		.Clipping(EWidgetClipping::Inherit)
-		.Font(Font)
-		//.Font(Font)
+		SAssignNew(BottomNodeBox, SHorizontalBox)
+		//.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,20.0f)))		
 	];
 	GetOrAddSlot(ENodeZone::Left)
 	.SlotSize(PinHorizontalBoxSize)
@@ -272,13 +272,27 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		//.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,-20.0f)))
 	];
 	GetOrAddSlot(ENodeZone::BottomCenter)
-	.SlotSize(PinHorizontalBoxSize)
-	.SlotOffset(FVector2D((NodeSize->X-PinHorizontalBoxSize.X)/2,(+NodeSize->Y+5)))
-	.HAlign(HAlign_Center)
-	//.VAlign(VAlign_Center)
+	//.SlotSize(FVector2D(300.f,NodeSize->Y))
+	.SlotOffset(FVector2D(NodeSize->X,(NodeSize->Y-FontSize*3.0f/2.0f)/2))
+	//.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Center)
 	[
-		SAssignNew(BottomNodeBox, SHorizontalBox)
-		//.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,20.0f)))		
+		SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		[
+			SAssignNew(Label,SEditableText)
+			.Text(FText::FromString("TestNodeName"))
+			.Clipping(EWidgetClipping::Inherit)
+			.Font(FontDefault)
+			.ColorAndOpacity(FLinearColor(1.0f,1.0f,1.0f,0.8))
+			//.TextShapingMethod(ETextShapingMethod::FullShaping)
+			//.TextFlowDirection(ETextFlowDirection::RightToLeft)
+			//.MinDesiredWidth(100000.0f)
+			//.Font(Font)
+		]
 	];
 	/*GetOrAddSlot(ENodeZone::Center)
 	[

@@ -23,4 +23,7 @@ public:
 
 	/** Constructs this widget with InArgs */
 	void Construct(const FArguments& InArgs,UEdGraphPin* InPin);
+	virtual FSlateColor GetPinColor() const override;
+protected:
+	virtual const FSlateBrush* GetPinIcon() const override;
 };
