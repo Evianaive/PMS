@@ -31,8 +31,18 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 		GraphPinObj->GetOuter() ? *(GraphPinObj->GetOuter()->GetClass()->GetName()) : TEXT("NULL OUTER")
 	);
 
+	/*调整Icon类型为Original，即不带箭头的类型，
+	 *在SGraphPin的构造函数中有一句
+	 *EBlueprintPinStyleType StyleType = GetDefault<UGraphEditorSettings>()->DataPinStyle
+	 *这在SPMSEdGraphPin中还未实现
+	 */
+	
+	CachedImg_Pin_Connected = FEditorStyle::GetBrush( "Graph.Pin.Connected" );
+	CachedImg_Pin_Disconnected = FEditorStyle::GetBrush( "Graph.Pin.Disconnected" );
+	
+	/*输入类型是不是Input*/
 	const bool bIsInput = (GetDirection() == EGPD_Input);
-
+	
 	// Create the pin icon widget
 	TSharedRef<SWidget> PinWidgetRef = SPinTypeSelector::ConstructPinTypeImage(
 		MakeAttributeSP(this, &SPMSEdGraphPin::GetPinIcon ),
@@ -117,12 +127,13 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 			+SHorizontalBox::Slot()
 			.FillWidth(1.0f)
 			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Fill)
 			.Padding(0, 0, InArgs._SideToSideMargin, 0)
 			[
 				SNew(SVerticalBox)
 				+SVerticalBox::Slot()
 				.HAlign(HAlign_Center)
-				.VAlign(VAlign_Center)
+				.AutoHeight()
 				[
 					PinWidgetRef
 				]	
@@ -189,6 +200,38 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 		.OnSetInteractiveWindowLocation(this, &SPMSEdGraphPin::OnSetInteractiveTooltipLocation);
 
 	SetToolTip(TooltipWidget);
+}
+
+FSlateColor SPMSEdGraphPin::GetPinColor() const
+{
+	// UEdGraphPin* GraphPin = GetPinObj();
+	// if (GraphPin && !GraphPin->IsPendingKill())
+	// {
+	// 	if (GraphPin->bIsDiffing)
+	// 	{
+	// 		return FSlateColor(FLinearColor(0.9f, 0.2f, 0.15f));
+	// 	}
+	// 	if (GraphPin->bOrphanedPin)
+	// 	{
+	// 		return FSlateColor(FLinearColor::Red);
+	// 	}
+	// 	if (const UEdGraphSchema* Schema = GraphPin->GetSchema())
+	// 	{
+	// 		if (!GetPinObj()->GetOwningNode()->IsNodeEnabled() || GetPinObj()->GetOwningNode()->IsDisplayAsDisabledForced() || !IsEditingEnabled() || GetPinObj()->GetOwningNode()->IsNodeUnrelated())
+	// 		{
+	// 			return Schema->GetPinTypeColor(GraphPin->PinType) * FLinearColor(1.0f, 1.0f, 1.0f, 0.5f);
+	// 		}
+	//
+	// 		return Schema->GetPinTypeColor(GraphPin->PinType) * PinColorModifier;
+	// 	}
+	// }
+
+	return FLinearColor::White;
+}
+
+const FSlateBrush* SPMSEdGraphPin::GetPinIcon() const
+{
+	return SGraphPin::GetPinIcon();
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
