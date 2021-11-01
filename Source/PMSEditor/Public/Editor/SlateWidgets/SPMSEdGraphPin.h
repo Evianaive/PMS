@@ -14,7 +14,7 @@ public:
 	SLATE_BEGIN_ARGS(SPMSEdGraphPin)
 		: _PinLabelStyle(NAME_DefaultPinLabelStyle)
 		, _UsePinColorForText(false)
-		, _SideToSideMargin(5.0f)
+		, _SideToSideMargin(0.0f)
 		{}
 		SLATE_ARGUMENT(FName, PinLabelStyle)
 		SLATE_ARGUMENT(bool, UsePinColorForText)

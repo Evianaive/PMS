@@ -98,7 +98,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	BottomNodeBox.Reset();
 
 	//FSlateFontInfo Font = FSlateFontInfo();
-	int32 FontSize = 20;
+	int32 FontSize = 30;
 	FSlateFontInfo FontDefault = FCoreStyle::GetDefaultFontStyle("Regular", FontSize);
 	//FSlateFontInfo font = FSlateFontInfo()
 	//SNew(STextBlock);

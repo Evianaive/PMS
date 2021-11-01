@@ -6,6 +6,7 @@
 #include "PMSGraphNode.h"
 #include "Editor/PMSEdGraph.h"
 #include "Editor/PMSEdGraphNode.h"
+#include "Editor/SlateWidgets/FPMSConnectionDrawingPolicy.h"
 
 #define LOCTEXT_NAMESPACE "PMSEdGraphSchema"
 
@@ -79,7 +80,7 @@ FConnectionDrawingPolicy* UPMSEdGraphSchema::CreateConnectionDrawingPolicy(int32
 	float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements,
 	UEdGraph* InGraphObj) const
 {
-	return Super::CreateConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, InZoomFactor, InClippingRect,
+	return new FPMSConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, InZoomFactor, InClippingRect,
 	                                            InDrawElements, InGraphObj);
 }
 
