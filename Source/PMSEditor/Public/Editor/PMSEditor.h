@@ -56,6 +56,7 @@ private:
 	TSharedRef<SDockTab> SpawnTab_UpdateGraph(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Details(const FSpawnTabArgs& Args);
 
+	void OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionNode);
 
 #if test
 	//TArray< TUniquePtr< FSlateBrush > > DynamicBrushes;

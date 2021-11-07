@@ -71,38 +71,46 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
         PMSGraph = Cast<UPMSEdGraph>(PMSGraphAsset->EdGraph);
         //PMSGraph = PMSGraphAsset->EdGraph;
     }
+
+    SGraphEditor::FGraphEditorEvents InGraphEvent;
+    InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
+    if (PMSGraphAsset->EdGraph != nullptr) {
+        EdGraphEditor = SNew(SGraphEditor)
+            .GraphToEdit(PMSGraphAsset->EdGraph)
+        .GraphEvents(InGraphEvent);
+    }
     //check(PMSGraphAsset->EdGraph != nullptr)
 
-        TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("PMS_Test")
-        ->AddArea
+    TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("PMS_Test")
+    ->AddArea
+    (
+        FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
+        //->Split
+        //(
+        //    FTabManager::NewStack()
+        //    ->AddTab(GetToolbarTabId(), ETabState::OpenedTab)
+        //    ->SetHideTabWell(true)
+        //    ->SetSizeCoefficient(0.2f)
+        //)
+        ->Split
         (
-            FTabManager::NewPrimaryArea()->SetOrientation(Orient_Vertical)
-            //->Split
-            //(
-            //    FTabManager::NewStack()
-            //    ->AddTab(GetToolbarTabId(), ETabState::OpenedTab)
-            //    ->SetHideTabWell(true)
-            //    ->SetSizeCoefficient(0.2f)
-            //)
+            FTabManager::NewSplitter()->SetOrientation(Orient_Horizontal)
             ->Split
             (
-                FTabManager::NewSplitter()->SetOrientation(Orient_Horizontal)
-                ->Split
-                (
-                    FTabManager::NewStack()
-                    ->AddTab(PMSGraphTabId, ETabState::OpenedTab)
-                    ->SetHideTabWell(true)
-                    ->SetSizeCoefficient(0.85f)
-                )
-                ->Split
-                (
-                    FTabManager::NewStack()
-                    ->AddTab(PMSDetailsTabId, ETabState::OpenedTab)
-                    ->SetHideTabWell(true)
-                    ->SetSizeCoefficient(0.15f)
-                )
+                FTabManager::NewStack()
+                ->AddTab(PMSGraphTabId, ETabState::OpenedTab)
+                ->SetHideTabWell(true)
+                ->SetSizeCoefficient(0.85f)
             )
-        );
+            ->Split
+            (
+                FTabManager::NewStack()
+                ->AddTab(PMSDetailsTabId, ETabState::OpenedTab)
+                ->SetHideTabWell(true)
+                ->SetSizeCoefficient(0.15f)
+            )
+        )
+    );
 
     FAssetEditorToolkit::InitAssetEditor(InMode, InitToolkitHost, FName("GraphEditorIdentifier"), Layout, true, true, PMSGraphAsset);
 }
@@ -130,13 +138,7 @@ FString FPMSEditor::GetWorldCentricTabPrefix() const
 TSharedRef<SDockTab> FPMSEditor::SpawnTab_UpdateGraph(const FSpawnTabArgs& Args) {
     check(Args.GetTabId() == PMSGraphTabId);
     
-    if (PMSGraphAsset->EdGraph != nullptr) {
-        EdGraphEditor = SNew(SGraphEditor)
-            .GraphToEdit(PMSGraphAsset->EdGraph);
-    }
-    else {
-
-    }
+    check(EdGraphEditor);
     return SNew(SDockTab)
         .TabRole(ETabRole::PanelTab)
         [
@@ -164,7 +166,7 @@ TSharedRef<SDockTab> FPMSEditor::SpawnTab_Details(const FSpawnTabArgs& Args)
     FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 
     DetailsWidget = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
-    DetailsWidget->SetObject(PMSGraph->SelectNode);
+    DetailsWidget->SetObject(nullptr);
 
     return SNew(SDockTab)
         .TabRole(ETabRole::PanelTab)
@@ -174,6 +176,25 @@ TSharedRef<SDockTab> FPMSEditor::SpawnTab_Details(const FSpawnTabArgs& Args)
 #endif
 }
 
+void FPMSEditor::OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionNode)
+{
+    if(SelectionNode.Num() > 0)
+    {
+        TArray<class UObject*> SelectionNodeArray = SelectionNode.Array();
+        UObject* NodeObjectToShow = SelectionNodeArray[0];
+        int32 MinPosX = Cast<UEdGraphNode>(NodeObjectToShow)->NodePosX; 
+        for(auto& CurIterObject:SelectionNodeArray)
+        {
+            UEdGraphNode* CurIterNode = Cast<UEdGraphNode>(CurIterObject);
+            if(MinPosX > CurIterNode->NodePosX)
+            {
+                MinPosX = CurIterNode->NodePosX;
+                NodeObjectToShow = CurIterObject;
+            }
+        }
+        DetailsWidget->SetObject(NodeObjectToShow);
+    }
+}
 #if test
 //TSharedRef<SWidget> FPMSEditor::ConstructIconsGallery()
 //{

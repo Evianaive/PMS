@@ -18,5 +18,5 @@ class PMSEDITOR_API UPMSEdGraph : public UEdGraph
 public:
 	void AddTestNode();
 	
-	UPMSEdGraphNode* SelectNode;
+	// UPMSEdGraphNode* SelectNode;
 };
