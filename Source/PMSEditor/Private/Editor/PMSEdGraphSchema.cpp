@@ -25,8 +25,8 @@ UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNo
 	const FScopedTransaction Transaction(LOCTEXT("ProceduralModelingSystemEditorNewPMSEdGraphNode", "PMSEditor: New PMSEdGraphNode"));
 	ParentGraph->Modify();
 
-	PMSEdGraphNodeToSpawn->NodePosX = Location.X;
-	PMSEdGraphNodeToSpawn->NodePosY = Location.Y;
+	PMSEdGraphNodeToSpawn->NodePosX = Location.X-PMSEdGraphNodeToSpawn->NodeSize.X/2;
+	PMSEdGraphNodeToSpawn->NodePosY = Location.Y-PMSEdGraphNodeToSpawn->NodeSize.Y/2;
 	PMSEdGraphNodeToSpawn->CreateNewGuid();
 	PMSEdGraphNodeToSpawn->PostPasteNode();
 	PMSEdGraphNodeToSpawn->AllocateDefaultPins();

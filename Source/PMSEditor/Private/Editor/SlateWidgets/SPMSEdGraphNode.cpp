@@ -16,9 +16,26 @@
 
 //Used in SetOwner
 #include "SGraphPanel.h"
+#include "Editor/PMSEdGraph.h"
 
-#define insert 0
+#define insert 1
+
+#if insert
+#define INSERT_BLOCK\
+			+ SHorizontalBox::Slot()\
+			.AutoWidth()\
+			.VAlign(VAlign_Fill)\
+			.HAlign(HAlign_Fill)\
+			.Padding(FMargin(0.0f,0.5f))\
+			[\
+				SNew(SBorder)\
+				.BorderImage(new FSlateColorBrush(FLinearColor(0.3f,0.3f,0.3f)))\
+				.ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))\
+				.Padding(FMargin(1.0f,0.0f))\
+			]
+#endif
 //可以把所有图标用它那个search svg的东西画在左边，然后拖到场景中的方式
+//Todo 查看InArgs里面有哪些东西
 void SPMSEdGraphNode::Construct(const FArguments& InArgs, UPMSEdGraphNode* InNode)
 {
 	GraphNode = InNode;
@@ -84,10 +101,11 @@ auto NodeIcon = [](FString NodeName, FVector2D NodeMargin) -> TSharedRef<SImage>
     return SNew(SImage)
 		//.FlowDirectionPreference(EFlowDirectionPreference::RightToLeft)
 		//.RenderTransform(FSlateRenderTransform(FVector2D(0.0f,-60.0f)))
-		.FlipForRightToLeftFlowDirection(true)
+		//.FlipForRightToLeftFlowDirection(true)
         .Image(VectorImageBrush1);
 };
-
+#define BOX_BRUSH( RelativePath, ... ) FSlateBoxBrush( RootToContentDir( RelativePath, TEXT(".png") ), __VA_ARGS__ )
+#define RootToContentDir StyleSet->RootToContentDir
 void SPMSEdGraphNode::UpdateGraphNode()
 {
 	InputPins.Empty();
@@ -100,6 +118,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	//FSlateFontInfo Font = FSlateFontInfo();
 	int32 FontSize = 30;
 	FSlateFontInfo FontDefault = FCoreStyle::GetDefaultFontStyle("Regular", FontSize);
+	//FSlateBrush CheckBox =  new BOX_BRUSH( "/Persona/StateMachineEditor/StateNode_Node_Body", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f) )
+	FSlateBoxBrush* LefeCheckBox = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	FSlateBoxBrush* RightCheckBox = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	
 	//FSlateFontInfo font = FSlateFontInfo()
 	//SNew(STextBlock);
 	//Font.Size = 100;
@@ -109,7 +131,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	GetOrAddSlot(ENodeZone::Center)
 	//TODO 可否通过设置SlotSize来限制节点大小，确认为什么会有边框与节点大小不匹配的问题，如何让外边界clipping内部checkbox
 	//.HAlign(HAlign_Fill)
-	//.SlotSize(*NodeSize)
+	.SlotSize(*NodeSize)
 	[
 		SNew(SBorder)
 		.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
@@ -122,7 +144,8 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		[
 			SNew(SHorizontalBox)	                
             + SHorizontalBox::Slot()
-            .FillWidth(0.145f)
+            //.FillWidth(0.145f)
+            .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,1.0f))
@@ -130,28 +153,22 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 SNew(SCheckBox)
                 .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
                 //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-                //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                .CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
+                .CheckedImage(LefeCheckBox)
+                //.CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
                 .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
                 .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
                 .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
                 .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
 				.Clipping(EWidgetClipping::ClipToBoundsAlways)
-                //.Padding(FMargin(0.0f,0.0f))
+                .Padding(FMargin(14.0f,29.0f))
                 
 			]
 #if insert
-			+ SHorizontalBox::Slot()
-			.FillWidth(0.005f)
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,0.5f))
-			[
-				SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
-			]
+			INSERT_BLOCK
 #endif
             + SHorizontalBox::Slot()
-            .FillWidth(0.145f)
+            //.FillWidth(0.145f)
+            .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,1.0f))
@@ -166,17 +183,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
                 .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
                 .Clipping(EWidgetClipping::ClipToBoundsAlways)
-                //.Padding(FMargin(0.0f,0.0f))
+                .Padding(FMargin(14.0f,29.0f))
             ]
 #if insert
-			+ SHorizontalBox::Slot()
-			.FillWidth(0.005f)
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,0.5f))
-			[
-				SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
-			]
+			INSERT_BLOCK
 #endif
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
@@ -189,17 +199,11 @@ void SPMSEdGraphNode::UpdateGraphNode()
 				NodeIcon(*IconName,*NodeMargin)
 			]
 #if insert
-			+ SHorizontalBox::Slot()
-			.FillWidth(0.005f)
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,0.5f))
-			[
-				SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
-			]
+			INSERT_BLOCK
 #endif
             + SHorizontalBox::Slot()
-            .FillWidth(0.145f)
+            //.FillWidth(0.145f)
+            .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,1.0f))
@@ -214,20 +218,14 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
                 .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
 				.Clipping(EWidgetClipping::ClipToBoundsAlways)
-                //.Padding(FMargin(0.0f,0.0f))
+                .Padding(FMargin(14.0f,29.0f))
 			]
 #if insert
-			+ SHorizontalBox::Slot()
-			.FillWidth(0.005f)
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,1.0f))
-			[
-				SNew(SImage).ColorAndOpacity(FLinearColor(0.3f,0.3f,0.3f,1.0f))
-			]
+			INSERT_BLOCK
 #endif
             + SHorizontalBox::Slot()
-            .FillWidth(0.145f)
+            //.FillWidth(0.145f)
+            .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,1.0f))
@@ -242,7 +240,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
                 .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
                 .Clipping(EWidgetClipping::ClipToBoundsAlways)
-                //.Padding(FMargin(0.0f,0.0f))
+                .Padding(FMargin(14.0f,29.0f))
             ]
 		]
 		
@@ -486,9 +484,20 @@ void SPMSEdGraphNode::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter,
             GraphNode->Modify(bMarkDirty);
             GraphNode->NodePosX = NewPosition.X;
             GraphNode->NodePosY = NewPosition.Y;
-
-        	//TODO check 一下这行是不是自己加的
-            UpdateGraphNode();
+        	//TSharedPtr<SGraphPanel> ParentPanel = GetOwnerPanel();
+        	//TSharedPtr<SNodePanel> NodePanel = ParentPanel;
+        	//SharedThis(SNode)
+        	//TSharedPtr<SNodePanel> NodePanel = ParentPanelPtr.Pin();
+			//NodePanel->NodeUnderMousePtr;
+        	
+        	//Cast<SNodePanel>(GetParentWidget());
+        	//GetOwnerPanel()->NodeUnderMousePtr;
+        	//if(ParentPanel->
+        	Cast<UPMSEdGraphNode>(GraphNode)->PMSSnapToGrid(128.0f,16.0f);
+        	// UPMSEdGraph* Graph = Cast<UPMSEdGraph>(GraphNode->GetOuter());
+        	// Graph->SelectNode = Cast<UPMSEdGraphNode>(GraphNode);
+            // UpdateGraphNode();
         }
     }
 }
+
