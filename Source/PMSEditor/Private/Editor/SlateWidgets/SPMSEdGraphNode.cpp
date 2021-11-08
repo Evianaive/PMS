@@ -119,8 +119,12 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	int32 FontSize = 30;
 	FSlateFontInfo FontDefault = FCoreStyle::GetDefaultFontStyle("Regular", FontSize);
 	//FSlateBrush CheckBox =  new BOX_BRUSH( "/Persona/StateMachineEditor/StateNode_Node_Body", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f) )
-	FSlateBoxBrush* LefeCheckBox = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
-	FSlateBoxBrush* RightCheckBox = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	FSlateBoxBrush* StateNodeCheckBox = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	FSlateBoxBrush* StateNodeCheckBox2 = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Button_Left.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	//FSlateBoxBrush* StateNodeCheckBox = new FSlateBoxBrush(FPaths::ProjectPluginsDir() / TEXT("PMS/Resources/NodeBrush/StateNode_Node_Body.png"), FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	FSlateBoxBrush* LeftCheckBox = new FSlateBoxBrush(FPaths::ProjectPluginsDir() / TEXT("PMS/Resources/NodeBrush/StateNode_Node_Button_Left.png"), FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	FSlateBoxBrush* RightCheckBox = new FSlateBoxBrush(FPaths::ProjectPluginsDir() / TEXT("PMS/Resources/NodeBrush/StateNode_Node_Button_Right.png"), FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	FSlateBoxBrush* CenterCheckBox = new FSlateBoxBrush(FPaths::ProjectPluginsDir() / TEXT("PMS/Resources/NodeBrush/StateNode_Node_Button_Center.png"), FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
 	
 	//FSlateFontInfo font = FSlateFontInfo()
 	//SNew(STextBlock);
@@ -153,7 +157,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 SNew(SCheckBox)
                 .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
                 //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-                .CheckedImage(LefeCheckBox)
+                .CheckedImage(StateNodeCheckBox)
                 //.CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
                 .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
                 .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
@@ -177,7 +181,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
                 //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
                 //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                .CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
+                .CheckedImage(StateNodeCheckBox)
                 .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
                 .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
                 .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
@@ -212,7 +216,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
                 //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
                 //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                .CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
+                .CheckedImage(StateNodeCheckBox2)
                 .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
                 .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
                 .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
@@ -234,7 +238,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
                 .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
                 //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
                 //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                .CheckedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Primary")))
+                .CheckedImage(StateNodeCheckBox2)
                 .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
                 .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
                 .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
