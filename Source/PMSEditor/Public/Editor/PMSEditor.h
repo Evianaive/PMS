@@ -57,7 +57,7 @@ private:
 	TSharedRef<SDockTab> SpawnTab_Details(const FSpawnTabArgs& Args);
 
 	void OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionNode);
-
+	void OnFinishedChangingPMSProperties(const FPropertyChangedEvent& InEvent);
 #if test
 	//TArray< TUniquePtr< FSlateBrush > > DynamicBrushes;
 	//TSharedRef<SWidget> ConstructIconsGallery();

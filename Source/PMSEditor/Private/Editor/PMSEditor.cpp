@@ -3,6 +3,7 @@
 //#include "..\..\Public\Editor\PMSEditor.h"
 //#include <Framework/Docking/TabManager.h>
 
+#include "SGraphNode.h"
 #include "Editor/PMSEdGraph.h"
 #include "Editor/PMSEdGraphSchema.h"
 #include "Editor/PMSEdGraphNode.h"
@@ -166,6 +167,7 @@ TSharedRef<SDockTab> FPMSEditor::SpawnTab_Details(const FSpawnTabArgs& Args)
     FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 
     DetailsWidget = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
+    DetailsWidget->OnFinishedChangingProperties().AddSP(this,&FPMSEditor::OnFinishedChangingPMSProperties);
     DetailsWidget->SetObject(nullptr);
 
     return SNew(SDockTab)
@@ -194,6 +196,18 @@ void FPMSEditor::OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionN
         }
         DetailsWidget->SetObject(NodeObjectToShow);
     }
+}
+
+void FPMSEditor::OnFinishedChangingPMSProperties(const FPropertyChangedEvent& PropertyChangedEvent)
+{
+    //TSharedPtr<UPMSEdGraphNode> Node = DetailsWidget->GetSelectedObjects()[0];
+    
+    for (int32 Index = 0; Index < PropertyChangedEvent.GetNumObjectsBeingEdited(); ++Index)
+    {
+        const UObject* EditedObject = PropertyChangedEvent.GetObjectBeingEdited(Index);
+        Cast<UPMSEdGraphNode>(EditedObject)->SlateNode->UpdateGraphNode();
+    }
+    
 }
 #if test
 //TSharedRef<SWidget> FPMSEditor::ConstructIconsGallery()
