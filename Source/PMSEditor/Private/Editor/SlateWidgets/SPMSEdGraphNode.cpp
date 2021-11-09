@@ -15,8 +15,14 @@
 #include "Editor/SlateWidgets/SPMSEdGraphPin.h"
 
 //Used in SetOwner
+#include "GeomTools.h"
+#include "MeshDescription.h"
+//#include "RawMesh.h"
+
 #include "SGraphPanel.h"
 #include "Editor/PMSEdGraph.h"
+#include "Slate/SlateVectorArtData.h"
+//#include "Slate/S2DMeshWidget.h"
 
 #define insert 1
 
@@ -34,7 +40,65 @@
 				.Padding(FMargin(1.0f,0.0f))\
 			]
 #endif
-//可以把所有图标用它那个search svg的东西画在左边，然后拖到场景中的方式
+
+//Todo 此部分后续要变为SMeshWidget的Style
+// TArray<UStaticMesh> StaticMeshFromJson(FString JsonFilePath)
+// {
+// 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReader<TCHAR>::Create(JsonFilePath);
+// 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+//
+// 	FJsonSerializer::Deserialize(JsonReader,JsonObject);
+// 	//variable name is the same as its name in json
+// 	FString name = JsonObject->GetStringField("name");
+// 	TSharedPtr<FJsonObject> flags = JsonObject->GetObjectField("flags");
+// 	TArray<TSharedPtr<FJsonValue>> outline = JsonObject->GetArrayField("outline");
+// 	TArray<TSharedPtr<FJsonValue>> inputs = JsonObject->GetArrayField("inputs");
+// 	TArray<TSharedPtr<FJsonValue>> outputs = JsonObject->GetArrayField("outputs");
+// 	TArray<TSharedPtr<FJsonValue>> icon = JsonObject->GetArrayField("icon");
+// 	TArray<UStaticMesh> ShapeVectors;
+// 	for(int i=0;i<4;i++)
+// 	{
+// 		TSharedPtr<FJsonObject> CurFlag = flags->GetObjectField(FString::FromInt(i));
+// 		TArray<TSharedPtr<FJsonValue>> outline = CurFlag->GetArrayField("outline");
+// 		FRawMesh FlagRawMesh;
+// 		FString MeshName = "Flag"+FString::FromInt(i);
+// 		//init FlagPolygon, param means the count of triangle?
+// 		FClipSMPolygon FlagPolygon(outline.Num()-2);
+// 		TArray<FClipSMTriangle> FlagTriangles;
+// 		//FlagRawMesh.VertexPositions.Add()
+// 		//FlagRawMesh.WedgeIndices.Add();
+// 		
+// 		
+// 		for(TSharedPtr<FJsonValue> Point:outline)
+// 		{
+// 			auto PointElementsArray = Point->AsArray();
+// 			FClipSMVertex Flagvertex;
+// 			Flagvertex.Pos = FVector3f(PointElementsArray[0]->AsNumber(),0,PointElementsArray[1]->AsNumber());
+// 			FlagPolygon.Vertices.Add(Flagvertex);
+// 		}
+// 		//these triangles has unique points
+// 		FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon);
+// 		// ;
+// 		int vtxid=0;
+// 		for(auto trin:FlagTriangles)
+// 		{
+// 			for(auto vtx:trin.Vertices)
+// 			{
+// 				FlagRawMesh.VertexPositions.Add(vtx.Pos);
+// 				FlagRawMesh.WedgeIndices.Add(vtxid);
+// 				//FlagRawMesh.WedgeColors.Add(FColor());
+// 				FlagRawMesh.WedgeTangentX.Add(vtx.TangentX);
+// 				FlagRawMesh.WedgeTangentY.Add(vtx.TangentY);
+// 				FlagRawMesh.WedgeTangentZ.Add(vtx.TangentZ);
+// 				FlagRawMesh.WedgeTexCoords->Add(vtx.UVs[0]);
+// 				vtxid++;
+// 			}
+// 		}
+// 		FStaticMeshSourceModel& SrcModel = FlagStaticMesh->AddSourceModel();
+// 	}
+// }
+
+
 //Todo 查看InArgs里面有哪些东西
 void SPMSEdGraphNode::Construct(const FArguments& InArgs, UPMSEdGraphNode* InNode)
 {
@@ -114,6 +178,8 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	// Reset variables that are going to be exposed, in case we are refreshing an already setup node.
 	TopNodeBox.Reset();
 	BottomNodeBox.Reset();
+	//USlateVectorArtData InMeshData;
+	//InMeshData.
 
 	//FSlateFontInfo Font = FSlateFontInfo();
 	int32 FontSize = 30;
@@ -296,6 +362,11 @@ void SPMSEdGraphNode::UpdateGraphNode()
 			//.Font(Font)
 		]
 	];
+	// GetOrAddSlot(ENodeZone::BottomRight)
+	// .SlotOffset(*NodeSize)
+	// [
+	// 	SNew(SMeshWidget,InMeshData)		
+	// ];
 	/*GetOrAddSlot(ENodeZone::Center)
 	[
 
