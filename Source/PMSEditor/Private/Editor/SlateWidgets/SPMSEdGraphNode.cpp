@@ -22,7 +22,10 @@
 #include "SGraphPanel.h"
 #include "Editor/PMSEdGraph.h"
 #include "Slate/SlateVectorArtData.h"
-//#include "Slate/S2DMeshWidget.h"
+#include "Editor/SlateWidgets/S2DMeshWidget.h"
+#include "Json.h"
+#include "Editor/Style/PMSEditorStyle.h"
+//#include "Json/Public/Serialization/JsonSerializer.h"
 
 #define insert 1
 
@@ -42,61 +45,86 @@
 #endif
 
 //Todo 此部分后续要变为SMeshWidget的Style
-// TArray<UStaticMesh> StaticMeshFromJson(FString JsonFilePath)
-// {
-// 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReader<TCHAR>::Create(JsonFilePath);
-// 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
-//
-// 	FJsonSerializer::Deserialize(JsonReader,JsonObject);
-// 	//variable name is the same as its name in json
-// 	FString name = JsonObject->GetStringField("name");
-// 	TSharedPtr<FJsonObject> flags = JsonObject->GetObjectField("flags");
-// 	TArray<TSharedPtr<FJsonValue>> outline = JsonObject->GetArrayField("outline");
-// 	TArray<TSharedPtr<FJsonValue>> inputs = JsonObject->GetArrayField("inputs");
-// 	TArray<TSharedPtr<FJsonValue>> outputs = JsonObject->GetArrayField("outputs");
-// 	TArray<TSharedPtr<FJsonValue>> icon = JsonObject->GetArrayField("icon");
-// 	TArray<UStaticMesh> ShapeVectors;
-// 	for(int i=0;i<4;i++)
-// 	{
-// 		TSharedPtr<FJsonObject> CurFlag = flags->GetObjectField(FString::FromInt(i));
-// 		TArray<TSharedPtr<FJsonValue>> outline = CurFlag->GetArrayField("outline");
-// 		FRawMesh FlagRawMesh;
-// 		FString MeshName = "Flag"+FString::FromInt(i);
-// 		//init FlagPolygon, param means the count of triangle?
-// 		FClipSMPolygon FlagPolygon(outline.Num()-2);
-// 		TArray<FClipSMTriangle> FlagTriangles;
-// 		//FlagRawMesh.VertexPositions.Add()
-// 		//FlagRawMesh.WedgeIndices.Add();
-// 		
-// 		
-// 		for(TSharedPtr<FJsonValue> Point:outline)
-// 		{
-// 			auto PointElementsArray = Point->AsArray();
-// 			FClipSMVertex Flagvertex;
-// 			Flagvertex.Pos = FVector3f(PointElementsArray[0]->AsNumber(),0,PointElementsArray[1]->AsNumber());
-// 			FlagPolygon.Vertices.Add(Flagvertex);
-// 		}
-// 		//these triangles has unique points
-// 		FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon);
-// 		// ;
-// 		int vtxid=0;
-// 		for(auto trin:FlagTriangles)
-// 		{
-// 			for(auto vtx:trin.Vertices)
-// 			{
-// 				FlagRawMesh.VertexPositions.Add(vtx.Pos);
-// 				FlagRawMesh.WedgeIndices.Add(vtxid);
-// 				//FlagRawMesh.WedgeColors.Add(FColor());
-// 				FlagRawMesh.WedgeTangentX.Add(vtx.TangentX);
-// 				FlagRawMesh.WedgeTangentY.Add(vtx.TangentY);
-// 				FlagRawMesh.WedgeTangentZ.Add(vtx.TangentZ);
-// 				FlagRawMesh.WedgeTexCoords->Add(vtx.UVs[0]);
-// 				vtxid++;
-// 			}
-// 		}
-// 		FStaticMeshSourceModel& SrcModel = FlagStaticMesh->AddSourceModel();
-// 	}
-// }
+TArray<TArray<FClipSMTriangle>> StaticMeshFromJson(FString JsonFilePath)
+{
+	FString JsonStr;
+	TArray<TArray<FClipSMTriangle>> OutGeo;
+	bool bLoadSuccess = FFileHelper::LoadFileToString(JsonStr,*JsonFilePath);
+	if(!bLoadSuccess)
+	{
+		return OutGeo;
+	}
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(JsonStr);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+
+	FJsonSerializer::Deserialize(JsonReader,JsonObject);
+	//variable name is the same as its name in json
+	FString name = JsonObject->GetStringField("name");
+	TSharedPtr<FJsonObject> flags = JsonObject->GetObjectField("flags");
+	TArray<TSharedPtr<FJsonValue>> outline = JsonObject->GetArrayField("outline");
+	TArray<TSharedPtr<FJsonValue>> inputs = JsonObject->GetArrayField("inputs");
+	TArray<TSharedPtr<FJsonValue>> outputs = JsonObject->GetArrayField("outputs");
+	TArray<TSharedPtr<FJsonValue>> icon = JsonObject->GetArrayField("icon");
+	//TArray<UStaticMesh> ShapeVectors;
+	for(int i=0;i<4;i++)
+	{
+		TSharedPtr<FJsonObject> CurFlag = flags->GetObjectField(FString::FromInt(i));
+		TArray<TSharedPtr<FJsonValue>> CurOutline = CurFlag->GetArrayField("outline");
+		//FRawMesh FlagRawMesh;
+		FString MeshName = "Flag"+FString::FromInt(i);
+		//init FlagPolygon, param means the count of triangle?
+		FClipSMPolygon FlagPolygon(CurOutline.Num()-2);
+		TArray<FClipSMTriangle> FlagTriangles;
+		//FlagRawMesh.VertexPositions.Add()
+		//FlagRawMesh.WedgeIndices.Add();
+		
+		FVector2D MaxBound(CurOutline[0]->AsArray()[0]->AsNumber()*100,CurOutline[1]->AsArray()[0]->AsNumber()*100);
+		FVector2D MinBound(MaxBound);
+		for(TSharedPtr<FJsonValue> Point:CurOutline)
+		{
+			auto PointElementsArray = Point->AsArray();
+			FClipSMVertex Flagvertex;
+			Flagvertex.Pos = FVector3f(PointElementsArray[0]->AsNumber()*100,0,PointElementsArray[1]->AsNumber()*100);
+			Flagvertex.Color = FColor::White;
+			FlagPolygon.Vertices.Add(Flagvertex);
+			MaxBound.X = FMath::Max(Flagvertex.Pos.X,MaxBound.X);
+			MaxBound.Y = FMath::Max(Flagvertex.Pos.Z,MaxBound.Y);
+			MinBound.X = FMath::Min(Flagvertex.Pos.X,MinBound.X);
+			MinBound.Y = FMath::Min(Flagvertex.Pos.Z,MinBound.Y);
+		}
+		for(FClipSMVertex Flagvertex:FlagPolygon.Vertices)
+		{
+			Flagvertex.UVs[0].X = (Flagvertex.Pos.X-MinBound.X)/(MaxBound.X-MinBound.X);
+			Flagvertex.UVs[1].X = Flagvertex.UVs[0].X;
+			Flagvertex.UVs[2].X = Flagvertex.UVs[1].X;
+			
+			Flagvertex.UVs[0].Y = (Flagvertex.Pos.Z-MinBound.Y)/(MaxBound.Y-MinBound.Y);
+			Flagvertex.UVs[1].Y = Flagvertex.UVs[0].Y;
+			Flagvertex.UVs[2].Y = Flagvertex.UVs[1].Y;
+		}
+		//these triangles has unique points
+		FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon);
+		OutGeo.Add(FlagTriangles);
+		// ;
+		// int vtxid=0;
+		// for(auto trin:FlagTriangles)
+		// {
+		// 	for(auto vtx:trin.Vertices)
+		// 	{
+		// 		FlagRawMesh.VertexPositions.Add(vtx.Pos);
+		// 		FlagRawMesh.WedgeIndices.Add(vtxid);
+		// 		//FlagRawMesh.WedgeColors.Add(FColor());
+		// 		FlagRawMesh.WedgeTangentX.Add(vtx.TangentX);
+		// 		FlagRawMesh.WedgeTangentY.Add(vtx.TangentY);
+		// 		FlagRawMesh.WedgeTangentZ.Add(vtx.TangentZ);
+		// 		FlagRawMesh.WedgeTexCoords->Add(vtx.UVs[0]);
+		// 		vtxid++;
+		// 	}
+		// }
+		// FStaticMeshSourceModel& SrcModel = FlagStaticMesh->AddSourceModel();
+	}
+	return OutGeo;
+}
 
 
 //Todo 查看InArgs里面有哪些东西
@@ -153,10 +181,10 @@ auto NodeIcon = [](FString NodeName, FVector2D NodeMargin) -> TSharedRef<SImage>
 	/*FString SearchDir = FPaths::ProjectPluginsDir().Append("HoudiniEdGraph/Resources/SOP/");
 	TArray<FString> FoundIcons;
 	IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDir, TEXT("*.svg"), true, false);*/
-	FString SopDir = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/SOP/");
+	FString SopDir = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/Icons/");
 	FString NodeIconPath = SopDir.Append(NodeName);
 	const FVector2D IconSize(48.f, 48.f);
-	UE_LOG(LogTemp, Log, TEXT("%s"), *NodeIconPath);
+	//UE_LOG(LogTemp, Log, TEXT("%s"), *NodeIconPath);
     
 	//return SNew(SImage)
 	//	.Image(new FSlateVectorImageBrush(NodeIconPath, IconSize, FLinearColor(1, 1, 1, 1)));
@@ -168,8 +196,8 @@ auto NodeIcon = [](FString NodeName, FVector2D NodeMargin) -> TSharedRef<SImage>
 		//.FlipForRightToLeftFlowDirection(true)
         .Image(VectorImageBrush1);
 };
-#define BOX_BRUSH( RelativePath, ... ) FSlateBoxBrush( RootToContentDir( RelativePath, TEXT(".png") ), __VA_ARGS__ )
-#define RootToContentDir StyleSet->RootToContentDir
+
+
 void SPMSEdGraphNode::UpdateGraphNode()
 {
 	InputPins.Empty();
@@ -195,8 +223,12 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	//FSlateFontInfo font = FSlateFontInfo()
 	//SNew(STextBlock);
 	//Font.Size = 100;
-
+	FString NodeNameFString = IconName->LeftChop(4);
+	FName NodeName = FName("PMSEditor.NodeIcons."+NodeNameFString);
 	FVector2D PinHorizontalBoxSize = FVector2D(NodeSize->X*0.6,NodeSize->Y*0.25);
+
+	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/bone.json");
+	TArray<TArray<FClipSMTriangle>> Shapes = StaticMeshFromJson(NodeShape);
 	
 	GetOrAddSlot(ENodeZone::Center)
 	//TODO 可否通过设置SlotSize来限制节点大小，确认为什么会有边框与节点大小不匹配的问题，如何让外边界clipping内部checkbox
@@ -218,19 +250,20 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,1.0f))
+			.Padding(FMargin(0.0f,0.0f))
             [
                 SNew(SCheckBox)
-                .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
-                //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-                .CheckedImage(StateNodeCheckBox)
-                //.CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
-                .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
-                .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
-                .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
-                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
-				.Clipping(EWidgetClipping::ClipToBoundsAlways)
-                .Padding(FMargin(14.0f,29.0f))
+                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Bypass"))
+				//.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
+    //             //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+    //             .CheckedImage(FPMSEditorStyle::Get().GetBrush("PMSEditor.NodeFlagBrushes.Left"))
+    //             //.CheckedImage(new FSlateColorBrush(FLinearColor(300.f,.65f,1.f).HSVToLinearRGB()))
+    //             .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
+    //             .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
+    //             .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
+    //             .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
+				// .Clipping(EWidgetClipping::ClipToBoundsAlways)
+    //             .Padding(FMargin(14.0f,29.0f))
                 
 			]
 #if insert
@@ -241,19 +274,19 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,1.0f))
+			.Padding(FMargin(0.0f,0.0f))
             [
                 SNew(SCheckBox)
-                .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
-                //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-                //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                .CheckedImage(StateNodeCheckBox)
-                .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
-                .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
-                .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-                .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-                .Clipping(EWidgetClipping::ClipToBoundsAlways)
-                .Padding(FMargin(14.0f,29.0f))
+                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Lock"))
+                // //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+                // //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+                // .CheckedImage(FPMSEditorStyle::Get().GetBrush("PMSEditor.NodeFlagBrushes.Right"))
+                // .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
+                // .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
+                // .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+                // .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+                // .Clipping(EWidgetClipping::ClipToBoundsAlways)
+                // .Padding(FMargin(14.0f,29.0f))
             ]
 #if insert
 			INSERT_BLOCK
@@ -266,7 +299,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
 			.Padding(FMargin(*NodePadding))
 			//.Padding(FMargin(0.5f,0.5f))
 			[
-				NodeIcon(*IconName,*NodeMargin)
+				//NodeIcon(*IconName,*NodeMargin)
+				SNew(SImage)
+				.Image(FPMSEditorStyle::Get().GetBrush(NodeName))
+				.DesiredSizeOverride(FVector2D(48.0f,48.0f))
 			]
 #if insert
 			INSERT_BLOCK
@@ -276,19 +312,19 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,1.0f))
+			.Padding(FMargin(0.0f,0.0f))
             [
                 SNew(SCheckBox)
-                .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
-                //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-                //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                .CheckedImage(StateNodeCheckBox2)
-                .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
-                .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
-                .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
-                .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
-				.Clipping(EWidgetClipping::ClipToBoundsAlways)
-                .Padding(FMargin(14.0f,29.0f))
+                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Template"))
+    //             //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+    //             //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+    //             .CheckedImage(StateNodeCheckBox2)
+    //             .CheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .5f, 1.f).HSVToLinearRGB()))
+    //             .CheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .5f, .65f).HSVToLinearRGB()))
+    //             .UncheckedHoveredImage(new FSlateColorBrush(FLinearColor(300.f, .3f, 1.f).HSVToLinearRGB()))
+    //             .UncheckedPressedImage(new FSlateColorBrush(FLinearColor(300.f, .3f, .7f).HSVToLinearRGB()))
+				// .Clipping(EWidgetClipping::ClipToBoundsAlways)
+    //             .Padding(FMargin(14.0f,29.0f))
 			]
 #if insert
 			INSERT_BLOCK
@@ -298,19 +334,20 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .AutoWidth()
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,1.0f))
+			.Padding(FMargin(0.0f,0.0f))
             [
                 SNew(SCheckBox)
-                .Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBoxAlt"))
-                //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
-                //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
-                .CheckedImage(StateNodeCheckBox2)
-                .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
-                .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
-                .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-                .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
-                .Clipping(EWidgetClipping::ClipToBoundsAlways)
-                .Padding(FMargin(14.0f,29.0f))
+                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Display"))
+                // //.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>("ToggleButtonCheckBox"))
+                // //.CheckedImage(new FSlateRoundedBoxBrush(FAppStyle::Get().GetSlateColor("Colors.AccentPink"),2.f))
+                // .CheckedImage(StateNodeCheckBox2)
+                // .CheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryHover")))
+                // .CheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.PrimaryPress")))
+                // .UncheckedHoveredImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+                // .UncheckedPressedImage(new FSlateColorBrush(FAppStyle::Get().GetSlateColor("Colors.Hover2")))
+                // .Clipping(EWidgetClipping::ClipToBoundsAlways)
+                // .Padding(FMargin(14.0f,29.0f))
+                //.OnCheckStateChanged(this, )
             ]
 		]
 		
@@ -362,11 +399,20 @@ void SPMSEdGraphNode::UpdateGraphNode()
 			//.Font(Font)
 		]
 	];
-	// GetOrAddSlot(ENodeZone::BottomRight)
-	// .SlotOffset(*NodeSize)
-	// [
-	// 	SNew(SMeshWidget,InMeshData)		
-	// ];
+	GetOrAddSlot(ENodeZone::BottomRight)
+	.SlotOffset(*NodeSize)
+	.SlotSize(*NodeSize)
+	[
+		SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		[
+			SNew(S2DMeshWidget)
+			.MeshData(Shapes[0])
+		]
+	];
 	/*GetOrAddSlot(ENodeZone::Center)
 	[
 

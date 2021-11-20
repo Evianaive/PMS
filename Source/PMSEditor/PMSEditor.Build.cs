@@ -46,11 +46,15 @@ public class PMSEditor : ModuleRules
 				"GraphEditor",
 				"ApplicationCore",
 				"ToolMenus",
+				
+				"Projects",
 
 				//"AppFramework",
 
 				"PMS",
 				"KismetWidgets",
+				"Json",
+				"JsonUtilities"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
