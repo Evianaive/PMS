@@ -12,6 +12,7 @@
 
 class UPMSEdGraphNode;
 struct FLinearColor;
+class SNodeFlagCheckBox;
 
 class SPMSEdGraphNode : public SGraphNode
 {
@@ -34,6 +35,10 @@ public:
 	virtual void SetOwner(const TSharedRef<SGraphPanel>& OwnerPanel) override;
 	virtual void AddPin(const TSharedRef<SGraphPin>& PinToAdd) override;
 
+	void OnBypassChanged(ECheckBoxState InNewState);
+	void OnLockChanged(ECheckBoxState InNewState);
+	void OnTemplateChanged(ECheckBoxState InNewState);
+	void OnDisplayChanged(ECheckBoxState InNewState);
 
 	//TODO Parameter related with NodeShape, this should be moved to SLATE_BEGIN_ARGS
 	FVector2D* NodeMargin;
@@ -48,5 +53,10 @@ public:
 
 	//为了实现侧边浮动可编辑的Label
 	TSharedPtr<SEditableText> Label;
-	
+
+	//NodeFlags
+	TSharedPtr<SNodeFlagCheckBox> BypassFlag;
+	TSharedPtr<SNodeFlagCheckBox> LockFlag;
+	TSharedPtr<SNodeFlagCheckBox> TemplateFlag;
+	TSharedPtr<SNodeFlagCheckBox> DisplayFlag;	
 };

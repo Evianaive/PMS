@@ -16,7 +16,10 @@ class PMSEDITOR_API UPMSEdGraph : public UEdGraph
 	GENERATED_BODY()
 
 public:
-	void AddTestNode();
+	UPROPERTY()
+	TObjectPtr<UEdGraphNode> DisplayNode;
 	
-	// UPMSEdGraphNode* SelectNode;
+	UPROPERTY()
+	TArray<TObjectPtr<UEdGraphNode>> TemplateNodes;
+	
 };

@@ -33,6 +33,11 @@ UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNo
 	PMSEdGraphNodeToSpawn->IconName = Cast<UPMSGraphNode>(InPMSGraphNodeClass->GetDefaultObject())->IconName;
 
 	ParentGraph->AddNode(PMSEdGraphNodeToSpawn);
+	if(!IsValid(Cast<UPMSEdGraph>(ParentGraph)->DisplayNode))
+	{
+		Cast<UPMSEdGraph>(ParentGraph)->DisplayNode = PMSEdGraphNodeToSpawn;
+		PMSEdGraphNodeToSpawn->DisplayState = true;
+	}
 	//Cast<UPMSEdGraph>(ParentGraph)->SelectNode = PMSEdGraphNodeToSpawn;
 	return PMSEdGraphNodeToSpawn;
 }

@@ -20,6 +20,7 @@
 
 #include "SGraphPanel.h"
 #include "Editor/PMSEdGraph.h"
+#include "Editor/SlateWidgets/SNodeFlagCheckBox.h"
 #include "Editor/Style/PMSEditorStyle.h"
 
 #define insert 1
@@ -97,7 +98,8 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	[
 		SNew(SBorder)
 		.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
-		.BorderBackgroundColor(*NodeColor)
+		//.BorderBackgroundColor(*NodeColor)
+		.BorderBackgroundColor_Lambda([this](){return FSlateColor(*this->NodeColor);})
 		.VAlign(VAlign_Fill)
 		.HAlign(HAlign_Fill)
 		.Padding(FMargin(0.0f,0.0f))
@@ -110,8 +112,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,0.0f))
             [
-                SNew(SCheckBox)
-                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Bypass"))               
+                SAssignNew(BypassFlag,SNodeFlagCheckBox)
+                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Bypass"))                
+                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->BypassState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnBypassChanged)
 			]
 #if insert
 			INSERT_BLOCK
@@ -122,8 +126,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,0.0f))
             [
-                SNew(SCheckBox)
+                SAssignNew(LockFlag,SNodeFlagCheckBox)
                 .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Lock"))
+                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->LockState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnLockChanged)
             ]
 #if insert
 			INSERT_BLOCK
@@ -137,6 +143,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 				SNew(SImage)
 				.Image(FPMSEditorStyle::Get().GetBrush(NodeName))
 				.DesiredSizeOverride(FVector2D(48.0f,48.0f))
+				
 			]
 #if insert
 			INSERT_BLOCK
@@ -147,8 +154,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,0.0f))
             [
-                SNew(SCheckBox)
+                SAssignNew(TemplateFlag,SNodeFlagCheckBox)
                 .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Template"))
+                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->TemplateState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnTemplateChanged)
 			]
 #if insert
 			INSERT_BLOCK
@@ -160,8 +169,10 @@ void SPMSEdGraphNode::UpdateGraphNode()
             .HAlign(HAlign_Fill)
 			.Padding(FMargin(0.0f,0.0f))
             [
-                SNew(SCheckBox)
+                SAssignNew(DisplayFlag,SNodeFlagCheckBox)
                 .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Display"))
+                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->DisplayState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+                .OnCheckStateChanged( this, &SPMSEdGraphNode::OnDisplayChanged)
             ]
 		]
 		
@@ -304,3 +315,46 @@ void SPMSEdGraphNode::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter,
     }
 }
 
+void SPMSEdGraphNode::OnBypassChanged(ECheckBoxState InNewState)
+{
+	UPMSEdGraphNode* PMSGraphNode = Cast<UPMSEdGraphNode>(this->GraphNode);
+	PMSGraphNode->BypassState = !PMSGraphNode->BypassState;
+	if(InNewState==ECheckBoxState::Checked)
+	{
+		PMSGraphNode->Color -= FColor(0.4f,0.4f,0.4f);
+	}
+	else
+	{
+		PMSGraphNode->Color += FColor(0.4f,0.4f,0.4f);
+	}	
+}
+
+void SPMSEdGraphNode::OnLockChanged(ECheckBoxState InNewState)
+{
+	UPMSEdGraphNode* PMSGraphNode = Cast<UPMSEdGraphNode>(this->GraphNode);
+	PMSGraphNode->LockState = !PMSGraphNode->LockState;
+}
+
+void SPMSEdGraphNode::OnTemplateChanged(ECheckBoxState InNewState)
+{
+	UPMSEdGraphNode* PMSGraphNode = Cast<UPMSEdGraphNode>(this->GraphNode);
+	PMSGraphNode->TemplateState = !PMSGraphNode->TemplateState;
+}
+
+void SPMSEdGraphNode::OnDisplayChanged(ECheckBoxState InNewState)
+{
+	UPMSEdGraph* ParentGraph = Cast<UPMSEdGraph>(this->GraphNode->GetGraph());
+	if(this->GraphNode!=ParentGraph->DisplayNode)
+	{
+		//TSharedPtr<SPMSEdGraphNode> CurDisplay = StaticCastSharedPtr<SPMSEdGraphNode>(Cast<UPMSEdGraphNode>(ParentGraph->DisplayNode)->SlateNode);
+		
+		Cast<UPMSEdGraphNode>(ParentGraph->DisplayNode)->DisplayState = false;
+		Cast<UPMSEdGraphNode>(this->GraphNode)->DisplayState = true;
+		ParentGraph->DisplayNode = this->GraphNode;
+	}
+	// else
+	// {
+	// 	this->DisplayFlag->SetIsChecked(ECheckBoxState::Checked);
+	// }
+	//this->TemplateFlag->SetIsChecked(ECheckBoxState::Unchecked);
+}

@@ -54,7 +54,11 @@ public class PMSEditor : ModuleRules
 				"PMS",
 				"KismetWidgets",
 				"Json",
-				"JsonUtilities"
+				"JsonUtilities",
+				
+				//From Slate
+				/*InputCore是和检测输入相关的模块*/
+				"InputCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
