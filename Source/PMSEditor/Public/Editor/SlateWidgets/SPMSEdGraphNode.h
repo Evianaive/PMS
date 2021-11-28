@@ -40,6 +40,10 @@ public:
 	void OnTemplateChanged(ECheckBoxState InNewState);
 	void OnDisplayChanged(ECheckBoxState InNewState);
 
+	FText GetNodeLabel() const;
+	UPMSEdGraphNode* GetPMSNodeObj();
+	void OnLabelTextCommitted(const FText& NewLabel, ETextCommit::Type CommitInfo);
+
 	//TODO Parameter related with NodeShape, this should be moved to SLATE_BEGIN_ARGS
 	FVector2D* NodeMargin;
 	FVector2D* NodePadding;

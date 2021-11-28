@@ -31,7 +31,11 @@ UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNo
 	PMSEdGraphNodeToSpawn->PostPasteNode();
 	PMSEdGraphNodeToSpawn->AllocateDefaultPins();
 	PMSEdGraphNodeToSpawn->IconName = Cast<UPMSGraphNode>(InPMSGraphNodeClass->GetDefaultObject())->IconName;
-
+	//PMSEdGraphNodeToSpawn->GetNodeTitleColor()
+	//NodeTile is the class name of node
+	//PMSEdGraphNodeToSpawn->GetName();
+	//PMSEdGraphNodeToSpawn->GetNodeTitle();
+	PMSEdGraphNodeToSpawn->NodeLabel = FText::FromString(PMSEdGraphNodeToSpawn->IconName);
 	ParentGraph->AddNode(PMSEdGraphNodeToSpawn);
 	if(!IsValid(Cast<UPMSEdGraph>(ParentGraph)->DisplayNode))
 	{

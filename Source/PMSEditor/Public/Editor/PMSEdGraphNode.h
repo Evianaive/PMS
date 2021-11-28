@@ -34,7 +34,7 @@ public:
 		//FMargin Margin = FMargin(2.f, 2.f);
 	FVector2D Margin = FVector2D(48.f, 48.f);
 	UPROPERTY(Category="NodeSetting",EditAnywhere)
-	FVector2D NodePadding = FVector2D(16.0f,6.0f);
+	FVector2D NodePadding = FVector2D(15.0f,5.0f);
 	UPROPERTY(Category="NodeSetting",EditAnywhere)
 	FVector2D NodeSize = FVector2D(200.0f,60.0f);
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)
@@ -42,6 +42,9 @@ public:
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)
 	FLinearColor Color = FLinearColor(0.7f, 0.7f, 0.7f);
 
+	UPROPERTY(Category = "NodeSetting", EditAnywhere)
+	FText NodeLabel = FText::FromString("null");
+	
 	UPROPERTY(Category = "NodeState", EditAnywhere)
 	bool DisplayState = false;
 	UPROPERTY(Category = "NodeState", EditAnywhere)

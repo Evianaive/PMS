@@ -20,6 +20,6 @@ public:
 	TObjectPtr<UEdGraphNode> DisplayNode;
 	
 	UPROPERTY()
-	TArray<TObjectPtr<UEdGraphNode>> TemplateNodes;
+	TSet<TObjectPtr<UEdGraphNode>> TemplateNodes;
 	
 };

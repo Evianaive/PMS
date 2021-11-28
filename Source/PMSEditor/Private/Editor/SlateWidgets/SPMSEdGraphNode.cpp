@@ -31,7 +31,7 @@
 			.AutoWidth()\
 			.VAlign(VAlign_Fill)\
 			.HAlign(HAlign_Fill)\
-			.Padding(FMargin(0.0f,0.5f))\
+			.Padding(FMargin(0.0f,0.0f))\
 			[\
 				SNew(SBorder)\
 				.BorderImage(new FSlateColorBrush(FLinearColor(0.3f,0.3f,0.3f)))\
@@ -102,7 +102,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		.BorderBackgroundColor_Lambda([this](){return FSlateColor(*this->NodeColor);})
 		.VAlign(VAlign_Fill)
 		.HAlign(HAlign_Fill)
-		.Padding(FMargin(0.0f,0.0f))
+		.Padding(FMargin(1.0f,1.0f))
 		.Clipping(EWidgetClipping::ClipToBoundsAlways)
 		[
 			SNew(SHorizontalBox)	                
@@ -202,7 +202,8 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		.VAlign(VAlign_Center)
 		[
 			SAssignNew(Label,SEditableText)
-			.Text(FText::FromString("TestNodeName"))
+			.Text(this, &SPMSEdGraphNode::GetNodeLabel)
+			.OnTextCommitted(this, &SPMSEdGraphNode::OnLabelTextCommitted)
 			.Clipping(EWidgetClipping::Inherit)
 			.Font(FontDefault)
 			.ColorAndOpacity(FLinearColor(1.0f,1.0f,1.0f,0.8))
@@ -321,11 +322,15 @@ void SPMSEdGraphNode::OnBypassChanged(ECheckBoxState InNewState)
 	PMSGraphNode->BypassState = !PMSGraphNode->BypassState;
 	if(InNewState==ECheckBoxState::Checked)
 	{
-		PMSGraphNode->Color -= FColor(0.4f,0.4f,0.4f);
+		//PMSGraphNode->Color *= FLinearColor(0.4f,0.4f,0.4f,0.0f);
+		PMSGraphNode->Color *= 0.2;
+		PMSGraphNode->Color.A = 1.0f;
 	}
 	else
 	{
-		PMSGraphNode->Color += FColor(0.4f,0.4f,0.4f);
+		//PMSGraphNode->Color += FLinearColor(0.4f,0.4f,0.4f,0.0f);
+		PMSGraphNode->Color *= 5.0f;
+		PMSGraphNode->Color.A = 1.0f;
 	}	
 }
 
@@ -357,4 +362,19 @@ void SPMSEdGraphNode::OnDisplayChanged(ECheckBoxState InNewState)
 	// 	this->DisplayFlag->SetIsChecked(ECheckBoxState::Checked);
 	// }
 	//this->TemplateFlag->SetIsChecked(ECheckBoxState::Unchecked);
+}
+
+FText SPMSEdGraphNode::GetNodeLabel() const
+{
+	return Cast<UPMSEdGraphNode>(GraphNode)->NodeLabel;
+}
+
+UPMSEdGraphNode* SPMSEdGraphNode::GetPMSNodeObj()
+{
+	return Cast<UPMSEdGraphNode>(GraphNode);
+}
+
+void SPMSEdGraphNode::OnLabelTextCommitted(const FText& NewLabel, ETextCommit::Type CommitInfo)
+{
+	Cast<UPMSEdGraphNode>(GraphNode)->NodeLabel = NewLabel;
 }
