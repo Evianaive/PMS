@@ -5,6 +5,8 @@
 
 #include <Vulkan/Include/vulkan/vulkan_core.h>
 
+#include "Editor/Style/PMSEditorStyle.h"
+
 
 FPMSConnectionDrawingPolicy::FPMSConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor,	const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements,  UEdGraph* InGraphObj)
 	:FConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, InZoomFactor, InClippingRect,InDrawElements)
@@ -111,8 +113,8 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 	curRad = EndAngel;
 	for(int i=1;i<EndRadSegments;i++)
 	{
-		curRad -= EndRadStep;
 		FVector2D CurVertex = FVector2D(FMath::Cos(curRad),-FMath::Sin(curRad))*radius+EndCircle;
+		curRad -= EndRadStep;
 		if(bMirrorEnd)
 		{
 			CurVertex.X = 2*Start.X - CurVertex.X;
@@ -121,10 +123,11 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 	}
 	LineVertexArray.Add(End);
 
-	/*Calculate vertex color along polyline*/
+	/*Init vertex color along polyline*/
 	TArray<FLinearColor> LineVertexColorArray;
-	LineVertexColorArray.Init(FLinearColor(1.0f,1.0f,1.0f,0.8f),LineVertexArray.Num());
-
+	LineVertexColorArray.Init(FLinearColor::White,LineVertexArray.Num());
+	FLinearColor ConnectionTint = FPMSEditorStyle::Get().GetColor("PMSEditor.ConnectionColor.Normal");
+	
 	/*Detect whether cursor overlaps with connection polyline*/
 	FVector2D StartCircleEnd = LineVertexArray[StartRadSegments-1];
 	FVector2D EndCircleStart = LineVertexArray[StartRadSegments];
@@ -263,6 +266,7 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 				if (ClosestDistanceSquared < SplineOverlapResult.GetDistanceSquared())
 				{
 					SplineOverlapResult = FGraphSplineOverlapResult(Params.AssociatedPin1, Params.AssociatedPin2, ClosestDistanceSquared, SquaredDistToPin1, SquaredDistToPin2, true);
+					ConnectionTint = FPMSEditorStyle::Get().GetColor("PMSEditor.ConnectionColor.Hover");
 				}
 			}
 			else if (bClose)
@@ -294,7 +298,18 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 		}
 	}
 	/*Make connection*/
-	FSlateDrawElement::MakeLines(DrawElementsList,LayerId,FPaintGeometry(),LineVertexArray,LineVertexColorArray,ESlateDrawEffect::None,FLinearColor::White,true,Params.WireThickness);
+	FSlateDrawElement::MakeLines(
+		DrawElementsList,
+		LayerId,
+		FPaintGeometry(),
+		LineVertexArray,
+		LineVertexColorArray,
+		ESlateDrawEffect::None,
+		ConnectionTint,
+		true,
+		//Params.WireThickness
+		1.0f
+		);
 	/*Make Arrow if can and needed*/
 	if (ArrowImage != nullptr && Diff.Y<0 )
 	{
@@ -305,7 +320,11 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			FPaintGeometry(ArrowPoint, ArrowImage->ImageSize * ZoomFactor, ZoomFactor),
 			ArrowImage,
 			ESlateDrawEffect::None,
-			(bMirrorEnd==bMirrorStartCircle)?PI/2 - StartAngel:PI/2 + StartAngel);
+			(bMirrorEnd==bMirrorStartCircle)?PI/2 - StartAngel:PI/2 + StartAngel,
+			TOptional<FVector2D>(),
+			FSlateDrawElement::RelativeToElement,
+			ConnectionTint
+			);
 	}
 }
 

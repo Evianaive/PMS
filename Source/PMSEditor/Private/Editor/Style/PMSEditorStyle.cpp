@@ -186,7 +186,12 @@ void InitButtonStyle(TSharedRef< FSlateStyleSet > Style)
 	// 	.Set
 	// 	)
 }
-
+void InitColorStyle(TSharedRef< FSlateStyleSet > Style)
+{
+	/*Connection Color*/
+	Style->Set("PMSEditor.ConnectionColor.Normal", FLinearColor(0.35f, 0.55f, 0.8f,0.8f));
+	Style->Set("PMSEditor.ConnectionColor.Hover", FLinearColor(0.4f, 0.65f, 0.9f,1.0f));
+}
 } // namespace PMSEditorStyleImpl
 
 TSharedRef< FSlateStyleSet > FPMSEditorStyle::Create()
@@ -198,6 +203,7 @@ TSharedRef< FSlateStyleSet > FPMSEditorStyle::Create()
 
 	InitNodeIcons(Style);
 	InitButtonStyle(Style);
+	InitColorStyle(Style);
 	
 	return Style;
 }
