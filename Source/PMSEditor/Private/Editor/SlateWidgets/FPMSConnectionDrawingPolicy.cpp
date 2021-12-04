@@ -325,6 +325,22 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			FSlateDrawElement::RelativeToElement,
 			ConnectionTint
 			);
+		
+#if 0
+		if (FSlateApplication::IsInitialized())
+		{
+			FString HoveredPinsNum = FString::SanitizeFloat(FSlateApplication::Get().GetCurrentTime())
+			+TEXT("\n") + ((FSlateApplication::Get().IsProcessingInput())?TEXT("true"):TEXT("flase"));
+			FSlateDrawElement::MakeText(
+			DrawElementsList,
+			ArrowLayerID,
+			FPaintGeometry(ArrowPoint, ArrowImage->ImageSize * ZoomFactor, ZoomFactor),
+			HoveredPinsNum,
+			0,HoveredPinsNum.Len(),
+			FCoreStyle::GetDefaultFontStyle("Regular", 20)
+			);
+		}
+#endif
 	}
 }
 
