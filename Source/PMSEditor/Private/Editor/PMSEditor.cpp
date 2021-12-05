@@ -12,6 +12,8 @@
 
 const FName FPMSEditor::PMSDetailsTabId(TEXT("PMSDetailsTabId"));
 const FName FPMSEditor::PMSGraphTabId(TEXT("PMSGraphTabId"));
+const FName FPMSEditor::PMSViewportTabId(TEXT("PMSViewportTabId"));
+const FName FPMSEditor::PMSSpreadSheetTabId(TEXT("PMSGeoSpreadSheetTabId"));
 
 void FPMSEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
 {
@@ -28,6 +30,12 @@ void FPMSEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabM
         .SetDisplayName(LOCTEXT("Details", "Details"))
         .SetGroup(WorkspaceMenuCategoryRef)
         .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details"));
+    InTabManager->RegisterTabSpawner(PMSViewportTabId, FOnSpawnTab::CreateSP(this, &FPMSEditor::SpawnTab_Viewport))
+        .SetDisplayName(LOCTEXT("Viewport","Viewport"))
+        .SetGroup(WorkspaceMenuCategoryRef);
+    InTabManager->RegisterTabSpawner(PMSSpreadSheetTabId, FOnSpawnTab::CreateSP(this, &FPMSEditor::SpawnTab_SpreadSheet))
+        .SetDisplayName(LOCTEXT("SpreadSheet","SpreadSheet"))
+        .SetGroup(WorkspaceMenuCategoryRef);
 }
 
 void FPMSEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
@@ -37,6 +45,7 @@ void FPMSEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& InTa
 
     InTabManager->UnregisterTabSpawner(PMSDetailsTabId);
     InTabManager->UnregisterTabSpawner(PMSGraphTabId);
+    InTabManager->UnregisterTabSpawner(PMSViewportTabId);
 }
 
 void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InitToolkitHost, UPMS_Graph* InPMSGraphAsset)
@@ -81,7 +90,14 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
         .GraphEvents(InGraphEvent);
     }
     //check(PMSGraphAsset->EdGraph != nullptr)
+    /*Init Viewport*/
+    PMSEditorViewport = SNew(SPMSEditorViewport)
+    .PMSEditorPtr(SharedThis(this))
+    .GraphToView(PMSGraph);
 
+    /*Init SpreadSheet*/
+    PMSEdtiorSpreadSheet = SNew(SScrollBox);
+    
     TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("PMS_Test")
     ->AddArea
     (
@@ -98,17 +114,35 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
             FTabManager::NewSplitter()->SetOrientation(Orient_Horizontal)
             ->Split
             (
+                FTabManager::NewSplitter()->SetOrientation(Orient_Vertical)
+                ->Split
+                (
+                    FTabManager::NewStack()
+                    ->AddTab(PMSViewportTabId,ETabState::OpenedTab)
+                    ->SetHideTabWell(true)
+                    ->SetSizeCoefficient(0.5f)
+                )
+                ->Split
+                (
+                    FTabManager::NewStack()
+                    ->AddTab(PMSSpreadSheetTabId,ETabState::OpenedTab)
+                    ->SetHideTabWell(true)
+                    ->SetSizeCoefficient(0.5f)
+                )
+            )
+            ->Split
+            (
                 FTabManager::NewStack()
                 ->AddTab(PMSGraphTabId, ETabState::OpenedTab)
                 ->SetHideTabWell(true)
-                ->SetSizeCoefficient(0.85f)
+                ->SetSizeCoefficient(0.45f)
             )
             ->Split
             (
                 FTabManager::NewStack()
                 ->AddTab(PMSDetailsTabId, ETabState::OpenedTab)
                 ->SetHideTabWell(true)
-                ->SetSizeCoefficient(0.15f)
+                ->SetSizeCoefficient(0.25f)
             )
         )
     );
@@ -146,15 +180,21 @@ TSharedRef<SDockTab> FPMSEditor::SpawnTab_UpdateGraph(const FSpawnTabArgs& Args)
             EdGraphEditor.ToSharedRef()
         ];
 }
+TSharedRef<SDockTab> FPMSEditor::SpawnTab_Viewport(const FSpawnTabArgs& Args)
+{
+    check(Args.GetTabId() == PMSViewportTabId);
+
+    check(PMSEditorViewport);
+    return SNew(SDockTab)
+        .TabRole(ETabRole::PanelTab)
+        [
+            PMSEditorViewport.ToSharedRef()         
+        ];
+}
 TSharedRef<SDockTab> FPMSEditor::SpawnTab_Details(const FSpawnTabArgs& Args)
 {
     check(Args.GetTabId() == PMSDetailsTabId);
-#if test
-    return SNew(SDockTab)[
-        //ConstructIconsGallery()
-        MakeStarshipGallery()
-    ];
-#else
+
     FDetailsViewArgs DetailsViewArgs;
     //remeber to check this starts
     DetailsViewArgs.bUpdatesFromSelection = false;
@@ -175,7 +215,16 @@ TSharedRef<SDockTab> FPMSEditor::SpawnTab_Details(const FSpawnTabArgs& Args)
         [
             DetailsWidget.ToSharedRef()
         ];
-#endif
+}
+TSharedRef<SDockTab> FPMSEditor::SpawnTab_SpreadSheet(const FSpawnTabArgs& Args)
+{
+    check(Args.GetTabId() == PMSSpreadSheetTabId);
+    check(PMSEdtiorSpreadSheet);
+    return SNew(SDockTab)
+        .TabRole(ETabRole::PanelTab)
+        [
+            PMSEdtiorSpreadSheet.ToSharedRef()
+        ];
 }
 
 void FPMSEditor::OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionNode)
@@ -209,117 +258,4 @@ void FPMSEditor::OnFinishedChangingPMSProperties(const FPropertyChangedEvent& Pr
     }
     
 }
-#if test
-//TSharedRef<SWidget> FPMSEditor::ConstructIconsGallery()
-//{
-//    // auto GenerateColorButton = [] (FTex      t InTitle, FName StyleColorName, bool Inverted = false) -> TSharedRef<SWidget> 
-//
-//    auto GenerateIconLibrary = [this](FText InTitle, FString InPath) -> TSharedRef<SWidget>
-//    {
-//        const FVector2D IconSize(20.f, 20.f);
-//        TSharedPtr<SUniformWrapPanel> UniformWrapPanel = SNew(SUniformWrapPanel)
-//            .HAlign(HAlign_Left)
-//            .SlotPadding(FMargin(12.f, 12.f));
-//
-//        TArray<FString> FoundIcons;
-//        FString SearchDirectory = FPaths::EngineDir() / InPath;// TEXT("Editor/Slate/Icons/GeneralTools");
-//        // IFileManager::Get().FindFiles(FoundIcons, *SearchDirectory, TEXT(".png"));//, true, true, false);
-//        IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDirectory, TEXT("*.png"), true, false);
-//        for (const FString& Filename : FoundIcons)
-//        {
-//            // FString IconPath = SearchDirectory / Filename;
-//            FString IconPath = Filename;
-//
-//            DynamicBrushes.Add(TUniquePtr<FSlateDynamicImageBrush>(new FSlateDynamicImageBrush(FName(*IconPath), IconSize)));
-//
-//            UniformWrapPanel->AddSlot()
-//                [
-//                    SNew(SImage)
-//                    .Image(DynamicBrushes.Last().Get())
-//                .ToolTipText(FText::FromString(IconPath))
-//                ];
-//        }
-//
-//        return SNew(SVerticalBox)
-//            + SVerticalBox::Slot()
-//            .AutoHeight()
-//            [
-//                SNew(STextBlock).Text(InTitle)
-//            ]
-//
-//        + SVerticalBox::Slot()
-//            [
-//                UniformWrapPanel.ToSharedRef()
-//            ];
-//    };
-//
-//    auto GenerateIconLibrarySVG = [this](FText InTitle, FString InPath) -> TSharedRef<SWidget>
-//    {
-//        const FVector2D IconSize(20.f, 20.f);
-//        TSharedPtr<SUniformWrapPanel> UniformWrapPanel = SNew(SUniformWrapPanel)
-//            .HAlign(HAlign_Left)
-//            .SlotPadding(FMargin(12.f, 12.f));
-//
-//        TArray<FString> FoundIcons;
-//        FString SearchDirectory = FPaths::EngineDir() / InPath;// TEXT("Editor/Slate/Icons/GeneralTools");
-//        // IFileManager::Get().FindFiles(FoundIcons, *SearchDirectory, TEXT(".png"));//, true, true, false);
-//        IFileManager::Get().FindFilesRecursive(FoundIcons, *SearchDirectory, TEXT("*.svg"), true, false);
-//        for (const FString& Filename : FoundIcons)
-//        {
-//            // FString IconPath = SearchDirectory / Filename;
-//            FString IconPath = Filename;
-//
-//            DynamicBrushes.Add(TUniquePtr<FSlateVectorImageBrush>(new FSlateVectorImageBrush(IconPath, IconSize)));
-//
-//            UniformWrapPanel->AddSlot()
-//                [
-//                    SNew(SImage)
-//                    .Image(DynamicBrushes.Last().Get())
-//                .ToolTipText(FText::FromString(IconPath))
-//                ];
-//        }
-//
-//        return SNew(SVerticalBox)
-//            + SVerticalBox::Slot()
-//            .AutoHeight()
-//            [
-//                SNew(STextBlock).Text(InTitle)
-//            ]
-//
-//        + SVerticalBox::Slot()
-//            [
-//                UniformWrapPanel.ToSharedRef()
-//            ];
-//    };
-//
-//
-//
-//    return SNew(SBorder)
-//        .BorderImage(FAppStyle::Get().GetBrush("ToolPanel.GroupBorder"))
-//        [
-//            SNew(SScrollBox)
-//            + SScrollBox::Slot()
-//        .Padding(48)
-//        [
-//            SNew(SVerticalBox)
-//            + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "SlateCore", "Core"), "Content/Slate/Starship/Common")]
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "Editor Common", "Editor"), "Content/Editor/Slate/Starship/Common")]
-//
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "SceneOutliner", "SceneOutliner"), "Content/Editor/Slate/Starship/SceneOutliner")]
-//        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "LevelEditor", "LevelEditor"), "Content/Editor/Slate/Starship/LevelEditor/Menus")]
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "MainToolbar", "MainToolbar"), "Content/Editor/Slate/Starship/MainToolbar")]
-//        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "FileMenu", "FileMenu"), "Content/Editor/Slate/Starship/Menus/File")]
-//        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "EditMenu", "EditMenu"), "Content/Editor/Slate/Starship/Menus/Edit")]
-//        // +SVerticalBox::Slot().AutoHeight()[ GenerateIconLibrarySVG(NSLOCTEXT("StarshipGallery", "HelpMenu", "HelpMenu"), "Content/Editor/Slate/Starship/Menus/Help")]
-//
-//        +SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "PaintIconTitle", "Paint"), "Content/Editor/Slate/Icons/Paint")]
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "LandscapeIconTitle", "Landscape"), "Content/Editor/Slate/Icons/Landscape")]
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "ModelingIconTitle", "Modeling"), "/Plugins/Experimental/ModelingToolsEditorMode/Content/Icons")]
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "FractureIconTitle", "Fracture"), "/Plugins/Experimental/ChaosEditor/Content")]
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "CurveEditorIconTitle", "CurveEditor"), "Content/Editor/Slate/GenericCurveEditor/Icons")]
-//        + SVerticalBox::Slot().AutoHeight()[GenerateIconLibrary(NSLOCTEXT("StarshipGallery", "GeneralIconTitle", "General"), "Content/Editor/Slate/Icons/GeneralTools")]
-//        ]
-//        ];
-//}
-#endif
 #undef LOCTEXT_NAMESPACE

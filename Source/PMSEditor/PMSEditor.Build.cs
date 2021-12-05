@@ -58,7 +58,11 @@ public class PMSEditor : ModuleRules
 				
 				//From Slate
 				/*InputCore是和检测输入相关的模块*/
-				"InputCore"
+				"InputCore",
+				
+				/*视图相关模块*/
+				"AdvancedPreviewScene",
+				
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

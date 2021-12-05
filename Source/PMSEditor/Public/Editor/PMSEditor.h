@@ -17,12 +17,8 @@
 //FPMSEditor contains a UPMSGraph
 #include "PMSGraph.h"
 #include "Editor/PMSEdGraph.h"
-
-#define test 0
-#if test
-//#include "Framework/Testing/SStarshipGallery.h"
-//#include "D:\Program Files\Epic Games\UE_5.0_main\Engine\Source\Runtime\AppFramework\Private\Framework\Testing\SStarshipGallery.h"
-#endif
+#include "Viewport/SPMSViewportClient.h"
+#include "Widgets/Layout/SScrollBox.h"
 
 class PMSEDITOR_API FPMSEditor : public FWorkflowCentricApplication, public FEditorUndoClient, public FNotifyHook
 {
@@ -42,24 +38,25 @@ public:
 	virtual FString GetWorldCentricTabPrefix() const override;
 
 private:
-	static const FName PMSDetailsTabId;
-	static const FName PMSGraphTabId;
-
 	UPMS_Graph* PMSGraphAsset;
 	UPMSEdGraph* PMSGraph;
-
+	
+	static const FName PMSDetailsTabId;
+	static const FName PMSGraphTabId;
+	static const FName PMSViewportTabId;
+	static const FName PMSSpreadSheetTabId;
+	
 	TSharedPtr<SGraphEditor> EdGraphEditor;
 	TSharedPtr<IDetailsView> DetailsWidget;
-
-
+	TSharedPtr<SPMSEditorViewport> PMSEditorViewport;
+	/*需要重新实现*/
+	TSharedPtr<SScrollBox> PMSEdtiorSpreadSheet;
 
 	TSharedRef<SDockTab> SpawnTab_UpdateGraph(const FSpawnTabArgs& Args);
+	TSharedRef<SDockTab> SpawnTab_Viewport(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Details(const FSpawnTabArgs& Args);
+	TSharedRef<SDockTab> SpawnTab_SpreadSheet(const FSpawnTabArgs& Args);
 
 	void OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionNode);
 	void OnFinishedChangingPMSProperties(const FPropertyChangedEvent& InEvent);
-#if test
-	//TArray< TUniquePtr< FSlateBrush > > DynamicBrushes;
-	//TSharedRef<SWidget> ConstructIconsGallery();
-#endif
 };
