@@ -6,7 +6,7 @@
 #include "PMSGraphNode.h"
 #include "Editor/PMSEdGraph.h"
 #include "Editor/PMSEdGraphNode.h"
-#include "Editor/SlateWidgets/FPMSConnectionDrawingPolicy.h"
+#include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
 
 #define LOCTEXT_NAMESPACE "PMSEdGraphSchema"
 

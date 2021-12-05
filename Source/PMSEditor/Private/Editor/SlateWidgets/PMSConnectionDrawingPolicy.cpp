@@ -1,10 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Editor/SlateWidgets/FPMSConnectionDrawingPolicy.h"
-
-#include <Vulkan/Include/vulkan/vulkan_core.h>
-
+#include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
 #include "Editor/Style/PMSEditorStyle.h"
 
 
@@ -329,14 +326,29 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 #if 0
 		if (FSlateApplication::IsInitialized())
 		{
-			FString HoveredPinsNum = FString::SanitizeFloat(FSlateApplication::Get().GetCurrentTime())
-			+TEXT("\n") + ((FSlateApplication::Get().IsProcessingInput())?TEXT("true"):TEXT("flase"));
+			FSlateApplication& SlateApp = FSlateApplication::Get();
+			FWidgetPath widgetsUnderCursor = SlateApp.LocateWindowUnderMouse(LocalMousePosition, SlateApp.GetInteractiveTopLevelWindows());
+			FScopedSwitchWorldHack SwitchWorld(widgetsUnderCursor);
+			FString DebugMessage = TEXT("");
+			for (int i = widgetsUnderCursor.Widgets.Num() - 1; i >= 0; i--)
+			{
+				
+				DebugMessage += widgetsUnderCursor.Widgets[i].Widget->GetTypeAsString() + TEXT("\n");
+				// if (widgetName == "SGraphPanel")
+				// {
+				// 	ctx.IsCursorInsidePanel = true;
+				// 	ctx.GraphPanel = StaticCastSharedRef<SGraphPanel>(widgetsUnderCursor.Widgets[i].Widget);
+				// 	ctx.PanelGeometry = widgetsUnderCursor.Widgets[i].Geometry;
+				// }
+			}
+			//FString HoveredPinsNum = FString::SanitizeFloat(FSlateApplication::Get().GetCurrentTime())
+			//+TEXT("\n") + ((FSlateApplication::Get().IsProcessingInput())?TEXT("true"):TEXT("flase"));
 			FSlateDrawElement::MakeText(
 			DrawElementsList,
 			ArrowLayerID,
 			FPaintGeometry(ArrowPoint, ArrowImage->ImageSize * ZoomFactor, ZoomFactor),
-			HoveredPinsNum,
-			0,HoveredPinsNum.Len(),
+			DebugMessage,
+			0,DebugMessage.Len(),
 			FCoreStyle::GetDefaultFontStyle("Regular", 20)
 			);
 		}
