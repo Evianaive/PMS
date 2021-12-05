@@ -70,7 +70,8 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 	
 	bool bMirrorStartCircle = Diff.Y<0 && radius>AbsDiff.X/2;
 	bool bMirrorEnd = Diff.X<0;
-	FVector2D TempEnd = bMirrorEnd?FVector2D(End.X-Diff.X*2,End.Y):End; 
+	
+	FVector2D TempEnd = bMirrorEnd?FVector2D(End.X-Diff.X*2,End.Y):End;
 	TArray<FVector2D> LineVertexArray;
 	
 	FVector2D CircleOffset(radius,0.0f); 
@@ -139,15 +140,19 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 
 		bool bCloseToSpline = false;
 		{
-			FBox2D Bounds(ForceInit);			
-			Bounds += End + Diff.GetSignVector()*radius;
-			Bounds += Start - Diff.GetSignVector()*radius;
+			FBox2D Bounds(ForceInit);
+			auto LambdaMirrorX = [&bMirrorEnd](float X ,FVector2D InVector){return bMirrorEnd?FVector2D(X*2-InVector.X,InVector.Y):InVector;};
+			Bounds += LambdaMirrorX(Start.X,EndCircle + CircleDiff.GetSignVector()*radius);
+			Bounds += LambdaMirrorX(Start.X,StartCircle - CircleDiff.GetSignVector()*radius);
 
 			bCloseToSpline = Bounds.ComputeSquaredDistanceToPoint(LocalMousePosition) < QueryDistanceForCloseSquared;
 
 			// Draw the bounding box for debugging
 #if 0
-#define DrawSpaceLine(Point1, Point2, DebugWireColor) {const FVector2D FakeTangent = (Point2 - Point1).GetSafeNormal(); FSlateDrawElement::MakeDrawSpaceSpline(DrawElementsList, LayerId, Point1, FakeTangent, Point2, FakeTangent, ClippingRect, 1.0f, ESlateDrawEffect::None, DebugWireColor); }
+#define DrawSpaceLine(Point1, Point2, DebugWireColor) {\
+			const FVector2D FakeTangent = (Point2 - Point1).GetSafeNormal();\
+			FSlateDrawElement::MakeDrawSpaceSpline(DrawElementsList, LayerId, Point1, FakeTangent, Point2, FakeTangent, ClippingRect, 1.0f, ESlateDrawEffect::None, DebugWireColor); \
+			}
 
 			if (bCloseToSpline)
 			{
@@ -157,11 +162,22 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 				FVector2D BR = Bounds.Max;
 				FVector2D TR = FVector2D(Bounds.Max.X, Bounds.Min.Y);
 				FVector2D BL = FVector2D(Bounds.Min.X, Bounds.Max.Y);
-
-				DrawSpaceLine(TL, TR, BoundsWireColor);
-				DrawSpaceLine(TR, BR, BoundsWireColor);
-				DrawSpaceLine(BR, BL, BoundsWireColor);
-				DrawSpaceLine(BL, TL, BoundsWireColor);
+				TArray<FVector2D> DebugFrame;
+				DebugFrame.Add(TL);
+				DebugFrame.Add(TR);
+				DebugFrame.Add(BR);
+				DebugFrame.Add(BL);
+				DebugFrame.Add(TL);
+				// DrawSpaceLine(TL, TR, BoundsWireColor);
+				// DrawSpaceLine(TR, BR, BoundsWireColor);
+				// DrawSpaceLine(BR, BL, BoundsWireColor);
+				// DrawSpaceLine(BL, TL, BoundsWireColor);
+				FSlateDrawElement::MakeLines(
+					DrawElementsList,
+					LayerId,
+					FPaintGeometry(),
+					DebugFrame
+				);
 			}
 #endif
 		}
@@ -270,7 +286,7 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			{
 				SplineOverlapResult.SetCloseToSpline(true);
 			}
-#if 0		
+#if 0	
 			/* Debug Variable */
 			FVector2D ArrowPoint = (StartCircleEnd + EndCircleStart)/2 - ArrowRadius;		
 			FString HoveredPinsNum = TEXT("HoveredPinsNum = ") + FString::FromInt(HoveredPins.Num())
