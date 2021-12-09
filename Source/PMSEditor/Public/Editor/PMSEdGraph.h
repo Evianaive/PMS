@@ -21,5 +21,6 @@ public:
 	
 	UPROPERTY()
 	TSet<TObjectPtr<UEdGraphNode>> TemplateNodes;
-	
+
+	//PMSGraphNodeNamePool GraphNodeNamePool;
 };

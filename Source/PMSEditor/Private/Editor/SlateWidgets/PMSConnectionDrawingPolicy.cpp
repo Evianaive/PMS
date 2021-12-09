@@ -196,8 +196,8 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			bool bHovered = false;
 			FVector2D MouseDiff(ForceInit),MouseDiffN(ForceInit);
 			float MouseDiffLen,MouseAngel;
-			float SquaredDistToPin1;
-			float SquaredDistToPin2;
+			float SquaredDistToPin1 = FLT_MAX;
+			float SquaredDistToPin2 = FLT_MAX;
 
 			/*check if hover on MidConnection*/
 			if(!bHovered && !bClose)

@@ -25,7 +25,6 @@ void FPMSEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabM
     InTabManager->RegisterTabSpawner(PMSGraphTabId, FOnSpawnTab::CreateSP(this, &FPMSEditor::SpawnTab_UpdateGraph))
         .SetDisplayName(LOCTEXT("Graph", "Graph"))
         .SetGroup(WorkspaceMenuCategoryRef);
-
     InTabManager->RegisterTabSpawner(PMSDetailsTabId, FOnSpawnTab::CreateSP(this, &FPMSEditor::SpawnTab_Details))
         .SetDisplayName(LOCTEXT("Details", "Details"))
         .SetGroup(WorkspaceMenuCategoryRef)
@@ -46,6 +45,7 @@ void FPMSEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& InTa
     InTabManager->UnregisterTabSpawner(PMSDetailsTabId);
     InTabManager->UnregisterTabSpawner(PMSGraphTabId);
     InTabManager->UnregisterTabSpawner(PMSViewportTabId);
+    InTabManager->UnregisterTabSpawner(PMSSpreadSheetTabId);
 }
 
 void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InitToolkitHost, UPMS_Graph* InPMSGraphAsset)
@@ -96,7 +96,8 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     .GraphToView(PMSGraph);
 
     /*Init SpreadSheet*/
-    PMSEdtiorSpreadSheet = SNew(SScrollBox);
+    PMSEdtiorSpreadSheet = SNew(SScrollBox)
+    .Orientation(EOrientation::Orient_Horizontal);
     
     TSharedRef<FTabManager::FLayout> Layout = FTabManager::NewLayout("PMS_Test")
     ->AddArea
@@ -112,6 +113,7 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
         ->Split
         (
             FTabManager::NewSplitter()->SetOrientation(Orient_Horizontal)
+            //->SetSizeCoefficient(0.3f)
             ->Split
             (
                 FTabManager::NewSplitter()->SetOrientation(Orient_Vertical)
@@ -135,14 +137,14 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
                 FTabManager::NewStack()
                 ->AddTab(PMSGraphTabId, ETabState::OpenedTab)
                 ->SetHideTabWell(true)
-                ->SetSizeCoefficient(0.45f)
+                ->SetSizeCoefficient(0.4f)
             )
             ->Split
             (
                 FTabManager::NewStack()
                 ->AddTab(PMSDetailsTabId, ETabState::OpenedTab)
                 ->SetHideTabWell(true)
-                ->SetSizeCoefficient(0.25f)
+                ->SetSizeCoefficient(0.3f)
             )
         )
     );
