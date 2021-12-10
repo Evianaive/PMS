@@ -7,8 +7,8 @@
 #include "Layout/Geometry.h"
 
 class SGraphPin;
-class SPMSGraphPin;
-class SPMSGraphNode;
+class SPMSEdGraphNode;
+class SPMSEdGraphPin;
 class SGraphPanel;
 
 struct FPMSEventContex
@@ -27,11 +27,11 @@ struct FPMSEventContex
 	
 	TSharedPtr<SGraphPanel> GraphPanel = nullptr; //hovered graph panel.
 	FGeometry PanelGeometry;
-	TSharedPtr<SPMSGraphNode> GraphNode = nullptr; //hovered graph node.
-	TSharedPtr<SPMSGraphNode> CommentNode = nullptr; 
+	TSharedPtr<SPMSEdGraphNode> GraphNode = nullptr; //hovered graph node.
+	TSharedPtr<SPMSEdGraphNode> CommentNode = nullptr; 
 	FGeometry NodeGeometry;
 	bool IsNodeTitle = false;
-	TSharedPtr<SPMSGraphPin> GraphPin = nullptr; //hovered graph pin.
+	TSharedPtr<SPMSEdGraphPin> GraphPin = nullptr; //hovered graph pin.
 	FGeometry PinGeometry;
 	bool IsInPinEditableBox = false; //[editable text pin]
 };
@@ -67,10 +67,11 @@ struct FPMSEventReply
 	}
 };
 
-class PMSGraphPaneInputPreProcessor : public IInputProcessor
+class PMSEdGraphPaneInputPreProcessor : public IInputProcessor
 {
-	PMSGraphPaneInputPreProcessor();
-	virtual ~PMSGraphPaneInputPreProcessor();
+public:
+	PMSEdGraphPaneInputPreProcessor();
+	virtual ~PMSEdGraphPaneInputPreProcessor();
 
 	
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override;
@@ -86,7 +87,8 @@ class PMSGraphPaneInputPreProcessor : public IInputProcessor
 	// CurrentGraphPanel;
 	FVector2D GraphPosToScreenPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D PanelPos);
 	FVector2D ScreenPosToGraphPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D ScreenPos);
-	
+
+private:
 	struct ShakeOffNodeTrackigInfo
 	{
 		double MouseMoveTime;
@@ -108,15 +110,15 @@ class PMSGraphPaneInputPreProcessor : public IInputProcessor
 	bool RefreshToolTipWhenMouseMove = false;
 	bool BlockNextClick = false;
 
-	TWeakPtr<SPMSGraphNode> NodeBeingDrag;
-	TWeakPtr<SPMSGraphNode> CommentNodeBeingDrag;
+	TWeakPtr<SPMSEdGraphNode> NodeBeingDrag;
+	TWeakPtr<SPMSEdGraphNode> CommentNodeBeingDrag;
 
 	DECLARE_DELEGATE_RetVal(bool, PMSDeferredEventDele)
 	TArray<PMSDeferredEventDele> TickEventListener;
 
 
-	TSet<TWeakPtr<SPMSGraphPin>> HighLightedPins;
-	TSet<TWeakPtr<SPMSGraphNode>> HighLightedNodes;
+	TSet<TWeakPtr<SPMSEdGraphPin>> HighLightedPins;
+	TSet<TWeakPtr<SPMSEdGraphNode>> HighLightedNodes;
 
 	//use when need to boost slate performance.
 	FThrottleRequest MouseButtonDownResponsivnessThrottle;

@@ -2,6 +2,8 @@
 
 
 #include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
+
+#include "SGraphPanel.h"
 #include "Editor/Style/PMSEditorStyle.h"
 
 
@@ -339,7 +341,7 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			ConnectionTint
 			);
 		
-#if 0
+#if 1
 		if (FSlateApplication::IsInitialized())
 		{
 			FSlateApplication& SlateApp = FSlateApplication::Get();
@@ -348,8 +350,14 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			FString DebugMessage = TEXT("");
 			for (int i = widgetsUnderCursor.Widgets.Num() - 1; i >= 0; i--)
 			{
-				
-				DebugMessage += widgetsUnderCursor.Widgets[i].Widget->GetTypeAsString() + TEXT("\n");
+				FString wdigetName = widgetsUnderCursor.Widgets[i].Widget->GetTypeAsString();
+				if(wdigetName == "SGraphPanel")
+				{
+					FName graphClassName = StaticCastSharedRef<SGraphPanel>(widgetsUnderCursor.Widgets[i].Widget)->GetGraphObj()->GetClass()->GetFName();
+					DebugMessage += graphClassName.ToString() + TEXT(" : ");
+				}
+					
+				DebugMessage +=  wdigetName + TEXT("\n");
 				// if (widgetName == "SGraphPanel")
 				// {
 				// 	ctx.IsCursorInsidePanel = true;

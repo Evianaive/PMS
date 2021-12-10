@@ -8,6 +8,7 @@
 
 #include "AssetTypeActions/AssetTypeActions_PMS.h"
 #include "Editor/Style/PMSEditorStyle.h"
+#include "Editor/Utilities/PMSEdGraphPaneInputPreProcessor.h"
 
 #define LOCTEXT_NAMESPACE "FPMSEditorModule"
 
@@ -22,6 +23,17 @@ void FPMSEditorModule::StartupModule()
 	//Register Style
 	FPMSEditorStyle::Initialize();
 	FPMSEditorStyle::ReloadTextures();
+
+	//Register InputPreProcessor hacker
+	if(FSlateApplication::IsInitialized())
+	{
+		PMSInputPreProcessor = MakeShareable(new PMSEdGraphPaneInputPreProcessor());
+		bool bPreProcessor = FSlateApplication::Get().RegisterInputPreProcessor(PMSInputPreProcessor);
+		if(bPreProcessor)
+		{
+			//Todo 设置一些参数，如hover距离，按键方面的一些东西，可以注册config setting
+		}
+	}
 	
 }
 
@@ -29,7 +41,19 @@ void FPMSEditorModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
+
+	//Todo 此处需要Unregister AssetTypeAction?
+	
+	//Unregister Style
 	FPMSEditorStyle::Shutdown();
+
+	//Unregister InputPreProcessor hacker
+	if(PMSInputPreProcessor.IsValid() && FSlateApplication::IsInitialized())
+	{
+		FSlateApplication::Get().UnregisterInputPreProcessor(PMSInputPreProcessor);
+		PMSInputPreProcessor.Reset();
+		//Todo 如果前面注册了config setting 这里需要unregister
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
