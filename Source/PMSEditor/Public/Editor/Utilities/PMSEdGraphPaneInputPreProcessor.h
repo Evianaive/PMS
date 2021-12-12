@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Editor/PMSEdGraphNode.h"
 #include "Framework/Application/IInputProcessor.h"
 #include "Layout/Geometry.h"
 
@@ -67,11 +68,11 @@ struct FPMSEventReply
 	}
 };
 
-class PMSEdGraphPaneInputPreProcessor : public IInputProcessor
+class FPMSEdGraphPaneInputPreProcessor : public IInputProcessor
 {
 public:
-	PMSEdGraphPaneInputPreProcessor();
-	virtual ~PMSEdGraphPaneInputPreProcessor();
+	FPMSEdGraphPaneInputPreProcessor();
+	virtual ~FPMSEdGraphPaneInputPreProcessor();
 
 	
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override;
@@ -82,12 +83,13 @@ public:
 	virtual bool HandleKeyUpEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent) override;
 	virtual bool HandleMouseButtonDoubleClickEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override;
 	
-	FPMSEventContex InitEventContex(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
+	FPMSEventContex InitEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
 	TSharedPtr<SGraphPanel> GetCurrentGraphPanel();
 	// CurrentGraphPanel;
 	FVector2D GraphPosToScreenPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D PanelPos);
 	FVector2D ScreenPosToGraphPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D ScreenPos);
 
+	void OnSelectLinkedNodes(bool bDownStream, bool bUpStream);
 private:
 	struct ShakeOffNodeTrackigInfo
 	{
@@ -112,6 +114,7 @@ private:
 
 	TWeakPtr<SPMSEdGraphNode> NodeBeingDrag;
 	TWeakPtr<SPMSEdGraphNode> CommentNodeBeingDrag;
+	TArray<UPMSEdGraphNode*> SameActionNodes;
 
 	DECLARE_DELEGATE_RetVal(bool, PMSDeferredEventDele)
 	TArray<PMSDeferredEventDele> TickEventListener;

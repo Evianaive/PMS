@@ -11,13 +11,103 @@
 #include "Editor/GraphEditor/Private/SGraphEditorImpl.h"
 #include "Editor/SlateWidgets/SPMSEdGraphNode.h"
 #include "Editor/SlateWidgets/SPMSEdGraphPin.h"
+#include "Editor/Utilities/PMSEdGraphCommand.h"
+#include "Editor/Utilities/PMSEditorUtilities.h"
 //#include "SGraphEditorImpl.h"
-PMSEdGraphPaneInputPreProcessor::PMSEdGraphPaneInputPreProcessor()
+FPMSEdGraphPaneInputPreProcessor::FPMSEdGraphPaneInputPreProcessor()
 {
-	UICommandList->MapAction()
+	ShakeOffNodeTracker.Reserve(3);
+	HighLightedNodes.Reserve(10);
+	HighLightedPins.Reserve(10);
+
+	FPMSEdGraphCommands::Register();
+	UICommandList = MakeShared<FUICommandList>();
+	const FPMSEdGraphCommands& Commands = FPMSEdGraphCommands::Get();
+	// UICommandList->MapAction(Commands.DownStreamNodesFollowMove,FExecuteAction::CreateRaw(this,&PMSEdGraphPaneInputPreProcessor::OnSelectLinkedNodes,true,false));
+	// UICommandList->MapAction(Commands.UpStreamNodesFollowMove,FExecuteAction::CreateRaw(this,&PMSEdGraphPaneInputPreProcessor::OnSelectLinkedNodes,false,true));
+	
+	// TSharedPtr< FUICommandInfo > RearrangeNode;
+	// TSharedPtr< FUICommandInfo > BypassNodes;
+	// TSharedPtr< FUICommandInfo > CycleWireDrawStyle;
+	// TSharedPtr< FUICommandInfo > ToggleMaterialGraphWireColor;
+	//TSharedPtr< FUICommandInfo > ToggleAutoConnect;
+	// TSharedPtr< FUICommandInfo > DuplicateNodeWithInput;
+	// TSharedPtr< FUICommandInfo > ExchangeWires;
+	// TSharedPtr< FUICommandInfo > ToggleInsertNode;
+	// TSharedPtr< FUICommandInfo > BypassAndKeepNodes;
+	// TSharedPtr< FUICommandInfo > ConnectNodes;
+}
+FPMSEdGraphPaneInputPreProcessor::~FPMSEdGraphPaneInputPreProcessor()
+{
+	const FPMSEdGraphCommands& Commands = FPMSEdGraphCommands::Get();
+	//UICommandList->UnmapAction(Commands.DownStreamNodesFollowMove);
+	//UICommandList->UnmapAction(Commands.UpStreamNodesFollowMove);
+	UICommandList.Reset();
+	FPMSEdGraphCommands::Unregister();
 }
 
-FPMSEventContex PMSEdGraphPaneInputPreProcessor::InitEventContex(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent)
+void FPMSEdGraphPaneInputPreProcessor::Tick(const float DeltaTime, FSlateApplication& SlateApp,
+	TSharedRef<ICursor> Cursor)
+{
+}
+
+bool FPMSEdGraphPaneInputPreProcessor::HandleMouseButtonUpEvent(FSlateApplication& SlateApp,
+	const FPointerEvent& MouseEvent)
+{
+	return IInputProcessor::HandleMouseButtonUpEvent(SlateApp, MouseEvent);
+}
+
+bool FPMSEdGraphPaneInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplication& SlateApp,
+	const FPointerEvent& MouseEvent)
+{
+	return IInputProcessor::HandleMouseButtonDownEvent(SlateApp, MouseEvent);
+}
+
+bool FPMSEdGraphPaneInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent)
+{
+	return IInputProcessor::HandleMouseMoveEvent(SlateApp, MouseEvent);
+}
+
+bool FPMSEdGraphPaneInputPreProcessor::HandleKeyDownEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent)
+{
+	//FModifierKeysState State = StaticCast<FInputEvent>(InKeyEvent).ModifierKeys;
+	//FModifierKeysState();
+	
+	bool CtrlState = InKeyEvent.IsControlDown();
+	bool ShiftState = InKeyEvent.IsShiftDown();
+
+	//SameActionNodes = PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSEdGraphNode*> SelectSourceNodes,	CtrlState, ShiftState);
+	
+	if(InKeyEvent.GetCharacter() > 0 )
+	{
+		PressedCharKey = InKeyEvent.GetCharacter();
+		auto Get = InKeyEvent.GetKey();
+		if(Get == EKeys::RightAlt)
+		{
+			return true;
+		}
+	}
+	if(InKeyEvent.GetKey() == EKeys::LeftShift)
+	{
+		return true;
+	}
+	return false;
+	//PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSEdGraphNode*> SelectSourceNodes,	bDownStream, bUpStream)
+}
+
+bool FPMSEdGraphPaneInputPreProcessor::HandleKeyUpEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent)
+{
+	return IInputProcessor::HandleKeyUpEvent(SlateApp, InKeyEvent);
+}
+
+bool FPMSEdGraphPaneInputPreProcessor::HandleMouseButtonDoubleClickEvent(FSlateApplication& SlateApp,
+	const FPointerEvent& MouseEvent)
+{
+	return IInputProcessor::HandleMouseButtonDoubleClickEvent(SlateApp, MouseEvent);
+}
+
+
+FPMSEventContex FPMSEdGraphPaneInputPreProcessor::InitEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent)
 {
 	FPMSEventContex ctx;
 	ctx.IsDraggingConnection = SlateApp.GetDragDroppingContent()->IsOfType<FDragConnection>();
@@ -60,7 +150,7 @@ FPMSEventContex PMSEdGraphPaneInputPreProcessor::InitEventContex(FSlateApplicati
 	return ctx;
 }
 
-TSharedPtr<SGraphPanel> PMSEdGraphPaneInputPreProcessor::GetCurrentGraphPanel()
+TSharedPtr<SGraphPanel> FPMSEdGraphPaneInputPreProcessor::GetCurrentGraphPanel()
 {
 	FSlateApplication& slateApp = FSlateApplication::Get();
 	FWidgetPath widgetsUnderCursor = slateApp.LocateWindowUnderMouse(slateApp.GetCursorPos(), slateApp.GetInteractiveTopLevelWindows());
@@ -75,15 +165,21 @@ TSharedPtr<SGraphPanel> PMSEdGraphPaneInputPreProcessor::GetCurrentGraphPanel()
 	return nullptr;
 }
 
-FVector2D PMSEdGraphPaneInputPreProcessor::GraphPosToScreenPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D PanelPos)
+FVector2D FPMSEdGraphPaneInputPreProcessor::GraphPosToScreenPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D PanelPos)
 {
 	PanelPos = (PanelPos - GraphPanel->GetViewOffset()) * GraphPanel->GetZoomAmount();
 	return Geometry.LocalToAbsolute(PanelPos);
 }
 
 
-FVector2D PMSEdGraphPaneInputPreProcessor::ScreenPosToGraphPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D ScreenPos)
+FVector2D FPMSEdGraphPaneInputPreProcessor::ScreenPosToGraphPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D ScreenPos)
 {
 	auto ZoomStartOffset = Geometry.AbsoluteToLocal(ScreenPos);
 	return GraphPanel->PanelCoordToGraphCoord(ZoomStartOffset);
+}
+
+void FPMSEdGraphPaneInputPreProcessor::OnSelectLinkedNodes(bool bDownStream, bool bUpStream)
+{
+	
+	//PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSEdGraphNode*> SelectSourceNodes,	bDownStream, bUpStream)
 }

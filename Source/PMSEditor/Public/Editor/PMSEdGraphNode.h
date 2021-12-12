@@ -53,6 +53,8 @@ public:
 	bool LockState = false;
 	UPROPERTY(Category = "NodeState", EditAnywhere)
 	bool BypassState = false;
+
+	bool MoveTogether = 0;
 	//如果在这里加一个自定义的结构体并挂上UPROPERTY会如何?结构体是不是UStruct会不会与能否成功编译有关？
 	//需要自定义结构体的显示面板
 	//https://easycomplex-tech.com/cnblog/Unreal/AssetEditor/UEAssetEditorDev-AssetEditorCustomProp/

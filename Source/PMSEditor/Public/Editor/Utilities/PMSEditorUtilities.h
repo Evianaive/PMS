@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Editor/PMSEdGraphNode.h"
 
 /**
  * 
@@ -10,6 +11,6 @@
 class PMSEDITOR_API PMSEditorUtilities
 {
 public:
-	PMSEditorUtilities();
-	~PMSEditorUtilities();
+	PMSEditorUtilities(){};
+	static TArray<UPMSEdGraphNode*> GetNodesByConnectivity(TArray<UPMSEdGraphNode*> SelectSourceNodes, bool bDownStream, bool bUpStream);  
 };
