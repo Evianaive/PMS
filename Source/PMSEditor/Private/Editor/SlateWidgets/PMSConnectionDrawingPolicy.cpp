@@ -348,6 +348,15 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			FWidgetPath widgetsUnderCursor = SlateApp.LocateWindowUnderMouse(LocalMousePosition, SlateApp.GetInteractiveTopLevelWindows());
 			FScopedSwitchWorldHack SwitchWorld(widgetsUnderCursor);
 			FString DebugMessage = TEXT("");
+			
+			TSet<FKey> CurPressedKeys = SlateApp.GetPressedMouseButtons();
+			
+			for(FKey CurPressedKey : CurPressedKeys)
+			{
+				DebugMessage += CurPressedKey.ToString() + " + ";
+			}
+			DebugMessage += "\n";
+			
 			for (int i = widgetsUnderCursor.Widgets.Num() - 1; i >= 0; i--)
 			{
 				FString wdigetName = widgetsUnderCursor.Widgets[i].Widget->GetTypeAsString();
