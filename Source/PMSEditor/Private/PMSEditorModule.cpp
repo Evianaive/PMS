@@ -8,7 +8,7 @@
 
 #include "AssetTypeActions/AssetTypeActions_PMS.h"
 #include "Editor/Style/PMSEditorStyle.h"
-#include "Editor/Utilities/FPMSEdGraphPaneInputPreProcessor.h"
+#include "Editor/Utilities/PMSEdGraphPaneInputPreProcessor.h"
 
 #define LOCTEXT_NAMESPACE "FPMSEditorModule"
 

@@ -8,10 +8,13 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 	bool bDownStream, bool bUpStream)
 {
 	TArray<UPMSEdGraphNode*> NodesToReturn;
-	TArray<UPMSEdGraphNode*> NodesToCheck = SelectSourceNodes;
+	//TArray<UPMSEdGraphNode*> NodesToCheck(SelectSourceNodes);
+	//TArray<UPMSEdGraphNode*> NodesToCheck2(SelectSourceNodes);
+	TArray<UPMSEdGraphNode*> NodesToCheck;
 	for(UPMSEdGraphNode* SelectSourceNode :SelectSourceNodes)
 	{
-		SelectSourceNode->MoveTogether = 1;
+		SelectSourceNode->MoveTogether = true;
+		NodesToCheck.Add(SelectSourceNode);
 	}
 	
 	while(NodesToCheck.Num()>0)
@@ -36,6 +39,15 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 				}	
 			}
 		}
+	}
+	for(UPMSEdGraphNode* ReturnNode : NodesToReturn)
+	{
+		ReturnNode->MoveTogether = false;
+		//UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), *ReturnNode->NodeLabel.ToString());
+	}
+	for(UPMSEdGraphNode* SelectSourceNode :SelectSourceNodes)
+	{
+		SelectSourceNode->MoveTogether = false;
 	}
 	return NodesToReturn;
 }

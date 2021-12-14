@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Editor/PMSEdGraphNode.h"
+#include "Editor/SlateWidgets/SNodeFlagCheckBox.h"
 #include "Framework/Application/IInputProcessor.h"
 #include "Layout/Geometry.h"
 
@@ -31,6 +32,9 @@ struct FPMSEventContex
 	TSharedPtr<SPMSEdGraphNode> GraphNode = nullptr; //hovered graph node.
 	TSharedPtr<SPMSEdGraphNode> CommentNode = nullptr; 
 	FGeometry NodeGeometry;
+	TSharedPtr<SNodeFlagCheckBox> NodeFlag = nullptr;
+	FGeometry NodeFlagGeometry;
+	
 	bool IsNodeTitle = false;
 	TSharedPtr<SPMSEdGraphPin> GraphPin = nullptr; //hovered graph pin.
 	FGeometry PinGeometry;
@@ -83,7 +87,8 @@ public:
 	virtual bool HandleKeyUpEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent) override;
 	virtual bool HandleMouseButtonDoubleClickEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override;
 	
-	FPMSEventContex InitEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
+	//void InitEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
+	void UpdateEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
 	TSharedPtr<SGraphPanel> GetCurrentGraphPanel();
 	// CurrentGraphPanel;
 	FVector2D GraphPosToScreenPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D PanelPos);
@@ -91,6 +96,7 @@ public:
 
 	void OnSelectLinkedNodes(bool bDownStream, bool bUpStream);
 private:
+	FPMSEventContex CurContext;
 	struct ShakeOffNodeTrackigInfo
 	{
 		double MouseMoveTime;
