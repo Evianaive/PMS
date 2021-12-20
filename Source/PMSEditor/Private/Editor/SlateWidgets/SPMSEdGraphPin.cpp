@@ -51,9 +51,10 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 		MakeAttributeSP(this, &SPMSEdGraphPin::GetSecondaryPinColor));
 	PinImage = PinWidgetRef;
 
+	/*Todo 此处可以通过更改函数GEtPMSPinCursor替换Pin Cursor图标，原先使用函数为GetPinCursor*/
 	PinWidgetRef->SetCursor( 
 		TAttribute<TOptional<EMouseCursor::Type> >::Create (
-			TAttribute<TOptional<EMouseCursor::Type> >::FGetter::CreateRaw( this, &SPMSEdGraphPin::GetPinCursor )
+			TAttribute<TOptional<EMouseCursor::Type> >::FGetter::CreateRaw( this, &SPMSEdGraphPin::GetPMSPinCursor )
 		)
 	);
 
@@ -234,4 +235,24 @@ const FSlateBrush* SPMSEdGraphPin::GetPinIcon() const
 	return SGraphPin::GetPinIcon();
 }
 
+TOptional<EMouseCursor::Type> SPMSEdGraphPin::GetPMSPinCursor() const
+{
+	check(PinImage.IsValid());
+
+	if (PinImage->IsHovered())
+	{
+		if (bIsMovingLinks)
+		{
+			return EMouseCursor::GrabHandClosed;
+		}
+		else
+		{
+			return EMouseCursor::Crosshairs;
+		}
+	}
+	else
+	{
+		return EMouseCursor::Default;
+	}
+}
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

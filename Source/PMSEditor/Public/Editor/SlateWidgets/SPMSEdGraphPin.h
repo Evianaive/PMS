@@ -26,4 +26,5 @@ public:
 	virtual FSlateColor GetPinColor() const override;
 protected:
 	virtual const FSlateBrush* GetPinIcon() const override;
+	TOptional<EMouseCursor::Type> GetPMSPinCursor() const;
 };
