@@ -14,7 +14,7 @@ class SPMSEdGraphPin;
 class SGraphPanel;
 
 UENUM()
-enum class EContextState : uint8
+enum class EContextEnterState : uint8
 {
 	/* Mouse down on Node */
 	OnNode,
@@ -27,6 +27,15 @@ enum class EContextState : uint8
 	/* Mouse down on node flag */
 	OnFlag,
 	/* None When Init*/
+	None
+};
+
+UENUM()
+enum class EMouseEnterState : uint8
+{
+	Left,
+	Middle,
+	Right,
 	None
 };
 
@@ -118,15 +127,22 @@ public:
 	void UpdateMoveTogetherNodes(UPMSEdGraphNode* EnterNode, FGraphPanelSelectionSet SelectedNodes, bool CtrlState, bool ShiftState);
 private:
 	//New
-	EContextState EnterState = EContextState::None;
+	EContextEnterState ContextEnterState = EContextEnterState::None;
+	EMouseEnterState MouseEnterState = EMouseEnterState::None;
+	
 	FPMSEventContex CurContext;
-	bool bMoveBeforeUp = false;
+	
 	TArray<UPMSEdGraphNode*> MoveTogetherNodes;
 	TArray<FVector2D> MoveTogetherNodesStartPos;
 
+	//Rest the EnterNode Position when drag begin
 	FVector2D DragStartPos = FVector2D::ZeroVector;
 	FVector2D MouseMovementAfterDown = FVector2D::ZeroVector;
 
+	//Check whether mouse moves after mouse button down
+	bool bMoveBeforeUp = false;
+
+	//Last Frame several keys' state
 	bool PrvCtrlState = false;
 	bool PrvShiftState = false;
 	bool PrvAltState = false;
