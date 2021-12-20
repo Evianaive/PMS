@@ -8,7 +8,7 @@
 
 #include "AssetTypeActions/AssetTypeActions_PMS.h"
 #include "Editor/Style/PMSEditorStyle.h"
-#include "Editor/Utilities/PMSEdGraphPaneInputPreProcessor.h"
+#include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 
 #define LOCTEXT_NAMESPACE "FPMSEditorModule"
 
@@ -27,7 +27,7 @@ void FPMSEditorModule::StartupModule()
 	//Register InputPreProcessor hacker
 	if(FSlateApplication::IsInitialized())
 	{
-		PMSInputPreProcessor = MakeShareable(new FPMSEdGraphPaneInputPreProcessor());
+		PMSInputPreProcessor = MakeShareable(new FPMSEdGraphPanelInputPreProcessor());
 		bool bPreProcessor = FSlateApplication::Get().RegisterInputPreProcessor(PMSInputPreProcessor);
 		if(bPreProcessor)
 		{

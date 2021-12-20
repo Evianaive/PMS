@@ -13,6 +13,23 @@ class SPMSEdGraphNode;
 class SPMSEdGraphPin;
 class SGraphPanel;
 
+UENUM()
+enum class EContextState : uint8
+{
+	/* Mouse down on Node */
+	OnNode,
+	/* Mouse down on space */
+	OnSpace,
+	/* Mouse down on line */
+	OnLine,
+	/* Mouse down on pin */
+	OnPin,
+	/* Mouse down on node flag */
+	OnFlag,
+	/* None When Init*/
+	None
+};
+
 struct FPMSEventContex
 {
 	bool IsClickGesture = false;
@@ -72,11 +89,11 @@ struct FPMSEventReply
 	}
 };
 
-class FPMSEdGraphPaneInputPreProcessor : public IInputProcessor
+class FPMSEdGraphPanelInputPreProcessor : public IInputProcessor
 {
 public:
-	FPMSEdGraphPaneInputPreProcessor();
-	virtual ~FPMSEdGraphPaneInputPreProcessor();
+	FPMSEdGraphPanelInputPreProcessor();
+	virtual ~FPMSEdGraphPanelInputPreProcessor();
 
 	
 	virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override;
@@ -87,16 +104,33 @@ public:
 	virtual bool HandleKeyUpEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent) override;
 	virtual bool HandleMouseButtonDoubleClickEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override;
 	
-	//void InitEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
-	void UpdateEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
+
 	TSharedPtr<SGraphPanel> GetCurrentGraphPanel();
 	// CurrentGraphPanel;
 	FVector2D GraphPosToScreenPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D PanelPos);
 	FVector2D ScreenPosToGraphPos(TSharedRef<SGraphPanel> GraphPanel, FGeometry Geometry, FVector2D ScreenPos);
-
+	
 	void OnSelectLinkedNodes(bool bDownStream, bool bUpStream);
+
+	//New
+	//void InitEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
+	void UpdateEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
+	void UpdateMoveTogetherNodes(UPMSEdGraphNode* EnterNode, FGraphPanelSelectionSet SelectedNodes, bool CtrlState, bool ShiftState);
 private:
+	//New
+	EContextState EnterState = EContextState::None;
 	FPMSEventContex CurContext;
+	bool bMoveBeforeUp = false;
+	TArray<UPMSEdGraphNode*> MoveTogetherNodes;
+	TArray<FVector2D> MoveTogetherNodesStartPos;
+
+	FVector2D DragStartPos = FVector2D::ZeroVector;
+	FVector2D MouseMovementAfterDown = FVector2D::ZeroVector;
+
+	bool PrvCtrlState = false;
+	bool PrvShiftState = false;
+	bool PrvAltState = false;
+	//Old
 	struct ShakeOffNodeTrackigInfo
 	{
 		double MouseMoveTime;
@@ -120,7 +154,6 @@ private:
 
 	TWeakPtr<SPMSEdGraphNode> NodeBeingDrag;
 	TWeakPtr<SPMSEdGraphNode> CommentNodeBeingDrag;
-	TArray<UPMSEdGraphNode*> SameActionNodes;
 
 	DECLARE_DELEGATE_RetVal(bool, PMSDeferredEventDele)
 	TArray<PMSDeferredEventDele> TickEventListener;

@@ -13,7 +13,7 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 	TArray<UPMSEdGraphNode*> NodesToCheck;
 	for(UPMSEdGraphNode* SelectSourceNode :SelectSourceNodes)
 	{
-		SelectSourceNode->MoveTogether = true;
+		SelectSourceNode->MoveTogetherChecked = true;
 		NodesToCheck.Add(SelectSourceNode);
 	}
 	
@@ -30,11 +30,13 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 				for(UEdGraphPin* SourceNodePinLink : SourceNodePinLinks)
 				{
 					UPMSEdGraphNode* LinkedNode = Cast<UPMSEdGraphNode>(SourceNodePinLink->GetOwningNode());
-					if(LinkedNode && !LinkedNode->MoveTogether)
+					if(LinkedNode && !LinkedNode->MoveTogetherChecked)
 					{
 						NodesToReturn.Add(LinkedNode);
 						NodesToCheck.Add(LinkedNode);
-						LinkedNode->MoveTogether = true;
+						LinkedNode->MoveTogetherChecked = true;
+						LinkedNode->StillMoveTogether = LinkedNode->AlreadyMoveTogether;
+						LinkedNode->AlreadyMoveTogether = true;
 					}
 				}	
 			}
@@ -42,12 +44,12 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 	}
 	for(UPMSEdGraphNode* ReturnNode : NodesToReturn)
 	{
-		ReturnNode->MoveTogether = false;
-		//UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), *ReturnNode->NodeLabel.ToString());
+		ReturnNode->MoveTogetherChecked = false;
+		UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), *ReturnNode->NodeLabel.ToString());
 	}
 	for(UPMSEdGraphNode* SelectSourceNode :SelectSourceNodes)
 	{
-		SelectSourceNode->MoveTogether = false;
+		SelectSourceNode->MoveTogetherChecked = false;
 	}
 	return NodesToReturn;
 }
