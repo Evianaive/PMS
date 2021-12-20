@@ -4,6 +4,8 @@
 #include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
 
 #include "SGraphPanel.h"
+#include "Editor/PMSEdGraphNode.h"
+#include "Editor/SlateWidgets/SPMSEdGraphNode.h"
 #include "Editor/Style/PMSEditorStyle.h"
 
 
@@ -356,17 +358,21 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 				DebugMessage += CurPressedKey.ToString() + " + ";
 			}
 			DebugMessage += "\n";
-			
+			/*似乎后创建的节点在更上层*/
 			for (int i = widgetsUnderCursor.Widgets.Num() - 1; i >= 0; i--)
 			{
-				FString wdigetName = widgetsUnderCursor.Widgets[i].Widget->GetTypeAsString();
-				if(wdigetName == "SGraphPanel")
+				FString widgetName = widgetsUnderCursor.Widgets[i].Widget->GetTypeAsString();
+				if(widgetName == "SGraphPanel")
 				{
-					FName graphClassName = StaticCastSharedRef<SGraphPanel>(widgetsUnderCursor.Widgets[i].Widget)->GetGraphObj()->GetClass()->GetFName();
-					DebugMessage += graphClassName.ToString() + TEXT(" : ");
+					FName GraphClassName = StaticCastSharedRef<SGraphPanel>(widgetsUnderCursor.Widgets[i].Widget)->GetGraphObj()->GetClass()->GetFName();
+					DebugMessage += GraphClassName.ToString() + TEXT(" : ");
+				}
+				if(widgetName == "SPMSEdGraphNode")
+				{
+					DebugMessage += StaticCastSharedRef<SPMSEdGraphNode>(widgetsUnderCursor.Widgets[i].Widget)->GetPMSNodeObj()->IconName + TEXT(" : ");
 				}
 					
-				DebugMessage +=  wdigetName + TEXT("\n");
+				DebugMessage +=  widgetName + TEXT("\n");
 				// if (widgetName == "SGraphPanel")
 				// {
 				// 	ctx.IsCursorInsidePanel = true;
@@ -391,7 +397,18 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 
 void FPMSConnectionDrawingPolicy::DrawPreviewConnector(const FGeometry& PinGeometry, const FVector2D& StartPoint, const FVector2D& EndPoint, UEdGraphPin* Pin)
 {
-	FConnectionDrawingPolicy::DrawPreviewConnector(PinGeometry, StartPoint, EndPoint, Pin);
+	FConnectionParams Params;
+	DetermineWiringStyle(Pin, nullptr, /*inout*/ Params);
+	if(Pin->Direction ==EEdGraphPinDirection::EGPD_Output )
+	{
+		const FVector2D NewStartPoint = FGeometryHelper::CenterOf(PinGeometry);
+		DrawSplineWithArrow(NewStartPoint, EndPoint, Params);
+	}
+	if(Pin->Direction ==EEdGraphPinDirection::EGPD_Input)
+	{
+		const FVector2D NewEndPoint = FGeometryHelper::CenterOf(PinGeometry);
+		DrawSplineWithArrow(StartPoint, NewEndPoint, Params);
+	}
 }
 
 void FPMSConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, /*inout*/ FConnectionParams& Params)
