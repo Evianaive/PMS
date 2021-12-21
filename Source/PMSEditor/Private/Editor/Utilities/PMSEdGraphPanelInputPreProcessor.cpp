@@ -154,29 +154,38 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 							CommentNodeBeingDrag = CurContext.CommentNode;
 							ContextEnterState = EContextEnterState::OnNode;
 						}
+						else
+						{
+							ContextEnterState = EContextEnterState::OnPin;
+						}
 					}
+				}
+				else
+				{
+					ContextEnterState = EContextEnterState::OnSpace;
 				}
 			}
 		}
 		
-		if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 		{
-			MouseEnterState = EMouseEnterState::Left;		
+			if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+            {
+            	MouseEnterState = EMouseEnterState::Left;		
+            }
+            else if(MouseEvent.GetEffectingButton() == EKeys::MiddleMouseButton)
+            {
+            	MouseEnterState = EMouseEnterState::Middle;
+            }
+            else if(MouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+            {
+            	MouseEnterState = EMouseEnterState::Right;
+            }
+            else
+            {
+            	MouseEnterState = EMouseEnterState::None;
+            }
 		}
-		else if(MouseEvent.GetEffectingButton() == EKeys::MiddleMouseButton)
-		{
-			MouseEnterState = EMouseEnterState::Middle;
-		}
-		else if(MouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
-		{
-			MouseEnterState = EMouseEnterState::Right;
-		}
-		else
-		{
-			MouseEnterState = EMouseEnterState::None;
-		}
-	
-		
+				
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
 			if(MouseEnterState == EMouseEnterState::Left)
@@ -197,6 +206,11 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 				MouseMovementAfterDown = FVector2D::ZeroVector;
 				return true;
 			}
+		}
+
+		if(ContextEnterState == EContextEnterState::OnSpace)
+		{
+			//CurContext.GraphPanel
 		}
 		
 		return IInputProcessor::HandleMouseButtonDownEvent(SlateApp, MouseEvent);	
@@ -219,8 +233,8 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 	if(CurContext.IsCursorInsidePanel)
 	{
 		FVector2D GraphCurPos = ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,ScreenCurPos);
-		FVector2D GraphPrvPos = ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,ScreenPrvPos);
-		MouseMovementAfterDown += GraphCurPos-GraphPrvPos;
+		MouseMovementAfterDown = GraphCurPos-ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,LastMouseDownScreenPos);
+		
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
 			if(MouseEnterState == EMouseEnterState::Left)
@@ -265,48 +279,72 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonUpEvent(FSlateApplication& SlateApp,
 	const FPointerEvent& MouseEvent)
 {
-	UpdateEventContext(SlateApp, MouseEvent);
-	bool BlockNextStep = false;
-	bool ReturnType = false;
-	
-	float deltaTime = MouseUpDeltaTime;
-	MouseUpDeltaTime = 0.f;
-	float deltaPos = (LastMouseUpScreenPos - MouseEvent.GetScreenSpacePosition()).Size();
-	LastMouseUpScreenPos = MouseEvent.GetScreenSpacePosition();
-	if (deltaTime < 0.5f && deltaPos < 5)
+	EMouseEnterState MouseLeaveState = EMouseEnterState::None;
+	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
-		CurContext.IsDoubleClickGesture = true;
+		MouseLeaveState = EMouseEnterState::Left;		
 	}
-	if(ContextEnterState == EContextEnterState::OnNode)
+	else if(MouseEvent.GetEffectingButton() == EKeys::MiddleMouseButton)
 	{
-		if(MouseEnterState == EMouseEnterState::Left)
+		MouseLeaveState = EMouseEnterState::Middle;
+	}
+	else if(MouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		MouseLeaveState = EMouseEnterState::Right;
+	}
+	// else
+	// {
+	// 	MouseLeaveState = EMouseEnterState::None;
+	// }
+
+	if(MouseEnterState==MouseLeaveState)
+	{
+		
+		UpdateEventContext(SlateApp, MouseEvent);
+		bool BlockNextStep = false;
+		bool ReturnType = false;
+	
+		float deltaTime = MouseUpDeltaTime;
+		MouseUpDeltaTime = 0.f;
+		float deltaPos = (LastMouseUpScreenPos - MouseEvent.GetScreenSpacePosition()).Size();
+		LastMouseUpScreenPos = MouseEvent.GetScreenSpacePosition();
+		if (deltaTime < 0.5f && deltaPos < 5)
 		{
-			if(!bMoveBeforeUp)
-			{
-				CurContext.GraphPanel->SelectionManager.SelectedNodes.Reset();
-				CurContext.GraphPanel->SelectionManager.SelectedNodes.Add(NodeBeingDrag.Pin()->GetPMSNodeObj());
-			}
-			NodeBeingDrag.Reset();
-			for(UPMSEdGraphNode* MoveTogetherNode:MoveTogetherNodes)
-			{
-				MoveTogetherNode->AlreadyMoveTogether = false;
-				/*This is possibly not necessary*/
-				MoveTogetherNode->StillMoveTogether = false;
-			}
-			MoveTogetherNodes.Reset();
-			MoveTogetherNodesStartPos.Reset();				
-		
-			DragStartPos = FVector2D::ZeroVector;
-			MouseMovementAfterDown = FVector2D::ZeroVector;
-		
-			bMoveBeforeUp = false;
-			ReturnType = true;			
+			CurContext.IsDoubleClickGesture = true;
 		}
-	}
+		if(ContextEnterState == EContextEnterState::OnNode)
+		{
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				if(!bMoveBeforeUp)
+				{
+					CurContext.GraphPanel->SelectionManager.SelectedNodes.Reset();
+					CurContext.GraphPanel->SelectionManager.SelectedNodes.Add(NodeBeingDrag.Pin()->GetPMSNodeObj());
+				}
+				NodeBeingDrag.Reset();
+				for(UPMSEdGraphNode* MoveTogetherNode:MoveTogetherNodes)
+				{
+					MoveTogetherNode->AlreadyMoveTogether = false;
+					/*This is possibly not necessary*/
+					MoveTogetherNode->StillMoveTogether = false;
+				}
+				MoveTogetherNodes.Reset();
+				MoveTogetherNodesStartPos.Reset();				
+		
+				DragStartPos = FVector2D::ZeroVector;
+				MouseMovementAfterDown = FVector2D::ZeroVector;
+		
+				bMoveBeforeUp = false;
+				ReturnType = true;			
+			}
+		}
 	
-	MouseEnterState = EMouseEnterState::None;
-	ContextEnterState = EContextEnterState::None;
-	return ReturnType;
+		MouseEnterState = EMouseEnterState::None;
+		ContextEnterState = EContextEnterState::None;
+		return ReturnType;
+	}
+	/*Block all mouse button up event if doesn't match current mouse enter event*/
+	return true;
 }
 
 bool FPMSEdGraphPanelInputPreProcessor::HandleKeyDownEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent)
