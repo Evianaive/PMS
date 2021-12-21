@@ -363,13 +363,16 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyDownEvent(FSlateApplication& Sl
 	{
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
-			const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
-			UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
+				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 
-			UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
-			UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragStartPos);
+				UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
+				UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragStartPos);
 			
-			ReturnType = true;
+				ReturnType = true;
+			}
 		}
 	}
 	PrvCtrlState = CtrlState;
@@ -414,12 +417,15 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyUpEvent(FSlateApplication& Slat
 	{
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
-			const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
-			UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
+				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 
-			UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
+				UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
 			
-			ReturnType = true;
+				ReturnType = true;
+			}
 		}
 	}
 	PrvCtrlState = CtrlState;
