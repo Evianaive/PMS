@@ -26,14 +26,14 @@ void UPMSEdGraphNode::AllocateDefaultPins()
 
 void UPMSEdGraphNode::PMSSnapToGrid(float GridSnapSize, float Snapthreshold)
 {	
-	// int32 NewNodePosX = GridSnapSize * FMath::RoundToInt((NodePosX + NodeSize.X/2.f)/GridSnapSize) - NodeSize.X/2.f;
-	// int32 NewNodePosY = GridSnapSize * FMath::RoundToInt((NodePosY + NodeSize.Y/2.f)/GridSnapSize) - NodeSize.Y/2.f;
-	// if(FMath::Abs(NewNodePosX-NodePosX)<Snapthreshold)
-	// {
-	// 	NodePosX = NewNodePosX;
-	// }
-	// if(FMath::Abs(NewNodePosY-NodePosY)<Snapthreshold)
-	// {
-	// 	NodePosY = NewNodePosY;		
-	// }
+	int32 NewNodePosX = GridSnapSize * FMath::RoundToInt((NodePosX + NodeSize.X/2.f)/GridSnapSize) - NodeSize.X/2.f;
+	int32 NewNodePosY = GridSnapSize * FMath::RoundToInt((NodePosY + NodeSize.Y/2.f)/GridSnapSize) - NodeSize.Y/2.f;
+	if(FMath::Abs(NewNodePosX-NodePosX)<Snapthreshold)
+	{
+		NodePosX = NewNodePosX;
+	}
+	if(FMath::Abs(NewNodePosY-NodePosY)<Snapthreshold)
+	{
+		NodePosY = NewNodePosY;		
+	}
 }

@@ -234,6 +234,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 
 bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent)
 {
+	//Todo 节点还是不跟手，拖动会有延迟
 	UpdateEventContext(SlateApp, MouseEvent);
 	if(ContextEnterState!=EContextEnterState::None)
 	{
@@ -257,6 +258,17 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 				FVector2D NodePosTemp = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
 				EnterNode->NodePosX = DragNodeStartPos.X + MouseMovementAfterDown.X;
 				EnterNode->NodePosY = DragNodeStartPos.Y + MouseMovementAfterDown.Y;
+				/**/
+				FChildren* Children = CurContext.GraphPanel->GetChildren();
+				TArray<FVector2D> PossibleSnapPos;
+				//GetChildRefAt(Index).GetWidget();
+				Children->ForEachWidget([PossibleSnapPos](SWidget& Child)
+				{
+					SPMSEdGraphNode* PMSChild = (SPMSEdGraphNode*)&Child;
+					FString Name = PMSChild->GetPMSNodeObj()->IconName;
+					FVector2D Pivot = Child.GetRenderTransformPivot();
+					UE_LOG(LogTemp,Log,TEXT("Node is %s:%f,%f"),ToCStr(Name),Pivot.X,Pivot.Y);
+				});
 				/*Move NodeBeingDrag with snap*/
 				EnterNode->PMSSnapToGrid(128.0f,16.0f);
 			
@@ -287,6 +299,8 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 			if(MouseEnterState == EMouseEnterState::Middle)
 			{				
 				SPMSGraphPanel* Temp = (SPMSGraphPanel*)CurContext.GraphPanel.Get();
+				//Cast<SPMSGraphPanel>(CurContext.GraphPanel.Get());
+				//Temp->GetAllChildren()
 				Temp->ViewOffset = DragViewStartPos - MouseMovementAfterDown;				
 			}
 			if(MouseEnterState == EMouseEnterState::Right)

@@ -41,7 +41,7 @@
 #endif
 
 
-//Todo 查看InArgs里面有哪些东西
+//Todo ??InArgs????????Щ????
 void SPMSEdGraphNode::Construct(const FArguments& InArgs, UPMSEdGraphNode* InNode)
 {
 	GraphNode = InNode;
@@ -281,9 +281,9 @@ void SPMSEdGraphNode::CreatePinWidgets()
 	{
 		if(!Pin->bHidden)
 		{
-			/*TODO SGraphPin 要改为自己实现的子类来实现不一样的外观*/
+			/*TODO SGraphPin ?????????????????????????????*/
 			TSharedPtr<SGraphPin>NewPin = SNew(SPMSEdGraphPin, Pin);
-			/*可否编辑直接继承节点可否编辑*/
+			/*????????н?????*/
 			//NewPin->SetIsEditable(IsEditable);
 			AddPin(NewPin.ToSharedRef());
 		}
