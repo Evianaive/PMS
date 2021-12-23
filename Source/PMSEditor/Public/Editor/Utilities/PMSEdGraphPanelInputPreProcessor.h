@@ -136,7 +136,8 @@ private:
 	TArray<FVector2D> MoveTogetherNodesStartPos;
 
 	//Rest the EnterNode Position when drag begin
-	FVector2D DragStartPos = FVector2D::ZeroVector;
+	FVector2D DragNodeStartPos = FVector2D::ZeroVector;
+	FVector2D DragViewStartPos = FVector2D::ZeroVector;
 	FVector2D MouseMovementAfterDown = FVector2D::ZeroVector;
 
 	//Check whether mouse moves after mouse button down

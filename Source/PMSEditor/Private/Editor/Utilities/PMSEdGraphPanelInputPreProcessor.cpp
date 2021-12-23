@@ -2,10 +2,9 @@
 
 
 #pragma once
-
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 #include "CoreMinimal.h"
-#include "SGraphPanel.h"
+#include "Editor/SlateWidgets/SPMSGraphPanel.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Editor/GraphEditor/Private/DragConnection.h"
 #include "Editor/GraphEditor/Private/SGraphEditorImpl.h"
@@ -202,7 +201,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 				// 	//MoveTogetherNodesStartPos.Add(FVector2D(MoveTogetherNode->NodePosX,MoveTogetherNode->NodePosY));
 				// }		
 			
-				DragStartPos = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
+				DragNodeStartPos = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
 				MouseMovementAfterDown = FVector2D::ZeroVector;
 				return true;
 			}
@@ -210,7 +209,20 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 
 		if(ContextEnterState == EContextEnterState::OnSpace)
 		{
-			//CurContext.GraphPanel
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				return false;
+			}
+			if(MouseEnterState == EMouseEnterState::Middle)
+			{
+				SPMSGraphPanel* Temp = (SPMSGraphPanel*)CurContext.GraphPanel.Get();
+				DragViewStartPos = Temp->ViewOffset;
+				return true;
+			}
+			if(MouseEnterState == EMouseEnterState::Right)
+			{
+				return true;
+			}
 		}
 		
 		return IInputProcessor::HandleMouseButtonDownEvent(SlateApp, MouseEvent);	
@@ -224,7 +236,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 {
 	UpdateEventContext(SlateApp, MouseEvent);
 	if(ContextEnterState!=EContextEnterState::None)
-	{		
+	{
 		bMoveBeforeUp = true;
 	}
 	FVector2D ScreenCurPos = MouseEvent.GetScreenSpacePosition();
@@ -233,7 +245,8 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 	if(CurContext.IsCursorInsidePanel)
 	{
 		FVector2D GraphCurPos = ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,ScreenCurPos);
-		MouseMovementAfterDown = GraphCurPos-ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,LastMouseDownScreenPos);
+		LastGraphCursorGraphPos =  ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,LastMouseDownScreenPos);
+		MouseMovementAfterDown = GraphCurPos-LastGraphCursorGraphPos;
 		
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
@@ -242,13 +255,13 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 				/*Get NodePos before Move*/
 				FVector2D NodePosTemp = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
-				EnterNode->NodePosX = DragStartPos.X + MouseMovementAfterDown.X;
-				EnterNode->NodePosY = DragStartPos.Y + MouseMovementAfterDown.Y;
+				EnterNode->NodePosX = DragNodeStartPos.X + MouseMovementAfterDown.X;
+				EnterNode->NodePosY = DragNodeStartPos.Y + MouseMovementAfterDown.Y;
 				/*Move NodeBeingDrag with snap*/
 				EnterNode->PMSSnapToGrid(128.0f,16.0f);
 			
 				/*Move MoveTogetherNodes*/
-				UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragStartPos);
+				UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragNodeStartPos);
 
 				/*Move Selection*/
 				const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
@@ -263,6 +276,22 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 						}				
 					}	
 				}
+			}
+		}
+		if(ContextEnterState == EContextEnterState::OnSpace)
+		{
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				
+			}
+			if(MouseEnterState == EMouseEnterState::Middle)
+			{				
+				SPMSGraphPanel* Temp = (SPMSGraphPanel*)CurContext.GraphPanel.Get();
+				Temp->ViewOffset = DragViewStartPos - MouseMovementAfterDown;				
+			}
+			if(MouseEnterState == EMouseEnterState::Right)
+			{
+				
 			}
 		}
 	}
@@ -297,7 +326,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonUpEvent(FSlateApplicati
 	// 	MouseLeaveState = EMouseEnterState::None;
 	// }
 
-	if(MouseEnterState==MouseLeaveState)
+	if(MouseEnterState == MouseLeaveState)
 	{
 		
 		UpdateEventContext(SlateApp, MouseEvent);
@@ -331,16 +360,40 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonUpEvent(FSlateApplicati
 				MoveTogetherNodes.Reset();
 				MoveTogetherNodesStartPos.Reset();				
 		
-				DragStartPos = FVector2D::ZeroVector;
+				DragNodeStartPos = FVector2D::ZeroVector;
 				MouseMovementAfterDown = FVector2D::ZeroVector;
 		
 				bMoveBeforeUp = false;
 				ReturnType = true;			
 			}
 		}
+		if(ContextEnterState == EContextEnterState::OnSpace)
+		{
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				ReturnType = false;
+			}
+			if(MouseEnterState == EMouseEnterState::Middle)
+			{
+				ReturnType = true;
+			}
+			if(MouseEnterState == EMouseEnterState::Right)
+			{
+				if(!bMoveBeforeUp)
+				{
+					ReturnType = false;
+				}
+				else
+				{
+					bMoveBeforeUp = false;
+					ReturnType = true;
+				}
+			}
+		}
 	
 		MouseEnterState = EMouseEnterState::None;
 		ContextEnterState = EContextEnterState::None;
+		bMoveBeforeUp = false;
 		return ReturnType;
 	}
 	/*Block all mouse button up event if doesn't match current mouse enter event*/
@@ -369,7 +422,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyDownEvent(FSlateApplication& Sl
 				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 
 				UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
-				UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragStartPos);
+				UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragNodeStartPos);
 			
 				ReturnType = true;
 			}
