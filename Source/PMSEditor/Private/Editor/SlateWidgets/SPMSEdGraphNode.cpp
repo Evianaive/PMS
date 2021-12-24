@@ -308,7 +308,7 @@ void SPMSEdGraphNode::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter,
         	//Cast<SNodePanel>(GetParentWidget());
         	//GetOwnerPanel()->NodeUnderMousePtr;
         	//if(ParentPanel->
-        	Cast<UPMSEdGraphNode>(GraphNode)->PMSSnapToGrid(128.0f,16.0f);
+        	// Cast<UPMSEdGraphNode>(GraphNode)->PMSSnapToGrid(128.0f,16.0f);
         	// UPMSEdGraph* Graph = Cast<UPMSEdGraph>(GraphNode->GetOuter());
         	// Graph->SelectNode = Cast<UPMSEdGraphNode>(GraphNode);
             // UpdateGraphNode();

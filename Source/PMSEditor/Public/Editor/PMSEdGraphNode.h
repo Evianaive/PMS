@@ -27,7 +27,7 @@ public:
 	//TArray<UEdGraphPin> Pins;
 	virtual TSharedPtr<SGraphNode> CreateVisualWidget() override;
 	virtual void AllocateDefaultPins() override;	
-	void PMSSnapToGrid(float GridSnapSize, float Snapthreshold);
+	void PMSSnapToGrid(float GridSnapSize, float Snapthreshold, TArray<FVector2D> PossibleSnapPos);
 	
 	//Test adjust width
 	UPROPERTY(Category = "NodeSetting", EditAnywhere)

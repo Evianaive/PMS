@@ -260,17 +260,22 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 				EnterNode->NodePosY = DragNodeStartPos.Y + MouseMovementAfterDown.Y;
 				/**/
 				FChildren* Children = CurContext.GraphPanel->GetChildren();
-				TArray<FVector2D> PossibleSnapPos;
+				TArray<FVector2D> PossibleSnapPosArray;
 				//GetChildRefAt(Index).GetWidget();
-				Children->ForEachWidget([PossibleSnapPos](SWidget& Child)
+				Children->ForEachWidget([&PossibleSnapPosArray](SWidget& Child)
 				{
-					SPMSEdGraphNode* PMSChild = (SPMSEdGraphNode*)&Child;
-					FString Name = PMSChild->GetPMSNodeObj()->IconName;
-					FVector2D Pivot = Child.GetRenderTransformPivot();
-					UE_LOG(LogTemp,Log,TEXT("Node is %s:%f,%f"),ToCStr(Name),Pivot.X,Pivot.Y);
+					// SPMSEdGraphNode* PMSChild = (SPMSEdGraphNode*)&Child;
+					// FString Name = PMSChild->GetPMSNodeObj()->IconName;
+					// FVector2D Pivot = Child.GetRenderTransformPivot();
+					// UE_LOG(LogTemp,Log,TEXT("Node is %s:%f,%f"),ToCStr(Name),Pivot.X,Pivot.Y);
+					UPMSEdGraphNode* PMSChild = ((SPMSEdGraphNode*)&Child)->GetPMSNodeObj();
+					if(!PMSChild->AlreadyMoveTogether)
+					{
+						PossibleSnapPosArray.Add(FVector2D(PMSChild->NodePosX,PMSChild->NodePosY));
+					}
 				});
 				/*Move NodeBeingDrag with snap*/
-				EnterNode->PMSSnapToGrid(128.0f,16.0f);
+				EnterNode->PMSSnapToGrid(128.0f,16.0f,PossibleSnapPosArray);
 			
 				/*Move MoveTogetherNodes*/
 				UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragNodeStartPos);
@@ -364,13 +369,33 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonUpEvent(FSlateApplicati
 					CurContext.GraphPanel->SelectionManager.SelectedNodes.Reset();
 					CurContext.GraphPanel->SelectionManager.SelectedNodes.Add(NodeBeingDrag.Pin()->GetPMSNodeObj());
 				}
-				NodeBeingDrag.Reset();
+				const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
+				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
+				
+				if(SelectedNodes.Find(EnterNode))
+				{		
+					if(CurContext.GraphPanel.IsValid())
+					{
+						for(UObject* Node : CurContext.GraphPanel->SelectionManager.GetSelectedNodes())
+						{
+							Cast<UPMSEdGraphNode>(Node)->AlreadyMoveTogether = false;
+						}
+		
+					}
+				}
+				else
+				{
+					EnterNode->AlreadyMoveTogether = false;
+				}
+				
 				for(UPMSEdGraphNode* MoveTogetherNode:MoveTogetherNodes)
 				{
 					MoveTogetherNode->AlreadyMoveTogether = false;
 					/*This is possibly not necessary*/
 					MoveTogetherNode->StillMoveTogether = false;
 				}
+				
+				NodeBeingDrag.Reset();
 				MoveTogetherNodes.Reset();
 				MoveTogetherNodesStartPos.Reset();				
 		

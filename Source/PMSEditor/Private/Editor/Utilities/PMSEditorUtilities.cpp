@@ -14,6 +14,7 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 	for(UPMSEdGraphNode* SelectSourceNode :SelectSourceNodes)
 	{
 		SelectSourceNode->MoveTogetherChecked = true;
+		SelectSourceNode->AlreadyMoveTogether = true;
 		NodesToCheck.Add(SelectSourceNode);
 	}
 	
