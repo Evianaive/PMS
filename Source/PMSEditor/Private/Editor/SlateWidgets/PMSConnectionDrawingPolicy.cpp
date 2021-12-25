@@ -366,6 +366,7 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 				{
 					FName GraphClassName = StaticCastSharedRef<SGraphPanel>(widgetsUnderCursor.Widgets[i].Widget)->GetGraphObj()->GetClass()->GetFName();
 					DebugMessage += GraphClassName.ToString() + TEXT(" : ");
+					DebugMessage += StaticCastSharedRef<SGraphPanel>(widgetsUnderCursor.Widgets[i].Widget)->GetViewOffset().ToString();
 				}
 				if(widgetName == "SPMSEdGraphNode")
 				{

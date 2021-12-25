@@ -85,9 +85,11 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     SGraphEditor::FGraphEditorEvents InGraphEvent;
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
     if (PMSGraphAsset->EdGraph != nullptr) {
-        EdGraphEditor = SNew(SGraphEditor)
+        SAssignNew(EdGraphEditor,SGraphEditor)
             .GraphToEdit(PMSGraphAsset->EdGraph)
-        .GraphEvents(InGraphEvent);
+            .GraphEvents(InGraphEvent);
+        SGraphPanel* GraphPanel = EdGraphEditor->GetGraphPanel();
+        
     }
     //check(PMSGraphAsset->EdGraph != nullptr)
     /*Init Viewport*/

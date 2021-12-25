@@ -4,7 +4,7 @@
 #pragma once
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 #include "CoreMinimal.h"
-#include "Editor/SlateWidgets/SPMSGraphPanel.h"
+#include "Editor/SlateWidgets/SGraphPanelFriend.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Editor/GraphEditor/Private/DragConnection.h"
 #include "Editor/GraphEditor/Private/SGraphEditorImpl.h"
@@ -139,6 +139,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 		/* Update ContextEnterState*/
 		if (CurContext.IsCursorInsidePanel)
 		{
+			LastGraphCursorGraphPos =  ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,LastMouseDownScreenPos);
 			if (!SlateApp.HasAnyMouseCaptor())
 			{
 				if (CurContext.GraphNode.IsValid() || CurContext.CommentNode.IsValid())
@@ -215,13 +216,13 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 			}
 			if(MouseEnterState == EMouseEnterState::Middle)
 			{
-				SPMSGraphPanel* Temp = (SPMSGraphPanel*)CurContext.GraphPanel.Get();
+				SGraphPanelFriend* Temp = (SGraphPanelFriend*)CurContext.GraphPanel.Get();
 				DragViewStartPos = Temp->ViewOffset;
 				return true;
 			}
 			if(MouseEnterState == EMouseEnterState::Right)
 			{
-				return true;
+				return false;
 			}
 		}
 		
@@ -234,7 +235,10 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 
 bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent)
 {
-	//Todo 节点还是不跟手，拖动会有延迟
+	/* Todo 节点还是不跟手，拖动会有延迟 在处理鼠标移动事件时 FSlateApplication::ProcessMouseMoveEvent的确是优先处理
+	 * PreProcessor再向下传递，估计是后续在SGraphPanel中有逻辑处理更新
+	 */
+	
 	UpdateEventContext(SlateApp, MouseEvent);
 	if(ContextEnterState!=EContextEnterState::None)
 	{
@@ -246,7 +250,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 	if(CurContext.IsCursorInsidePanel)
 	{
 		FVector2D GraphCurPos = ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,ScreenCurPos);
-		LastGraphCursorGraphPos =  ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,LastMouseDownScreenPos);
+		//LastGraphCursorGraphPos =  ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,LastMouseDownScreenPos);
 		MouseMovementAfterDown = GraphCurPos-LastGraphCursorGraphPos;
 		
 		if(ContextEnterState == EContextEnterState::OnNode)
@@ -302,11 +306,10 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 				
 			}
 			if(MouseEnterState == EMouseEnterState::Middle)
-			{				
-				SPMSGraphPanel* Temp = (SPMSGraphPanel*)CurContext.GraphPanel.Get();
-				//Cast<SPMSGraphPanel>(CurContext.GraphPanel.Get());
-				//Temp->GetAllChildren()
-				Temp->ViewOffset = DragViewStartPos - MouseMovementAfterDown;				
+			{
+				SGraphPanelFriend* Temp = (SGraphPanelFriend*)CurContext.GraphPanel.Get();
+				Temp->ViewOffset = DragViewStartPos - MouseMovementAfterDown;
+				DragViewStartPos -= MouseMovementAfterDown;
 			}
 			if(MouseEnterState == EMouseEnterState::Right)
 			{
@@ -536,6 +539,16 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDoubleClickEvent(FSlate
 		return true;
 	}
 	return IInputProcessor::HandleMouseButtonDoubleClickEvent(SlateApp, MouseEvent);
+}
+
+bool FPMSEdGraphPanelInputPreProcessor::HandleMouseWheelOrGestureEvent(FSlateApplication& SlateApp,	const FPointerEvent& InWheelEvent, const FPointerEvent* InGestureEvent)
+{
+	// FVector2D ScreenCurPos = InWheelEvent.GetScreenSpacePosition();	
+	// if(CurContext.IsCursorInsidePanel)
+	// {
+	// 	FVector2D GraphCurPos = ScreenPosToGraphPos(CurContext.GraphPanel.ToSharedRef(),CurContext.PanelGeometry,ScreenCurPos);
+	// }
+	return IInputProcessor::HandleMouseWheelOrGestureEvent(SlateApp, InWheelEvent, InGestureEvent);
 }
 
 TSharedPtr<SGraphPanel> FPMSEdGraphPanelInputPreProcessor::GetCurrentGraphPanel()
