@@ -1,13 +1,15 @@
 #pragma once
 #include "SGraphPanel.h"
+//#include "Editor/PMSEditor.h"
 
-class GRAPHEDITOR_API SGraphPanelFriend : public SNodePanel, public FGCObject
+class GRAPHEDITOR_API SGraphPanelPublic : public SNodePanel, public FGCObject
 {
 public:
 	friend FPMSEdGraphPanelInputPreProcessor;
+	//friend FPMSEditor;
 	DECLARE_DELEGATE_RetVal_OneParam(FActionMenuContent, FOnGetContextMenuFor, const FGraphContextMenuArguments& /*SpawnInfo*/)
 
-	SLATE_BEGIN_ARGS( SGraphPanelFriend )
+	SLATE_BEGIN_ARGS( SGraphPanelPublic )
 		: _OnGetContextMenuFor()
 		, _OnSelectionChanged()
 		, _OnNodeDoubleClicked()
@@ -51,7 +53,7 @@ public:
 	void Construct( const FArguments& InArgs );
 
 	// Destructor
-	~SGraphPanelFriend();
+	~SGraphPanelPublic();
 public:
 	// SWidget interface
 	virtual FReply OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
@@ -144,7 +146,7 @@ public:
 	void SetNodeFactory(const TSharedRef<class FGraphNodeFactory>& NewNodeFactory);
 
 protected:
-
+public:
 	void NotifyGraphChanged ( const struct FEdGraphEditAction& InAction);
 
 	const TSharedRef<SGraphNode> GetChild(int32 ChildIndex);
@@ -170,11 +172,12 @@ public:
 	TSharedPtr<SGraphNode> GetNodeWidgetFromGuid(FGuid Guid) const;
 
 private:
-
+public:
 	/** A map of guid -> graph nodes */
 	TMap<FGuid, TWeakPtr<SGraphNode>> NodeGuidMap;
 
 protected:
+public:
 	UEdGraph* GraphObj;
 	UEdGraph* GraphObjToDiff;//if it exists, this is 
 
@@ -246,6 +249,7 @@ protected:
 	TAttribute<bool> ShowGraphStateOverlay;
 
 private:
+public:
 	/** Ordered list of user actions, as they came in */
 	TArray<FEdGraphEditAction> UserActions;
 
@@ -258,6 +262,7 @@ private:
 	FOnGraphChanged::FDelegate MyRegisteredGraphChangedDelegate;
 	FDelegateHandle            MyRegisteredGraphChangedDelegateHandle;
 private:
+public:
 	/** Called when PIE begins */
 	void OnBeginPIE( const bool bIsSimulating );
 

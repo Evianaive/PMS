@@ -20,7 +20,7 @@
 #include "Viewport/SPMSViewportClient.h"
 #include "Widgets/Layout/SScrollBox.h"
 
-class PMSEDITOR_API FPMSEditor : public FWorkflowCentricApplication, public FEditorUndoClient, public FNotifyHook
+class FPMSEditor : public FWorkflowCentricApplication, public FEditorUndoClient, public FNotifyHook
 {
 public:
 	void InitPMSAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, UPMS_Graph* InPMSGraphAsset);
@@ -47,6 +47,7 @@ private:
 	static const FName PMSSpreadSheetTabId;
 	
 	TSharedPtr<SGraphEditor> EdGraphEditor;
+	SGraphEditor::FArguments InArgs;
 	TSharedPtr<IDetailsView> DetailsWidget;
 	TSharedPtr<SPMSEditorViewport> PMSEditorViewport;
 	/*需要重新实现*/

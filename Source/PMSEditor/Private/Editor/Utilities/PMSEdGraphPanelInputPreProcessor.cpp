@@ -4,7 +4,7 @@
 #pragma once
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 #include "CoreMinimal.h"
-#include "Editor/SlateWidgets/SGraphPanelFriend.h"
+#include "Editor/SlateWidgets/HackPrivate/SGraphPanelPublic.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Editor/GraphEditor/Private/DragConnection.h"
 #include "Editor/GraphEditor/Private/SGraphEditorImpl.h"
@@ -216,7 +216,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 			}
 			if(MouseEnterState == EMouseEnterState::Middle)
 			{
-				SGraphPanelFriend* Temp = (SGraphPanelFriend*)CurContext.GraphPanel.Get();
+				SGraphPanelPublic* Temp = (SGraphPanelPublic*)CurContext.GraphPanel.Get();
 				DragViewStartPos = Temp->ViewOffset;
 				return true;
 			}
@@ -307,7 +307,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 			}
 			if(MouseEnterState == EMouseEnterState::Middle)
 			{
-				SGraphPanelFriend* Temp = (SGraphPanelFriend*)CurContext.GraphPanel.Get();
+				SGraphPanelPublic* Temp = (SGraphPanelPublic*)CurContext.GraphPanel.Get();
 				Temp->ViewOffset = DragViewStartPos - MouseMovementAfterDown;
 				DragViewStartPos -= MouseMovementAfterDown;
 			}
