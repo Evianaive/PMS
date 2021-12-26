@@ -71,7 +71,7 @@ void FPMSEdGraphPanelInputPreProcessor::UpdateEventContext(FSlateApplication& Sl
 	{
 		const auto curwidget = widgetsUnderCursor.Widgets[i];
 		FString widgetName = curwidget.Widget->GetTypeAsString();
-		if (widgetName == "SGraphPanel")
+		if (widgetName == "SPMSGraphPanel" && GetDefault<UPMSEditorSettings>()->EnablePreProcesser)
 		{
 			TSharedPtr<SGraphPanel> GraphPanel = StaticCastSharedRef<SGraphPanel>(widgetsUnderCursor.Widgets[i].Widget);
 			if(GraphPanel->GetGraphObj()->GetClass()->GetFName().ToString() == "PMSEdGraph")
@@ -223,7 +223,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 			}
 			if(MouseEnterState == EMouseEnterState::Right)
 			{
-				return false;
+				return true;
 			}
 		}
 		

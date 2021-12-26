@@ -66,6 +66,9 @@ public:
 
 	UPROPERTY(config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="Graph Editor Setting")
 	int32 SnappingDistance = 16;
+
+	UPROPERTY(config, EditAnywhere, Category="Debug")
+	bool EnablePreProcesser = false;
 public:
 	// Configures the background shown behind the UI material preview
 	//UPROPERTY(config, EditAnywhere, Category = "User Interface Domain")

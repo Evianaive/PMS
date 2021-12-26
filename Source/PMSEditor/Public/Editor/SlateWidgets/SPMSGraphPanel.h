@@ -37,4 +37,6 @@ public:
 	/** Handle updating the spline hover state */
 	void OnSplineHoverStateChanged(const FGraphSplineOverlapResult& NewSplineHoverState);
 	void PaintBackgroundAsLines(const FSlateBrush* BackgroundImage, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32& DrawLayerId) const;
+	SGraphPin* GetBestPinFromHoveredSpline() const;
+	bool PassesAssetReferenceFilter(const TArray<FAssetData>& ReferencedAssets, FText* OutFailureReason = nullptr) const;
 };
