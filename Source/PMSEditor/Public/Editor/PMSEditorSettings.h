@@ -43,7 +43,7 @@
 // };
 
 UCLASS(config = EditorPerProjectUserSettings)
-class PMSEDITOR_API UPMSEditorSettings : public UObject
+class UPMSEditorSettings : public UObject
 {
 	GENERATED_BODY()
 	
@@ -55,24 +55,26 @@ public:
 	//UPROPERTY(config, EditAnywhere, Category = "Offline Shader Compilers", meta = (DisplayName = "Mali Offline Compiler"))
 	//FFilePath MaliOfflineCompilerPath;
 
-protected:
+public:
 	// The width (in pixels) of the preview viewport when a material editor is first opened
-	UPROPERTY(config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="User Interface Domain")
-	int32 DefaultPreviewWidth = 250;
+	UPROPERTY(config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="Graph Editor Setting")
+	int32 GridSize = 100;
 
 	// The height (in pixels) of the preview viewport when a material editor is first opened
-	UPROPERTY(config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="User Interface Domain")
-	int32 DefaultPreviewHeight = 250;
+	UPROPERTY(config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="Graph Editor Setting")
+	int32 SubGridCount = 1;
 
+	UPROPERTY(config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="Graph Editor Setting")
+	int32 SnappingDistance = 16;
 public:
 	// Configures the background shown behind the UI material preview
 	//UPROPERTY(config, EditAnywhere, Category = "User Interface Domain")
 	//FPreviewBackgroundSettings PreviewBackground;
 
-	FIntPoint GetPreviewViewportStartingSize() const
-	{
-		return FIntPoint(DefaultPreviewWidth, DefaultPreviewHeight);
-	}
+	// FIntPoint GetPreviewViewportStartingSize() const
+	// {
+	// 	return FIntPoint(DefaultPreviewWidth, DefaultPreviewHeight);
+	// }
 
 #if WITH_EDITOR
 	// Allow listening for changes just to this settings object without having to listen to all UObjects

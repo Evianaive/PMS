@@ -32,11 +32,161 @@
 #include "Editor/UnrealEdEngine.h"
 #include "UnrealEdGlobals.h"
 #include "ScopedTransaction.h"
+#include "Editor/PMSEdGraphNode.h"
+#include "Editor/PMSEditorSettings.h"
 
 
 void SPMSGraphPanel::Construct(const FArguments& InArgs)
 {
 	SGraphPanel::Construct(InArgs);
+}
+
+FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	UE_LOG(LogTemp,Log,TEXT("Effecting is %s"),ToCStr(MouseEvent.GetEffectingButton().ToString()));
+	
+	// const bool bIsLeftMouseButtonEffecting = MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton;
+	// const bool bIsRightMouseButtonEffecting = MouseEvent.GetEffectingButton() == EKeys::RightMouseButton;
+	// const bool bIsMiddleMouseButtonEffecting = MouseEvent.GetEffectingButton() == EKeys::MiddleMouseButton;
+	// const bool bIsRightMouseButtonDown = MouseEvent.IsMouseButtonDown( EKeys::RightMouseButton );
+	// const bool bIsLeftMouseButtonDown = MouseEvent.IsMouseButtonDown( EKeys::LeftMouseButton );
+	// const bool bIsMiddleMouseButtonDown = MouseEvent.IsMouseButtonDown(EKeys::MiddleMouseButton);
+	//
+	// TotalMouseDelta = 0;
+	//
+	// if ((bIsLeftMouseButtonEffecting && bIsRightMouseButtonDown)
+	// ||  (bIsRightMouseButtonEffecting && (bIsLeftMouseButtonDown || FSlateApplication::Get().IsUsingTrackpad())))
+	// {
+	// 	// Starting zoom by holding LMB+RMB
+	// 	FReply ReplyState = FReply::Handled();
+	// 	ReplyState.CaptureMouse( SharedThis(this) );
+	// 	ReplyState.UseHighPrecisionMouseMovement( SharedThis(this) );
+	//
+	// 	DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually zoom
+	// 	CancelZoomToFit();
+	// 	TotalMouseDeltaXY = 0;
+	//
+	// 	if (!FSlateApplication::Get().IsUsingTrackpad()) // on trackpad we don't know yet if user wants to zoom or bring up the context menu
+	// 	{
+	// 		bShowSoftwareCursor = true;
+	// 	}
+	//
+	// 	if (bIsLeftMouseButtonEffecting)
+	// 	{
+	// 		// Got here from panning mode (with RMB held) - clear panning mode, but use cached software cursor position
+	// 		const FVector2D WidgetSpaceCursorPos = GraphCoordToPanelCoord( SoftwareCursorPosition );
+	// 		ZoomStartOffset = WidgetSpaceCursorPos;
+	// 		this->bIsPanning = false;
+	// 	}
+	// 	else
+	// 	{
+	// 		// Cache current cursor position as zoom origin and software cursor position
+	// 		ZoomStartOffset = MyGeometry.AbsoluteToLocal( MouseEvent.GetLastScreenSpacePosition() );
+	// 		SoftwareCursorPosition = PanelCoordToGraphCoord( ZoomStartOffset );
+	//
+	// 		if (bIsRightMouseButtonEffecting)
+	// 		{
+	// 			// Clear things that may be set when left clicking
+	// 			if (NodeUnderMousePtr.IsValid())
+	// 			{
+	// 				OnEndNodeInteraction(NodeUnderMousePtr.Pin().ToSharedRef());
+	// 			}
+	//
+	// 			if ( Marquee.IsValid() )
+	// 			{
+	// 				auto PreviouslySelectedNodes = SelectionManager.SelectedNodes;
+	// 				ApplyMarqueeSelection(Marquee, PreviouslySelectedNodes, SelectionManager.SelectedNodes);
+	// 				if (SelectionManager.SelectedNodes.Num() > 0 || PreviouslySelectedNodes.Num() > 0)
+	// 				{
+	// 					SelectionManager.OnSelectionChanged.ExecuteIfBound(SelectionManager.SelectedNodes);
+	// 				}
+	// 			}
+	//
+	// 			Marquee = FMarqueeOperation();
+	// 		}
+	// 	}
+	//
+	// 	return ReplyState;
+	// }
+	// else if (bIsRightMouseButtonEffecting && ( GetDefault<UGraphEditorSettings>()->PanningMouseButton == EGraphPanningMouseButton::Right || GetDefault<UGraphEditorSettings>()->PanningMouseButton == EGraphPanningMouseButton::Both ) )
+	// {
+	// 	// Cache current cursor position as zoom origin and software cursor position
+	// 	ZoomStartOffset = MyGeometry.AbsoluteToLocal( MouseEvent.GetLastScreenSpacePosition() );
+	// 	SoftwareCursorPosition = PanelCoordToGraphCoord( ZoomStartOffset );
+	//
+	// 	FReply ReplyState = FReply::Handled();
+	// 	ReplyState.CaptureMouse( SharedThis(this) );
+	// 	ReplyState.UseHighPrecisionMouseMovement( SharedThis(this) );
+	//
+	// 	SoftwareCursorPosition = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
+	//
+	// 	DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually pan
+	// 	CancelZoomToFit();
+	//
+	// 	// RIGHT BUTTON is for dragging and Context Menu.
+	// 	return ReplyState;
+	// }
+	// else if (bIsMiddleMouseButtonEffecting && (GetDefault<UGraphEditorSettings>()->PanningMouseButton == EGraphPanningMouseButton::Middle || GetDefault<UGraphEditorSettings>()->PanningMouseButton == EGraphPanningMouseButton::Both))
+	// {
+	// 	// Cache current cursor position as zoom origin and software cursor position
+	// 	ZoomStartOffset = MyGeometry.AbsoluteToLocal(MouseEvent.GetLastScreenSpacePosition());
+	// 	SoftwareCursorPosition = PanelCoordToGraphCoord(ZoomStartOffset);
+	//
+	// 	FReply ReplyState = FReply::Handled();
+	// 	ReplyState.CaptureMouse(SharedThis(this));
+	// 	ReplyState.UseHighPrecisionMouseMovement(SharedThis(this));
+	//
+	// 	SoftwareCursorPosition = PanelCoordToGraphCoord(MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition()));
+	//
+	// 	DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually pan
+	// 	CancelZoomToFit();
+	//
+	// 	// MIDDLE BUTTON is for dragging only.
+	// 	return ReplyState;
+	// }
+	// else if ( bIsLeftMouseButtonEffecting )
+	// {
+	// 	// LEFT BUTTON is for selecting nodes and manipulating pins.
+	// 	FArrangedChildren ArrangedChildren(EVisibility::Visible);
+	// 	ArrangeChildNodes(MyGeometry, ArrangedChildren);
+	//
+	// 	const int32 NodeUnderMouseIndex = SWidget::FindChildUnderMouse( ArrangedChildren, MouseEvent );
+	// 	if ( NodeUnderMouseIndex != INDEX_NONE )
+	// 	{
+	// 		// PRESSING ON A NODE!
+	//
+	// 		// This changes selection and starts dragging it.
+	// 		const FArrangedWidget& NodeGeometry = ArrangedChildren[NodeUnderMouseIndex];
+	// 		const FVector2D MousePositionInNode = NodeGeometry.Geometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
+	// 		TSharedRef<SNode> NodeWidgetUnderMouse = StaticCastSharedRef<SNode>( NodeGeometry.Widget );
+	//
+	// 		if( NodeWidgetUnderMouse->CanBeSelected(MousePositionInNode) )
+	// 		{
+	// 			// Track the node that we're dragging; we will move it in OnMouseMove.
+	// 			this->OnBeginNodeInteraction(NodeWidgetUnderMouse, MousePositionInNode);
+	// 			return FReply::Handled().CaptureMouse( SharedThis(this) );
+	// 		}
+	// 	}
+	//
+	// 	// START MARQUEE SELECTION.
+	// 	const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
+	// 	Marquee.Start( GraphMousePos, FMarqueeOperation::OperationTypeFromMouseEvent(MouseEvent) );
+	//
+	// 	// If we're marquee selecting, then we're not clicking on a node!
+	// 	NodeUnderMousePtr.Reset();
+	//
+	// 	return FReply::Handled().CaptureMouse( SharedThis(this) );
+	// }
+	// else
+	// {
+	// 	return FReply::Unhandled();
+	// }
+	return SGraphPanel::OnMouseButtonDown(MyGeometry, MouseEvent);
+}
+
+FReply SPMSGraphPanel::OnMouseButtonUp(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	return SGraphPanel::OnMouseButtonUp(MyGeometry, MouseEvent);
 }
 
 FReply SPMSGraphPanel::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
@@ -45,9 +195,34 @@ FReply SPMSGraphPanel::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, c
 	return SGraphPanel::OnMouseButtonDoubleClick(InMyGeometry, InMouseEvent);
 }
 
+FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	return SGraphPanel::OnMouseMove(MyGeometry, MouseEvent);
+}
+
+void SPMSGraphPanel::OnDragEnter(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
+{
+	SGraphPanel::OnDragEnter(MyGeometry, DragDropEvent);
+}
+
+void SPMSGraphPanel::OnDragLeave(const FDragDropEvent& DragDropEvent)
+{
+	SGraphPanel::OnDragLeave(DragDropEvent);
+}
+
+FReply SPMSGraphPanel::OnDragOver(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
+{
+	return SGraphPanel::OnDragOver(MyGeometry, DragDropEvent);
+}
+
+FReply SPMSGraphPanel::OnDrop(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
+{
+	return SGraphPanel::OnDrop(MyGeometry, DragDropEvent);
+}
+
 int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
-	const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
-	const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+                              const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+                              const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 	CachedAllottedGeometryScaledSize = AllottedGeometry.GetLocalSize() * AllottedGeometry.Scale;
 
@@ -449,6 +624,17 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 	return MaxLayerId;
 }
 
+FReply SPMSGraphPanel::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	//LastKeyChordDetected;
+	return SGraphPanel::OnKeyDown(MyGeometry, InKeyEvent);
+}
+
+bool SPMSGraphPanel::OnHandleLeftMouseRelease(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	return SGraphPanel::OnHandleLeftMouseRelease(MyGeometry, MouseEvent);
+}
+
 void SPMSGraphPanel::OnSplineHoverStateChanged(const FGraphSplineOverlapResult& NewSplineHoverState)
 {
 	TSharedPtr<SGraphPin> OldPinWidget = PreviousFrameSplineOverlap.GetBestPinWidget(*this);
@@ -484,7 +670,7 @@ void SPMSGraphPanel::PaintBackgroundAsLines(const FSlateBrush* BackgroundImage, 
 {
 	const bool bAntialias = false;
 
-	const int32 RulePeriod = 1;
+	const int32 RulePeriod = GetDefault<UPMSEditorSettings>()->SubGridCount;
 	check(RulePeriod > 0);
 
 	const FLinearColor GraphBackGroundImageColor(BackgroundImage->TintColor.GetSpecifiedColor());
@@ -493,7 +679,7 @@ void SPMSGraphPanel::PaintBackgroundAsLines(const FSlateBrush* BackgroundImage, 
 	const FLinearColor CenterColor(GetDefault<UEditorStyleSettings>()->CenterColor);
 	const float GraphSmallestGridSize = 8.0f;
 	const float RawZoomFactor = GetZoomAmount();
-	const float NominalGridSize = 100;
+	const float NominalGridSize = GetDefault<UPMSEditorSettings>()->GridSize/RulePeriod;
 
 	float ZoomFactor = RawZoomFactor;
 	float Inflation = 1.0f;

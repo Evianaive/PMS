@@ -6,7 +6,9 @@
 #include <Modules/ModuleManager.h>
 #include <AssetToolsModule.h>
 
+#include "ISettingsModule.h"
 #include "AssetTypeActions/AssetTypeActions_PMS.h"
+#include "Editor/PMSEditorSettings.h"
 #include "Editor/Style/PMSEditorStyle.h"
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 
@@ -34,7 +36,13 @@ void FPMSEditorModule::StartupModule()
 			//Todo 设置一些参数，如hover距离，按键方面的一些东西，可以注册config setting
 		}
 	}
-	
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->RegisterSettings("Editor", "Plugins", "PMS",
+			NSLOCTEXT("PMS","SettingsName", "Procedual Modeling System"),
+			NSLOCTEXT("PMS","SettingsDescription", "Procedual Modeling System Setting"),
+			GetMutableDefault<UPMSEditorSettings>());
+	}
 }
 
 void FPMSEditorModule::ShutdownModule()

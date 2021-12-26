@@ -4,6 +4,7 @@
 #pragma once
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 #include "CoreMinimal.h"
+#include "Editor/PMSEditorSettings.h"
 #include "Editor/SlateWidgets/HackPrivate/SGraphPanelPublic.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Editor/GraphEditor/Private/DragConnection.h"
@@ -279,7 +280,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 					}
 				});
 				/*Move NodeBeingDrag with snap*/
-				EnterNode->PMSSnapToGrid(128.0f,16.0f,PossibleSnapPosArray);
+				EnterNode->PMSSnapToGrid(GetDefault<UPMSEditorSettings>()->GridSize,GetDefault<UPMSEditorSettings>()->SnappingDistance,PossibleSnapPosArray);
 			
 				/*Move MoveTogetherNodes*/
 				UpdateMoveTogetherNodesPos(MoveTogetherNodes,MoveTogetherNodesStartPos,EnterNode,DragNodeStartPos);
