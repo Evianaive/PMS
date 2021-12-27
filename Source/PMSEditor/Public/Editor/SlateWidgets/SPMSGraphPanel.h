@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SGraphPanel.h"
+#include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 
 /**
  * 
@@ -39,4 +40,12 @@ public:
 	void PaintBackgroundAsLines(const FSlateBrush* BackgroundImage, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32& DrawLayerId) const;
 	SGraphPin* GetBestPinFromHoveredSpline() const;
 	bool PassesAssetReferenceFilter(const TArray<FAssetData>& ReferencedAssets, FText* OutFailureReason = nullptr) const;
+
+	EContextEnterState ContextEnterState = EContextEnterState::None;
+	EMouseEnterState MouseEnterState = EMouseEnterState::None;
+
+	TArray<UPMSEdGraphNode*> MoveTogetherNodes;
+	TArray<FVector2D> MoveTogetherNodesStartPos;
+	
+	FVector2D MouseMovementAfterDown = FVector2D::ZeroVector;
 };

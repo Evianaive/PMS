@@ -69,6 +69,9 @@ public:
 
 	UPROPERTY(config, EditAnywhere, Category="Debug")
 	bool EnablePreProcesser = false;
+
+	UPROPERTY(Config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="Graph Editor Setting")
+	int32 MoveStepSize = 1;
 public:
 	// Configures the background shown behind the UI material preview
 	//UPROPERTY(config, EditAnywhere, Category = "User Interface Domain")

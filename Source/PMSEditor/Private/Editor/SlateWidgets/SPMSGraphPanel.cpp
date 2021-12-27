@@ -54,7 +54,9 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 {
 	UE_LOG(LogTemp,Log,TEXT("Effecting is %s"),ToCStr(MouseEvent.GetEffectingButton().ToString()));
 	
-	if ((MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton) && (MouseEvent.IsAltDown() || MouseEvent.IsControlDown()))
+	if ((MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+		// && (MouseEvent.IsAltDown() || MouseEvent.IsControlDown())
+		)
 	{
 		if (SGraphPin* BestPinFromHoveredSpline = GetBestPinFromHoveredSpline())
 		{
@@ -501,13 +503,13 @@ FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEv
 						FVector2D AnchorNodeNewPos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) ) - NodeGrabOffset;
 
 						// Snap to grid
-						const float SnapSize = GetSnapGridSize();
+						const float SnapSize = GetDefault<UPMSEditorSettings>()->MoveStepSize;
 						AnchorNodeNewPos.X = SnapSize * FMath::RoundToFloat( AnchorNodeNewPos.X / SnapSize );
 						AnchorNodeNewPos.Y = SnapSize * FMath::RoundToFloat( AnchorNodeNewPos.Y / SnapSize );
 
 						// Dragging an unselected node automatically selects it.
-						SelectionManager.StartDraggingNode(NodeBeingDragged->GetObjectBeingDisplayed(), MouseEvent);
-
+						//SelectionManager.StartDraggingNode(NodeBeingDragged->GetObjectBeingDisplayed(), MouseEvent);
+						
 						// Move all the selected nodes.
 						{
 							const FVector2D AnchorNodeOldPos = NodeBeingDragged->GetPosition();
