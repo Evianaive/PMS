@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "SGraphPanel.h"
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
-
+#include "Classes/NodeDragHelper.h"
 /**
  * 
  */
@@ -44,8 +44,7 @@ public:
 	EContextEnterState ContextEnterState = EContextEnterState::None;
 	EMouseEnterState MouseEnterState = EMouseEnterState::None;
 
-	TArray<UPMSEdGraphNode*> MoveTogetherNodes;
-	TArray<FVector2D> MoveTogetherNodesStartPos;
+	FNodeDragHelper NodeDragHelper;
 	
 	FVector2D MouseMovementAfterDown = FVector2D::ZeroVector;
 };

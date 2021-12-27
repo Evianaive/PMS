@@ -7,37 +7,12 @@
 #include "Editor/SlateWidgets/SNodeFlagCheckBox.h"
 #include "Framework/Application/IInputProcessor.h"
 #include "Layout/Geometry.h"
+#include "Classes/NodeDragHelper.h"
 
 class SGraphPin;
 class SPMSEdGraphNode;
 class SPMSEdGraphPin;
 class SGraphPanel;
-
-UENUM()
-enum class EContextEnterState : uint8
-{
-	/* Mouse down on Node */
-	OnNode,
-	/* Mouse down on space */
-	OnSpace,
-	/* Mouse down on line */
-	OnLine,
-	/* Mouse down on pin */
-	OnPin,
-	/* Mouse down on node flag */
-	OnFlag,
-	/* None When Init*/
-	None
-};
-
-UENUM()
-enum class EMouseEnterState : uint8
-{
-	Left,
-	Middle,
-	Right,
-	None
-};
 
 struct FPMSEventContex
 {
@@ -125,16 +100,15 @@ public:
 	//New
 	//void InitEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
 	void UpdateEventContext(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent);
-	void UpdateMoveTogetherNodes(UPMSEdGraphNode* EnterNode, FGraphPanelSelectionSet SelectedNodes, bool CtrlState, bool ShiftState);
 private:
 	//New
 	EContextEnterState ContextEnterState = EContextEnterState::None;
 	EMouseEnterState MouseEnterState = EMouseEnterState::None;
 	
 	FPMSEventContex CurContext;
-	
-	TArray<UPMSEdGraphNode*> MoveTogetherNodes;
-	TArray<FVector2D> MoveTogetherNodesStartPos;
+	FNodeDragHelper NodeDragHelper;
+	// TArray<UPMSEdGraphNode*> MoveTogetherNodes;
+	// TArray<FVector2D> MoveTogetherNodesStartPos;
 
 	//Rest the EnterNode Position when drag begin
 	FVector2D DragNodeStartPos = FVector2D::ZeroVector;
