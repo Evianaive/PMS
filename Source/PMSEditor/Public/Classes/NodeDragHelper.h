@@ -7,6 +7,7 @@ class UPMSEdGraphNode;
 
 struct FNodeDragHelper
 {
+	FVector2D DragNodeStartPos;
 	TArray<UPMSEdGraphNode*> MoveTogetherNodes;
 	TArray<FVector2D> MoveTogetherNodesStartPos;
 	void UpdateMoveTogetherNodes(UPMSEdGraphNode* EnterNode, TSet<class UObject*> SelectedNodes, bool CtrlState, bool ShiftState);
@@ -39,11 +40,11 @@ enum class EMouseEnterState : uint8
 };
 
 
-#define UpdateMoveTogetherNodesPos(NodeDragHelper,UNodeBeingDrag,DragStartPos)\
+#define UpdateMoveTogetherNodesPos(NodeDragHelper,UNodeBeingDrag)\
 for(int i=0;i<NodeDragHelper.MoveTogetherNodes.Num();i++)\
 {\
 	UPMSEdGraphNode* MoveTogetherNode = NodeDragHelper.MoveTogetherNodes[i];\
 	FVector2D CurNodeStartPos = NodeDragHelper.MoveTogetherNodesStartPos[i];\
-	MoveTogetherNode->NodePosX = CurNodeStartPos.X + UNodeBeingDrag->NodePosX - DragStartPos.X;\
-	MoveTogetherNode->NodePosY = CurNodeStartPos.Y + UNodeBeingDrag->NodePosY - DragStartPos.Y;\
+	MoveTogetherNode->NodePosX = CurNodeStartPos.X + UNodeBeingDrag->NodePosX - NodeDragHelper.DragNodeStartPos.X;\
+	MoveTogetherNode->NodePosY = CurNodeStartPos.Y + UNodeBeingDrag->NodePosY - NodeDragHelper.DragNodeStartPos.Y;\
 }

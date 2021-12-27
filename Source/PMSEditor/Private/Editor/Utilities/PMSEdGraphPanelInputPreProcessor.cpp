@@ -195,7 +195,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonDownEvent(FSlateApplica
 				// 	//MoveTogetherNodesStartPos.Add(FVector2D(MoveTogetherNode->NodePosX,MoveTogetherNode->NodePosY));
 				// }		
 			
-				DragNodeStartPos = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
+				NodeDragHelper.DragNodeStartPos = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
 				MouseMovementAfterDown = FVector2D::ZeroVector;
 				return true;
 			}
@@ -253,8 +253,8 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 				/*Get NodePos before Move*/
 				FVector2D NodePosTemp = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
-				EnterNode->NodePosX = DragNodeStartPos.X + MouseMovementAfterDown.X;
-				EnterNode->NodePosY = DragNodeStartPos.Y + MouseMovementAfterDown.Y;
+				EnterNode->NodePosX = NodeDragHelper.DragNodeStartPos.X + MouseMovementAfterDown.X;
+				EnterNode->NodePosY = NodeDragHelper.DragNodeStartPos.Y + MouseMovementAfterDown.Y;
 				/**/
 				FChildren* Children = CurContext.GraphPanel->GetChildren();
 				TArray<FVector2D> PossibleSnapPosArray;
@@ -275,7 +275,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseMoveEvent(FSlateApplication& 
 				EnterNode->PMSSnapToGrid(GetDefault<UPMSEditorSettings>()->GridSize,GetDefault<UPMSEditorSettings>()->SnappingDistance,PossibleSnapPosArray);
 			
 				/*Move MoveTogetherNodes*/
-				UpdateMoveTogetherNodesPos(NodeDragHelper,EnterNode,DragNodeStartPos);
+				UpdateMoveTogetherNodesPos(NodeDragHelper,EnterNode);
 
 				/*Move Selection*/
 				const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
@@ -394,8 +394,8 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonUpEvent(FSlateApplicati
 				NodeBeingDrag.Reset();
 				NodeDragHelper.MoveTogetherNodes.Reset();
 				NodeDragHelper.MoveTogetherNodesStartPos.Reset();				
-		
-				DragNodeStartPos = FVector2D::ZeroVector;
+				
+				NodeDragHelper.DragNodeStartPos = FVector2D::ZeroVector;
 				MouseMovementAfterDown = FVector2D::ZeroVector;
 		
 				bMoveBeforeUp = false;
@@ -457,7 +457,7 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyDownEvent(FSlateApplication& Sl
 				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 
 				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
-				UpdateMoveTogetherNodesPos(NodeDragHelper,EnterNode,DragNodeStartPos);
+				UpdateMoveTogetherNodesPos(NodeDragHelper,EnterNode);
 			
 				ReturnType = true;
 			}

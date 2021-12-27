@@ -34,6 +34,7 @@
 #include "ScopedTransaction.h"
 #include "Editor/PMSEdGraphNode.h"
 #include "Editor/PMSEditorSettings.h"
+#include "Editor/SlateWidgets/SPMSEdGraphNode.h"
 
 namespace NodePanelDefs
 {
@@ -64,7 +65,7 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 	{
 		if (bIsLeftMouseButtonEffecting)
 		{
-			MouseEnterState = EMouseEnterState::Left;		
+			MouseEnterState = EMouseEnterState::Left;
 		}
 		else if(bIsMiddleMouseButtonEffecting)
 		{
@@ -81,21 +82,66 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 	}
 	TotalMouseDelta = 0;
 	
-	/*OnConnection Click*/
-	/*SGraphPanel*/
-	if ((MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton))
+	
+	/*OnNode Click*/
+	// LEFT BUTTON is for selecting nodes and manipulating pins.
+	FArrangedChildren ArrangedChildren(EVisibility::Visible);
+	ArrangeChildNodes(MyGeometry, ArrangedChildren);
+
+	const int32 NodeUnderMouseIndex = SWidget::FindChildUnderMouse( ArrangedChildren, MouseEvent );
+	/*ContextEnterState = EContextEnterState::OnNode*/
+	if ( NodeUnderMouseIndex != INDEX_NONE )
 	{
-		if (SGraphPin* BestPinFromHoveredSpline = GetBestPinFromHoveredSpline())
-		{
+		ContextEnterState = EContextEnterState::OnNode;
+		// PRESSING ON A NODE!
+	
+		// This changes selection and starts dragging it.
+		const FArrangedWidget& NodeGeometry = ArrangedChildren[NodeUnderMouseIndex];
+		const FVector2D MousePositionInNode = NodeGeometry.Geometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
+		TSharedRef<SNode> NodeWidgetUnderMouse = StaticCastSharedRef<SNode>( NodeGeometry.Widget );
+	
+		//if( NodeWidgetUnderMouse->CanBeSelected(MousePositionInNode) )
+		//{
+			// Track the node that we're dragging; we will move it in OnMouseMove.
+			//this->OnBeginNodeInteraction(NodeWidgetUnderMouse, MousePositionInNode);
+			NodeUnderMousePtr = NodeWidgetUnderMouse;			
+			NodeGrabOffset = MousePositionInNode;
+
+		
 			if(MouseEnterState == EMouseEnterState::Left)
 			{
-				ContextEnterState = EContextEnterState::OnLine;
-				return BestPinFromHoveredSpline->OnPinMouseDown(MyGeometry, MouseEvent);				
+				/* ModifierKeys store state of ctrl, shift and alt, we don't need to store these in this class */
+				const bool CtrlState = MouseEvent.GetModifierKeys().IsControlDown();
+				const bool ShiftState = MouseEvent.GetModifierKeys().IsShiftDown();		
+				const FGraphPanelSelectionSet SelectedNodes = SelectionManager.SelectedNodes;
+				UPMSEdGraphNode* EnterNode = ((SPMSEdGraphNode*)(NodeUnderMousePtr.Pin().Get()))->GetPMSNodeObj();
+				
+				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);			
+				NodeDragHelper.DragNodeStartPos = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
+				MouseMovementAfterDown = FVector2D::ZeroVector;
 			}
+			return FReply::Handled().CaptureMouse( SharedThis(this) );
+		//}
+	}
+
+	/*OnConnection Click*/
+	/*SGraphPanel*/
+	if (SGraphPin* BestPinFromHoveredSpline = GetBestPinFromHoveredSpline())
+	{
+		if(MouseEnterState == EMouseEnterState::Left)
+		{
+			ContextEnterState = EContextEnterState::OnLine;
+			return BestPinFromHoveredSpline->OnPinMouseDown(MyGeometry, MouseEvent);				
+		}
+		if(MouseEnterState == EMouseEnterState::Right)
+		{
+			ContextEnterState = EContextEnterState::OnLine;
+			return BestPinFromHoveredSpline->OnPinMouseDown(MyGeometry, MouseEvent);			
 		}
 	}
-	
-	
+
+	/*OnSpace Click*/
+	ContextEnterState = EContextEnterState::OnSpace;
 	if(bIsRightMouseButtonEffecting)
 	{
 		// Starting zoom by holding RMB
@@ -169,30 +215,7 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 	}
 	else if ( bIsLeftMouseButtonEffecting )
 	{
-		// LEFT BUTTON is for selecting nodes and manipulating pins.
-		FArrangedChildren ArrangedChildren(EVisibility::Visible);
-		ArrangeChildNodes(MyGeometry, ArrangedChildren);
-	
-		const int32 NodeUnderMouseIndex = SWidget::FindChildUnderMouse( ArrangedChildren, MouseEvent );
-		if ( NodeUnderMouseIndex != INDEX_NONE )
-		{
-			// PRESSING ON A NODE!
-	
-			// This changes selection and starts dragging it.
-			const FArrangedWidget& NodeGeometry = ArrangedChildren[NodeUnderMouseIndex];
-			const FVector2D MousePositionInNode = NodeGeometry.Geometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-			TSharedRef<SNode> NodeWidgetUnderMouse = StaticCastSharedRef<SNode>( NodeGeometry.Widget );
-	
-			if( NodeWidgetUnderMouse->CanBeSelected(MousePositionInNode) )
-			{
-				// Track the node that we're dragging; we will move it in OnMouseMove.
-				//this->OnBeginNodeInteraction(NodeWidgetUnderMouse, MousePositionInNode);
-				NodeUnderMousePtr = NodeWidgetUnderMouse;
-				NodeGrabOffset = MousePositionInNode;
-				ContextEnterState = EContextEnterState::OnNode;
-				return FReply::Handled().CaptureMouse( SharedThis(this) );
-			}
-		}
+		
 	
 		// START MARQUEE SELECTION.
 		const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
