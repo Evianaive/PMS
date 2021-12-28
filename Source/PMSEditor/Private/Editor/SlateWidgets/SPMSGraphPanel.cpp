@@ -54,7 +54,6 @@ void SPMSGraphPanel::Construct(const FArguments& InArgs)
 FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	UE_LOG(LogTemp,Log,TEXT("Effecting is %s"),ToCStr(MouseEvent.GetEffectingButton().ToString()));
-
 	
 	/*SNodePanel*/
 	const bool bIsLeftMouseButtonEffecting = MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton;
@@ -63,6 +62,8 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 
 	/*Mouse Enter State*/
 	{
+		LastMouseDownGraphPos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
+			
 		if (bIsLeftMouseButtonEffecting)
 		{
 			MouseEnterState = EMouseEnterState::Left;
@@ -82,26 +83,26 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 	}
 	TotalMouseDelta = 0;
 	
-	
 	/*OnNode Click*/
-	// LEFT BUTTON is for selecting nodes and manipulating pins.
-	FArrangedChildren ArrangedChildren(EVisibility::Visible);
-	ArrangeChildNodes(MyGeometry, ArrangedChildren);
-
-	const int32 NodeUnderMouseIndex = SWidget::FindChildUnderMouse( ArrangedChildren, MouseEvent );
-	/*ContextEnterState = EContextEnterState::OnNode*/
-	if ( NodeUnderMouseIndex != INDEX_NONE )
 	{
-		ContextEnterState = EContextEnterState::OnNode;
-		// PRESSING ON A NODE!
+		// LEFT BUTTON is for selecting nodes and manipulating pins.
+		FArrangedChildren ArrangedChildren(EVisibility::Visible);
+		ArrangeChildNodes(MyGeometry, ArrangedChildren);
+
+		const int32 NodeUnderMouseIndex = SWidget::FindChildUnderMouse( ArrangedChildren, MouseEvent );
+		/*ContextEnterState = EContextEnterState::OnNode*/
+		if ( NodeUnderMouseIndex != INDEX_NONE )
+		{
+			ContextEnterState = EContextEnterState::OnNode;
+			// PRESSING ON A NODE!
 	
-		// This changes selection and starts dragging it.
-		const FArrangedWidget& NodeGeometry = ArrangedChildren[NodeUnderMouseIndex];
-		const FVector2D MousePositionInNode = NodeGeometry.Geometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-		TSharedRef<SNode> NodeWidgetUnderMouse = StaticCastSharedRef<SNode>( NodeGeometry.Widget );
+			// This changes selection and starts dragging it.
+			const FArrangedWidget& NodeGeometry = ArrangedChildren[NodeUnderMouseIndex];
+			const FVector2D MousePositionInNode = NodeGeometry.Geometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
+			TSharedRef<SNode> NodeWidgetUnderMouse = StaticCastSharedRef<SNode>( NodeGeometry.Widget );
 	
-		//if( NodeWidgetUnderMouse->CanBeSelected(MousePositionInNode) )
-		//{
+			//if( NodeWidgetUnderMouse->CanBeSelected(MousePositionInNode) )
+			//{
 			// Track the node that we're dragging; we will move it in OnMouseMove.
 			//this->OnBeginNodeInteraction(NodeWidgetUnderMouse, MousePositionInNode);
 			NodeUnderMousePtr = NodeWidgetUnderMouse;			
@@ -121,11 +122,12 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 				MouseMovementAfterDown = FVector2D::ZeroVector;
 			}
 			return FReply::Handled().CaptureMouse( SharedThis(this) );
-		//}
+			//}
+		}
+		
 	}
 
-	/*OnConnection Click*/
-	/*SGraphPanel*/
+	/*OnConnection Click*/ /*SGraphPanel*/
 	if (SGraphPin* BestPinFromHoveredSpline = GetBestPinFromHoveredSpline())
 	{
 		if(MouseEnterState == EMouseEnterState::Left)
@@ -141,187 +143,128 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 	}
 
 	/*OnSpace Click*/
-	ContextEnterState = EContextEnterState::OnSpace;
-	if(bIsRightMouseButtonEffecting)
-	{
-		// Starting zoom by holding RMB
-		FReply ReplyState = FReply::Handled();
-		ReplyState.CaptureMouse( SharedThis(this) );
-		ReplyState.UseHighPrecisionMouseMovement( SharedThis(this) );
-	
-		DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually zoom
-		CancelZoomToFit();
-		TotalMouseDeltaXY = 0;
-	
-		if (!FSlateApplication::Get().IsUsingTrackpad()) // on trackpad we don't know yet if user wants to zoom or bring up the context menu
+	//Todo MouseEnterState == EMouseEnterState::Right时还有一些问题
+	{	
+		ContextEnterState = EContextEnterState::OnSpace;
+		if(MouseEnterState == EMouseEnterState::Right)
 		{
-			bShowSoftwareCursor = true;
+			// Starting zoom by holding RMB
+			FReply ReplyState = FReply::Handled();
+			ReplyState.CaptureMouse( SharedThis(this) );
+			ReplyState.UseHighPrecisionMouseMovement( SharedThis(this) );
+		
+			DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually zoom
+			CancelZoomToFit();
+			TotalMouseDeltaXY = 0;
+		
+			if (!FSlateApplication::Get().IsUsingTrackpad()) // on trackpad we don't know yet if user wants to zoom or bring up the context menu
+			{
+				bShowSoftwareCursor = true;
+			}
+		
+			if (bIsLeftMouseButtonEffecting)
+			{
+				// Got here from panning mode (with RMB held) - clear panning mode, but use cached software cursor position
+				const FVector2D WidgetSpaceCursorPos = GraphCoordToPanelCoord( SoftwareCursorPosition );
+				ZoomStartOffset = WidgetSpaceCursorPos;
+				this->bIsPanning = false;
+			}
+			else
+			{
+				// Cache current cursor position as zoom origin and software cursor position
+				ZoomStartOffset = MyGeometry.AbsoluteToLocal( MouseEvent.GetLastScreenSpacePosition() );
+				SoftwareCursorPosition = PanelCoordToGraphCoord( ZoomStartOffset );
+		
+				if (bIsRightMouseButtonEffecting)
+				{
+					// Clear things that may be set when left clicking
+					if (NodeUnderMousePtr.IsValid())
+					{
+						OnEndNodeInteraction(NodeUnderMousePtr.Pin().ToSharedRef());
+					}
+		
+					if ( Marquee.IsValid() )
+					{
+						auto PreviouslySelectedNodes = SelectionManager.SelectedNodes;
+						ApplyMarqueeSelection(Marquee, PreviouslySelectedNodes, SelectionManager.SelectedNodes);
+						if (SelectionManager.SelectedNodes.Num() > 0 || PreviouslySelectedNodes.Num() > 0)
+						{
+							SelectionManager.OnSelectionChanged.ExecuteIfBound(SelectionManager.SelectedNodes);
+						}
+					}
+		
+					Marquee = FMarqueeOperation();
+				}
+			}
+		
+			return ReplyState;
 		}
-	
-		if (bIsLeftMouseButtonEffecting)
+		else if (MouseEnterState == EMouseEnterState::Middle)
 		{
-			// Got here from panning mode (with RMB held) - clear panning mode, but use cached software cursor position
-			const FVector2D WidgetSpaceCursorPos = GraphCoordToPanelCoord( SoftwareCursorPosition );
-			ZoomStartOffset = WidgetSpaceCursorPos;
-			this->bIsPanning = false;
+			// Cache current cursor position as zoom origin and software cursor position
+			ZoomStartOffset = MyGeometry.AbsoluteToLocal(MouseEvent.GetLastScreenSpacePosition());
+			SoftwareCursorPosition = PanelCoordToGraphCoord(ZoomStartOffset);
+		
+			FReply ReplyState = FReply::Handled();
+			ReplyState.CaptureMouse(SharedThis(this));
+			ReplyState.UseHighPrecisionMouseMovement(SharedThis(this));
+		
+			SoftwareCursorPosition = PanelCoordToGraphCoord(MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition()));
+		
+			DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually pan
+			CancelZoomToFit();
+		
+			// MIDDLE BUTTON is for dragging only.
+			return ReplyState;
+		}
+		else if ( MouseEnterState == EMouseEnterState::Left )
+		{
+			
+		
+			// START MARQUEE SELECTION.
+			const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
+			Marquee.Start( GraphMousePos, FMarqueeOperation::OperationTypeFromMouseEvent(MouseEvent) );
+		
+			// If we're marquee selecting, then we're not clicking on a node!
+			//NodeUnderMousePtr.Reset();
+			ContextEnterState = EContextEnterState::OnSpace;
+		
+			return FReply::Handled().CaptureMouse( SharedThis(this) );
 		}
 		else
 		{
-			// Cache current cursor position as zoom origin and software cursor position
-			ZoomStartOffset = MyGeometry.AbsoluteToLocal( MouseEvent.GetLastScreenSpacePosition() );
-			SoftwareCursorPosition = PanelCoordToGraphCoord( ZoomStartOffset );
-	
-			if (bIsRightMouseButtonEffecting)
-			{
-				// Clear things that may be set when left clicking
-				if (NodeUnderMousePtr.IsValid())
-				{
-					OnEndNodeInteraction(NodeUnderMousePtr.Pin().ToSharedRef());
-				}
-	
-				if ( Marquee.IsValid() )
-				{
-					auto PreviouslySelectedNodes = SelectionManager.SelectedNodes;
-					ApplyMarqueeSelection(Marquee, PreviouslySelectedNodes, SelectionManager.SelectedNodes);
-					if (SelectionManager.SelectedNodes.Num() > 0 || PreviouslySelectedNodes.Num() > 0)
-					{
-						SelectionManager.OnSelectionChanged.ExecuteIfBound(SelectionManager.SelectedNodes);
-					}
-				}
-	
-				Marquee = FMarqueeOperation();
-			}
-		}
-	
-		return ReplyState;
-	}
-	else if (bIsMiddleMouseButtonEffecting)
-	{
-		// Cache current cursor position as zoom origin and software cursor position
-		ZoomStartOffset = MyGeometry.AbsoluteToLocal(MouseEvent.GetLastScreenSpacePosition());
-		SoftwareCursorPosition = PanelCoordToGraphCoord(ZoomStartOffset);
-	
-		FReply ReplyState = FReply::Handled();
-		ReplyState.CaptureMouse(SharedThis(this));
-		ReplyState.UseHighPrecisionMouseMovement(SharedThis(this));
-	
-		SoftwareCursorPosition = PanelCoordToGraphCoord(MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition()));
-	
-		DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually pan
-		CancelZoomToFit();
-	
-		// MIDDLE BUTTON is for dragging only.
-		return ReplyState;
-	}
-	else if ( bIsLeftMouseButtonEffecting )
-	{
-		
-	
-		// START MARQUEE SELECTION.
-		const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
-		Marquee.Start( GraphMousePos, FMarqueeOperation::OperationTypeFromMouseEvent(MouseEvent) );
-	
-		// If we're marquee selecting, then we're not clicking on a node!
-		//NodeUnderMousePtr.Reset();
-		ContextEnterState = EContextEnterState::OnSpace;
-	
-		return FReply::Handled().CaptureMouse( SharedThis(this) );
-	}
-	else
-	{
-		return FReply::Unhandled();
+			return FReply::Unhandled();
+		}	
 	}
 	//return SGraphPanel::OnMouseButtonDown(MyGeometry, MouseEvent);
 }
 
 FReply SPMSGraphPanel::OnMouseButtonUp(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	if (!NodeUnderMousePtr.IsValid() && !Marquee.IsValid() && (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton) && (MouseEvent.IsShiftDown()))
-	{
-		if (SGraphPin* BestPinFromHoveredSpline = GetBestPinFromHoveredSpline())
-		{
-			return BestPinFromHoveredSpline->OnMouseButtonUp(MyGeometry, MouseEvent);
-		}
-	}
-
+	
+	UE_LOG(LogTemp,Log,TEXT("Effecting is %s"),ToCStr(MouseEvent.GetEffectingButton().ToString()));
 
 	FReply ReplyState = FReply::Unhandled();
+	bool BlockNextStep = false;
+	bool ReturnType = false;
 
-	const bool bIsLeftMouseButtonEffecting = MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton;
-	const bool bIsRightMouseButtonEffecting = MouseEvent.GetEffectingButton() == EKeys::RightMouseButton;
-	const bool bIsMiddleMouseButtonEffecting = MouseEvent.GetEffectingButton() == EKeys::MiddleMouseButton;
-	const bool bIsRightMouseButtonDown = MouseEvent.IsMouseButtonDown( EKeys::RightMouseButton );
-	const bool bIsLeftMouseButtonDown = MouseEvent.IsMouseButtonDown( EKeys::LeftMouseButton );
-	const bool bIsMiddleMouseButtonDown = MouseEvent.IsMouseButtonDown(EKeys::MiddleMouseButton);
-
+	
 	// Did the user move the cursor sufficiently far, or is it in a dead zone?
 	// In Dead zone     - implies actions like summoning context menus and general clicking.
 	// Out of Dead Zone - implies dragging actions like moving nodes and marquee selection.
-	const bool bCursorInDeadZone = TotalMouseDelta <= FSlateApplication::Get().GetDragTriggerDistance();
+
+	/*true for no movement*/
+	const bool bCursorInDeadZone = TotalMouseDelta <= FSlateApplication::Get().GetDragTriggerDistance();	
 
 	// Set to true later if we need to finish with the software cursor
 	bool bRemoveSoftwareCursor = false;
-
-	if ((bIsLeftMouseButtonEffecting && bIsRightMouseButtonDown)
-	||  (bIsRightMouseButtonEffecting && (bIsLeftMouseButtonDown || (FSlateApplication::Get().IsUsingTrackpad() && bIsZoomingWithTrackpad)))
-	||	(bIsMiddleMouseButtonEffecting && bIsRightMouseButtonDown))
+	
+	
+	if(ContextEnterState == EContextEnterState::OnNode)
 	{
-		// Ending zoom by releasing LMB or RMB
-		ReplyState = FReply::Handled();
-
-		if (bIsLeftMouseButtonDown || FSlateApplication::Get().IsUsingTrackpad())
+		if(MouseEnterState == EMouseEnterState::Left)
 		{
-			// If we released the right mouse button first, we need to cancel the software cursor display
-			bRemoveSoftwareCursor = true;
-			bIsZoomingWithTrackpad = false;
-			ReplyState.ReleaseMouseCapture();
-		}
-	}
-	else if ( bIsRightMouseButtonEffecting )
-	{
-		ReplyState = FReply::Handled().ReleaseMouseCapture();
-
-		bRemoveSoftwareCursor = true;
-
-		TSharedPtr<SWidget> WidgetToFocus;
-		if (bCursorInDeadZone)
-		{
-			WidgetToFocus = OnSummonContextMenu(MyGeometry, MouseEvent);
-		}
-
-		this->bIsPanning = false;
-
-		if (WidgetToFocus.IsValid())
-		{
-			ReplyState.SetUserFocus(WidgetToFocus.ToSharedRef(), EFocusCause::SetDirectly);
-		}
-	}
-	else if ( bIsMiddleMouseButtonEffecting )
-	{
-		ReplyState = FReply::Handled().ReleaseMouseCapture();
-		
-		bRemoveSoftwareCursor = true;
-		
-		this->bIsPanning = false;
-	}
-	else if ( bIsLeftMouseButtonEffecting )
-	{
-		if (NodeUnderMousePtr.IsValid())
-		{
-			OnEndNodeInteraction(NodeUnderMousePtr.Pin().ToSharedRef());
-
-			FinalizeNodeMovements();
-			ScopedTransactionPtr.Reset();
-		}
-				
-		if (OnHandleLeftMouseRelease(MyGeometry, MouseEvent))
-		{
-
-		}
-		else if ( bCursorInDeadZone )
-		{
-			//@TODO: Move to selection manager
-			if ( NodeUnderMousePtr.IsValid() )
+			if(bCursorInDeadZone)
 			{
 				// We clicked on a node!
 				TSharedRef<SNode> NodeWidgetUnderMouse = NodeUnderMousePtr.Pin().ToSharedRef();
@@ -330,36 +273,143 @@ FReply SPMSGraphPanel::OnMouseButtonUp(const FGeometry& MyGeometry, const FPoint
 
 				// We're done interacting with this node.
 				NodeUnderMousePtr.Reset();
+				
+				// SelectionManager.SelectedNodes.Reset();
+				// SelectionManager.SelectedNodes.Add(((SPMSEdGraphNode*)(NodeUnderMousePtr.Pin().Get()))->GetPMSNodeObj());
 			}
-			else if (this->HasMouseCapture())
-			{
-				// We clicked on the panel background
-				this->SelectionManager.ClearSelectionSet();
-
-				if(OnSpawnNodeByShortcut.IsBound())
+			const FGraphPanelSelectionSet SelectedNodes = SelectionManager.SelectedNodes;
+			UPMSEdGraphNode* EnterNode = ((SPMSEdGraphNode*)(NodeUnderMousePtr.Pin().Get()))->GetPMSNodeObj();
+			
+			if(SelectedNodes.Find(EnterNode))
+			{	
+				for(UObject* Node : SelectionManager.GetSelectedNodes())
 				{
-					OnSpawnNodeByShortcut.Execute(LastKeyChordDetected, PanelCoordToGraphCoord(  MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) ));
+					Cast<UPMSEdGraphNode>(Node)->AlreadyMoveTogether = false;
 				}
-
-				LastKeyChordDetected = FInputChord();
 			}
-		}
-		else if ( Marquee.IsValid() )
-		{
-			auto PreviouslySelectedNodes = SelectionManager.SelectedNodes;
-			ApplyMarqueeSelection(Marquee, PreviouslySelectedNodes, SelectionManager.SelectedNodes);
-			if (SelectionManager.SelectedNodes.Num() > 0 || PreviouslySelectedNodes.Num() > 0)
+			else
 			{
-				SelectionManager.OnSelectionChanged.ExecuteIfBound(SelectionManager.SelectedNodes);
+				EnterNode->AlreadyMoveTogether = false;
 			}
+			
+			for(UPMSEdGraphNode* MoveTogetherNode:NodeDragHelper.MoveTogetherNodes)
+			{
+				MoveTogetherNode->AlreadyMoveTogether = false;
+				/*This is possibly not necessary*/
+				MoveTogetherNode->StillMoveTogether = false;
+			}
+			
+			OnEndNodeInteraction(NodeUnderMousePtr.Pin().ToSharedRef());
+
+			FinalizeNodeMovements();
+			ScopedTransactionPtr.Reset();
+			
+			// NodeUnderMousePtr.Reset();
+			NodeDragHelper.MoveTogetherNodes.Reset();
+			NodeDragHelper.MoveTogetherNodesStartPos.Reset();				
+			
+			NodeDragHelper.DragNodeStartPos = FVector2D::ZeroVector;
+			MouseMovementAfterDown = FVector2D::ZeroVector;
+
+			ReplyState = FReply::Handled().ReleaseMouseCapture();
 		}
+	}
+	if(ContextEnterState == EContextEnterState::OnSpace)
+	{
+		if(MouseEnterState == EMouseEnterState::Left)
+		{	
+			if ( bCursorInDeadZone )
+			{
+				if (this->HasMouseCapture())
+				{
+					// We clicked on the panel background
+					this->SelectionManager.ClearSelectionSet();
 
-		// The existing marquee operation ended; reset it.
-		Marquee = FMarqueeOperation();
+					if(OnSpawnNodeByShortcut.IsBound())
+					{
+						OnSpawnNodeByShortcut.Execute(LastKeyChordDetected, PanelCoordToGraphCoord(  MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) ));
+					}
 
-		ReplyState = FReply::Handled().ReleaseMouseCapture();
+					LastKeyChordDetected = FInputChord();
+				}
+			}
+			else if ( Marquee.IsValid() )
+			{
+				auto PreviouslySelectedNodes = SelectionManager.SelectedNodes;
+				ApplyMarqueeSelection(Marquee, PreviouslySelectedNodes, SelectionManager.SelectedNodes);
+				if (SelectionManager.SelectedNodes.Num() > 0 || PreviouslySelectedNodes.Num() > 0)
+				{
+					SelectionManager.OnSelectionChanged.ExecuteIfBound(SelectionManager.SelectedNodes);
+				}
+			}
+
+			// The existing marquee operation ended; reset it.
+			Marquee = FMarqueeOperation();
+
+			ReplyState = FReply::Handled().ReleaseMouseCapture();
+		}
+		else if(MouseEnterState == EMouseEnterState::Middle)
+		{
+			ReplyState = FReply::Handled().ReleaseMouseCapture();		
+			bRemoveSoftwareCursor = true;		
+			this->bIsPanning = false;
+		}
+		else if(MouseEnterState == EMouseEnterState::Right)
+		{
+			if(TotalMouseDelta<0.01)
+			{
+				ReplyState = FReply::Handled().ReleaseMouseCapture();
+				bRemoveSoftwareCursor = true;
+				TSharedPtr<SWidget> WidgetToFocus;				
+				WidgetToFocus = OnSummonContextMenu(MyGeometry, MouseEvent);
+				if (WidgetToFocus.IsValid())
+				{
+					ReplyState.SetUserFocus(WidgetToFocus.ToSharedRef(), EFocusCause::SetDirectly);
+				}				
+			}
+			else
+			{
+				// Ending zoom by releasing LMB or RMB
+				ReplyState = FReply::Handled();
+
+				// If we released the right mouse button first, we need to cancel the software cursor display
+				bRemoveSoftwareCursor = true;
+				bIsZoomingWithTrackpad = false;
+				ReplyState.ReleaseMouseCapture();				
+			}			
+		}
 	}
 
+	if(MouseEnterState == EMouseEnterState::None)
+	{					
+		if (OnHandleLeftMouseRelease(MyGeometry, MouseEvent))
+		{
+			Marquee = FMarqueeOperation();
+
+			ReplyState = FReply::Handled().ReleaseMouseCapture();
+		}
+	}
+	
+	MouseEnterState = EMouseEnterState::None;
+	ContextEnterState = EContextEnterState::None;
+	
+	if(ContextEnterState == EContextEnterState::OnLine)
+	{
+		if (SGraphPin* BestPinFromHoveredSpline = GetBestPinFromHoveredSpline())
+		{
+			if(!NodeUnderMousePtr.IsValid() && !Marquee.IsValid() && MouseEnterState == EMouseEnterState::Left)
+			{
+				ContextEnterState = EContextEnterState::OnLine;
+				return BestPinFromHoveredSpline->OnMouseButtonUp(MyGeometry, MouseEvent);				
+			}
+			if(!NodeUnderMousePtr.IsValid() && !Marquee.IsValid() && MouseEnterState == EMouseEnterState::Right)
+			{
+				ContextEnterState = EContextEnterState::OnLine;
+				return BestPinFromHoveredSpline->OnMouseButtonUp(MyGeometry, MouseEvent);			
+			}
+		}
+	}
+	
 	if (bRemoveSoftwareCursor)
 	{
 		// If we released the right mouse button first, we need to cancel the software cursor display
@@ -429,174 +479,142 @@ FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEv
 			OnSplineHoverStateChanged(FGraphSplineOverlapResult());
 		}		
 	}
-
-
+	
 	
 	const bool bIsRightMouseButtonDown = MouseEvent.IsMouseButtonDown( EKeys::RightMouseButton );
 	const bool bIsLeftMouseButtonDown = MouseEvent.IsMouseButtonDown( EKeys::LeftMouseButton );
 	const bool bIsMiddleMouseButtonDown = MouseEvent.IsMouseButtonDown(EKeys::MiddleMouseButton);
 	const FModifierKeysState ModifierKeysState = FSlateApplication::Get().GetModifierKeys();
-
+	
 	PastePosition = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
+	MouseMovementAfterDown = -(LastMouseDownGraphPos - PastePosition);
 
+	
 	if ( this->HasMouseCapture() )
 	{
 		const FVector2D CursorDelta = MouseEvent.GetCursorDelta();
 		// Track how much the mouse moved since the mouse down.
 		TotalMouseDelta += CursorDelta.Size();
-
-		const bool bShouldZoom = bIsRightMouseButtonDown && (bIsLeftMouseButtonDown || bIsMiddleMouseButtonDown || ModifierKeysState.IsAltDown() || FSlateApplication::Get().IsUsingTrackpad());
-		if (bShouldZoom)
+		
+		if(ContextEnterState == EContextEnterState::OnNode)
 		{
-			FReply ReplyState = FReply::Handled();
-
-			TotalMouseDeltaXY += CursorDelta.X + CursorDelta.Y;
-
-			const int32 ZoomLevelDelta = FMath::RoundToInt(TotalMouseDeltaXY * NodePanelDefs::MouseZoomScaling);
-
-			// Get rid of mouse movement that's been 'used up' by zooming
-			if (ZoomLevelDelta != 0)
+			if(MouseEnterState == EMouseEnterState::Left)
 			{
-				TotalMouseDeltaXY -= (ZoomLevelDelta / NodePanelDefs::MouseZoomScaling);
-			}
-
-			// Perform zoom centered on the cached start offset
-			ChangeZoomLevel(ZoomLevelDelta, ZoomStartOffset, MouseEvent.IsControlDown());
-
-			this->bIsPanning = false;
-
-			if (FSlateApplication::Get().IsUsingTrackpad() && ZoomLevelDelta != 0)
-			{
-				this->bIsZoomingWithTrackpad = true;
-				bShowSoftwareCursor = true;
-			}
-
-			// Stop the zoom-to-fit in favor of user control
-			CancelZoomToFit();
-
-			return ReplyState;
-		}
-		else if (bIsRightMouseButtonDown)
-		{
-			FReply ReplyState = FReply::Handled();
-
-			if( !CursorDelta.IsZero() )
-			{
-				bShowSoftwareCursor = true;
-			}
-
-			// Panning and mouse is outside of panel? Pasting should just go to the screen center.
-			PastePosition = PanelCoordToGraphCoord( 0.5f * MyGeometry.GetLocalSize() );
-
-			this->bIsPanning = true;
-			ViewOffset -= CursorDelta / GetZoomAmount();
-
-			// Stop the zoom-to-fit in favor of user control
-			CancelZoomToFit();
-
-			return ReplyState;
-		}
-		else if (bIsMiddleMouseButtonDown)
-		{
-			FReply ReplyState = FReply::Handled();
-
-			if (!CursorDelta.IsZero())
-			{
-				bShowSoftwareCursor = true;
-			}
-
-			// Panning and mouse is outside of panel? Pasting should just go to the screen center.
-			PastePosition = PanelCoordToGraphCoord(0.5f * MyGeometry.Size);
-
-			this->bIsPanning = true;
-			ViewOffset -= CursorDelta / GetZoomAmount();
-
-			return ReplyState;
-		}
-		else if (bIsLeftMouseButtonDown)
-		{
-			TSharedPtr<SNode> NodeBeingDragged = NodeUnderMousePtr.Pin();
-
-			if ( IsEditable.Get() )
-			{
-				// Update the amount to pan panel
-				UpdateViewOffset(MyGeometry, MouseEvent.GetScreenSpacePosition());
-
-				const bool bCursorInDeadZone = TotalMouseDelta <= FSlateApplication::Get().GetDragTriggerDistance();
-
-				if ( NodeBeingDragged.IsValid() )
+				UPMSEdGraphNode* EnterNode = ((SPMSEdGraphNode*)(NodeUnderMousePtr.Pin().Get()))->GetPMSNodeObj();
+				/*Get NodePos before Move*/
+				FVector2D NodePosTemp = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
+				EnterNode->NodePosX = NodeDragHelper.DragNodeStartPos.X + MouseMovementAfterDown.X;
+				EnterNode->NodePosY = NodeDragHelper.DragNodeStartPos.Y + MouseMovementAfterDown.Y;
+				/**/
+				//FChildren* Children = GetChildren();
+				TArray<FVector2D> PossibleSnapPosArray;
+				//GetChildRefAt(Index).GetWidget();
+				GetChildren()->ForEachWidget([&PossibleSnapPosArray](SWidget& Child)
 				{
-					if ( !bCursorInDeadZone )
+					// SPMSEdGraphNode* PMSChild = (SPMSEdGraphNode*)&Child;
+					// FString Name = PMSChild->GetPMSNodeObj()->IconName;
+					// FVector2D Pivot = Child.GetRenderTransformPivot();
+					// UE_LOG(LogTemp,Log,TEXT("Node is %s:%f,%f"),ToCStr(Name),Pivot.X,Pivot.Y);
+					UPMSEdGraphNode* PMSChild = ((SPMSEdGraphNode*)&Child)->GetPMSNodeObj();
+					if(!PMSChild->AlreadyMoveTogether)
 					{
-						// Note, NodeGrabOffset() comes from the node itself, so it's already scaled correctly.
-						FVector2D AnchorNodeNewPos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) ) - NodeGrabOffset;
-
-						// Snap to grid
-						const float SnapSize = GetDefault<UPMSEditorSettings>()->MoveStepSize;
-						AnchorNodeNewPos.X = SnapSize * FMath::RoundToFloat( AnchorNodeNewPos.X / SnapSize );
-						AnchorNodeNewPos.Y = SnapSize * FMath::RoundToFloat( AnchorNodeNewPos.Y / SnapSize );
-
-						// Dragging an unselected node automatically selects it.
-						//SelectionManager.StartDraggingNode(NodeBeingDragged->GetObjectBeingDisplayed(), MouseEvent);
-						
-						// Move all the selected nodes.
-						{
-							const FVector2D AnchorNodeOldPos = NodeBeingDragged->GetPosition();
-							const FVector2D DeltaPos = AnchorNodeNewPos - AnchorNodeOldPos;
-
-							// Perform movement in 3 passes:
-							
-							// 1. Gather all selected nodes positions and calculate new positions
-							struct FDefferedNodePosition 
-							{ 
-								SNode*		Node; 
-								FVector2D	NewPosition; 
-							};
-							TArray<FDefferedNodePosition> DefferedNodesToMove;
-
-							// 2. Deffer actual move transactions to mouse release or focus lost
-							bool bStoreOriginalNodePositions = OriginalNodePositions.Num() == 0;
-							for (FGraphPanelSelectionSet::TIterator NodeIt(SelectionManager.SelectedNodes); NodeIt; ++NodeIt)
-							{
-								if (TSharedRef<SNode>* pWidget = NodeToWidgetLookup.Find(*NodeIt))
-								{
-									SNode& Widget = pWidget->Get();
-									FDefferedNodePosition NodePosition = { &Widget, Widget.GetPosition() + DeltaPos };
-									DefferedNodesToMove.Add(NodePosition);
-
-									if (bStoreOriginalNodePositions)
-									{
-										OriginalNodePositions.FindOrAdd(*pWidget) = Widget.GetPosition();
-									}
-								}
-							}
-
-							// 3. Move selected nodes to new positions
-							SNode::FNodeSet NodeFilter;
-
-							for (int32 NodeIdx = 0; NodeIdx < DefferedNodesToMove.Num(); ++NodeIdx)
-							{
-								DefferedNodesToMove[NodeIdx].Node->MoveTo(DefferedNodesToMove[NodeIdx].NewPosition, NodeFilter, false);
-							}
-						}
+						PossibleSnapPosArray.Add(FVector2D(PMSChild->NodePosX,PMSChild->NodePosY));
 					}
+				});
+				/*Move NodeBeingDrag with snap*/
+				EnterNode->PMSSnapToGrid(GetDefault<UPMSEditorSettings>()->GridSize,GetDefault<UPMSEditorSettings>()->SnappingDistance,PossibleSnapPosArray);
+				
+				/*Move MoveTogetherNodes*/
+				UpdateMoveTogetherNodesPos(NodeDragHelper,EnterNode);
 
-					return FReply::Handled();
-				}
+				/*Move Selection*/
+				const FGraphPanelSelectionSet SelectedNodes = SelectionManager.SelectedNodes;
+				if(SelectedNodes.Find(EnterNode))
+				{
+					for(UObject* SelectedNode: SelectedNodes)
+					{
+						if(SelectedNode!=EnterNode)
+						{
+							Cast<UPMSEdGraphNode>(SelectedNode)->NodePosX += EnterNode->NodePosX - NodePosTemp.X;
+							Cast<UPMSEdGraphNode>(SelectedNode)->NodePosY += EnterNode->NodePosY - NodePosTemp.Y;					
+						}				
+					}	
+				}				
+				return FReply::Handled();
 			}
+		}
 
-			if ( !NodeBeingDragged.IsValid() )
+		if (ContextEnterState == EContextEnterState::OnSpace)
+		{
+			if (MouseEnterState == EMouseEnterState::Right)
 			{
+				FReply ReplyState = FReply::Handled();
+
+				TotalMouseDeltaXY += CursorDelta.X + CursorDelta.Y;
+
+				const int32 ZoomLevelDelta = FMath::RoundToInt(TotalMouseDeltaXY * NodePanelDefs::MouseZoomScaling);
+
+				// Get rid of mouse movement that's been 'used up' by zooming
+				if (ZoomLevelDelta != 0)
+				{
+					TotalMouseDeltaXY -= (ZoomLevelDelta / NodePanelDefs::MouseZoomScaling);
+				}
+
+				// Perform zoom centered on the cached start offset
+				ChangeZoomLevel(ZoomLevelDelta, ZoomStartOffset, MouseEvent.IsControlDown());
+
+				this->bIsPanning = false;
+
+				if (FSlateApplication::Get().IsUsingTrackpad() && ZoomLevelDelta != 0)
+				{
+					this->bIsZoomingWithTrackpad = true;
+					bShowSoftwareCursor = true;
+				}
+
+				// Stop the zoom-to-fit in favor of user control
+				CancelZoomToFit();
+
+				return ReplyState;
+			}
+			else if (MouseEnterState == EMouseEnterState::Middle)
+			{
+				FReply ReplyState = FReply::Handled();
+
+				if (!CursorDelta.IsZero())
+				{
+					bShowSoftwareCursor = true;
+				}
+
+				// Panning and mouse is outside of panel? Pasting should just go to the screen center.
+				PastePosition = PanelCoordToGraphCoord(0.5f *MyGeometry.GetLocalSize());
+
+				this->bIsPanning = true;
+				ViewOffset -= CursorDelta / GetZoomAmount();
+
+				return ReplyState;
+			}
+			else if (MouseEnterState == EMouseEnterState::Left)
+			{
+
+				if ( IsEditable.Get() )
+				{
+					// Update the amount to pan panel
+					UpdateViewOffset(MyGeometry, MouseEvent.GetScreenSpacePosition());
+
+					const bool bCursorInDeadZone = TotalMouseDelta <= FSlateApplication::Get().GetDragTriggerDistance();
+				}
+
 				// We are marquee selecting
 				const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
 				Marquee.Rect.UpdateEndPoint(GraphMousePos);
 
 				FindNodesAffectedByMarquee( /*out*/ Marquee.AffectedNodes );
 				return FReply::Handled();
-			}
+				
 
-			// Stop the zoom-to-fit in favor of user control
-			CancelZoomToFit();
+				// Stop the zoom-to-fit in favor of user control
+				CancelZoomToFit();
+			}			
 		}
 	}
 
@@ -1176,6 +1194,60 @@ FReply SPMSGraphPanel::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& I
 {
 	//LastKeyChordDetected;
 	return SGraphPanel::OnKeyDown(MyGeometry, InKeyEvent);
+}
+
+FReply SPMSGraphPanel::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	return SNodePanel::OnKeyUp(MyGeometry, InKeyEvent);
+}
+
+FReply SPMSGraphPanel::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+
+	// We want to zoom into this point; i.e. keep it the same fraction offset into the panel
+	const FVector2D WidgetSpaceCursorPos = MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() );
+	const int32 ZoomLevelDelta = FMath::TruncToInt( FMath::RoundFromZero( MouseEvent.GetWheelDelta() ) );
+	
+	// We want to zoom into this point; i.e. keep it the same fraction offset into the panel
+	const FVector2D PointToMaintainGraphSpace = PanelCoordToGraphCoord( WidgetSpaceCursorPos );
+
+	const int32 DefaultZoomLevel = ZoomLevels->GetDefaultZoomLevel();
+	const int32 NumZoomLevels = ZoomLevels->GetNumZoomLevels();
+
+	const bool bAllowFullZoomRange =
+		// To zoom in past 1:1 the user must press control
+		(ZoomLevel == DefaultZoomLevel && ZoomLevelDelta > 0 && MouseEvent.IsControlDown()) ||
+		// If they are already zoomed in past 1:1, user may zoom freely
+		(ZoomLevel > DefaultZoomLevel);
+
+	const float OldZoomLevel = ZoomLevel;
+
+	if ( bAllowFullZoomRange )
+	{
+		ZoomLevel = FMath::Clamp( ZoomLevel + ZoomLevelDelta, 0, NumZoomLevels-1 );
+	}
+	else
+	{
+		// Without control, we do not allow zooming in past 1:1.
+		ZoomLevel = FMath::Clamp( ZoomLevel + ZoomLevelDelta, 0, DefaultZoomLevel );
+	}
+	// ZoomLevel += ZoomLevelDelta;
+
+	if (OldZoomLevel != ZoomLevel)
+	{
+		PostChangedZoom();
+	}
+
+	// Note: This happens even when maxed out at a stop; so the user sees the animation and knows that they're at max zoom in/out
+	ZoomLevelFade.Play( this->AsShared() );
+
+	// Re-center the screen so that it feels like zooming around the cursor.
+	this->ViewOffset = PointToMaintainGraphSpace - WidgetSpaceCursorPos / GetZoomAmount();
+
+	// Stop the zoom-to-fit in favor of user control
+	CancelZoomToFit();
+
+	return FReply::Handled();
 }
 
 bool SPMSGraphPanel::OnHandleLeftMouseRelease(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)

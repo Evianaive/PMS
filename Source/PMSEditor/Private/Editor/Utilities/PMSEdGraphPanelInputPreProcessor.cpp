@@ -392,6 +392,9 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleMouseButtonUpEvent(FSlateApplicati
 				}
 				
 				NodeBeingDrag.Reset();
+				CurContext.GraphPanel->FinalizeNodeMovements();
+				SGraphPanelPublic* Temp = (SGraphPanelPublic*)CurContext.GraphPanel.Get();
+				Temp->ScopedTransactionPtr.Reset();
 				NodeDragHelper.MoveTogetherNodes.Reset();
 				NodeDragHelper.MoveTogetherNodesStartPos.Reset();				
 				
