@@ -46,8 +46,111 @@ namespace NodePanelDefs
 	static const float MouseZoomScaling = 0.04f;
 };
 
+struct FZoomLevelEntry
+{
+public:
+	FZoomLevelEntry(float InZoomAmount, const FText& InDisplayText, EGraphRenderingLOD::Type InLOD)
+		: DisplayText(FText::Format(NSLOCTEXT("GraphEditor", "Zoom", "Zoom {0}"), InDisplayText))
+	 , ZoomAmount(InZoomAmount)
+	 , LOD(InLOD)
+	{
+	}
+
+public:
+	FText DisplayText;
+	float ZoomAmount;
+	EGraphRenderingLOD::Type LOD;
+};
+
+struct FPMSZoomLevelsContainer : public FZoomLevelsContainer
+{
+	FPMSZoomLevelsContainer()
+	{
+		ZoomLevels.Reserve(30);
+		ZoomLevels.Add(FZoomLevelEntry(0.010f, FText::FromString(TEXT("-22")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.015f, FText::FromString(TEXT("-21")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.020f, FText::FromString(TEXT("-20")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.030f, FText::FromString(TEXT("-19")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.040f, FText::FromString(TEXT("-18")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.050f, FText::FromString(TEXT("-17")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.060f, FText::FromString(TEXT("-16")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.070f, FText::FromString(TEXT("-15")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.080f, FText::FromString(TEXT("-14")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.090f, FText::FromString(TEXT("-13")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.100f, FText::FromString(TEXT("-12")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.125f, FText::FromString(TEXT("-11")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.150f, FText::FromString(TEXT("-10")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.175f, FText::FromString(TEXT("-9")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.200f, FText::FromString(TEXT("-8")), EGraphRenderingLOD::LowestDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.225f, FText::FromString(TEXT("-7")), EGraphRenderingLOD::LowDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.250f, FText::FromString(TEXT("-6")), EGraphRenderingLOD::LowDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.375f, FText::FromString(TEXT("-5")), EGraphRenderingLOD::MediumDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.500f, FText::FromString(TEXT("-4")), EGraphRenderingLOD::MediumDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.675f, FText::FromString(TEXT("-3")), EGraphRenderingLOD::MediumDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.750f, FText::FromString(TEXT("-2")), EGraphRenderingLOD::DefaultDetail));
+		ZoomLevels.Add(FZoomLevelEntry(0.875f, FText::FromString(TEXT("-1")), EGraphRenderingLOD::DefaultDetail));
+		ZoomLevels.Add(FZoomLevelEntry(1.000f, FText::FromString(TEXT("1:1")), EGraphRenderingLOD::DefaultDetail));
+		ZoomLevels.Add(FZoomLevelEntry(1.250f, FText::FromString(TEXT("+1")), EGraphRenderingLOD::DefaultDetail));
+		ZoomLevels.Add(FZoomLevelEntry(1.375f, FText::FromString(TEXT("+2")), EGraphRenderingLOD::DefaultDetail));
+		ZoomLevels.Add(FZoomLevelEntry(1.500f, FText::FromString(TEXT("+3")), EGraphRenderingLOD::FullyZoomedIn));
+		ZoomLevels.Add(FZoomLevelEntry(1.675f, FText::FromString(TEXT("+4")), EGraphRenderingLOD::FullyZoomedIn));
+		ZoomLevels.Add(FZoomLevelEntry(1.750f, FText::FromString(TEXT("+5")), EGraphRenderingLOD::FullyZoomedIn));
+		ZoomLevels.Add(FZoomLevelEntry(1.875f, FText::FromString(TEXT("+6")), EGraphRenderingLOD::FullyZoomedIn));
+		ZoomLevels.Add(FZoomLevelEntry(2.000f, FText::FromString(TEXT("+7")), EGraphRenderingLOD::FullyZoomedIn));
+	}
+
+	float GetZoomAmount(int32 InZoomLevel) const override
+	{
+		checkSlow(ZoomLevels.IsValidIndex(InZoomLevel));
+		return ZoomLevels[InZoomLevel].ZoomAmount;
+	}
+
+	int32 GetNearestZoomLevel(float InZoomAmount) const override
+	{
+		for (int32 ZoomLevelIndex=0; ZoomLevelIndex < GetNumZoomLevels(); ++ZoomLevelIndex)
+		{
+			if (InZoomAmount <= GetZoomAmount(ZoomLevelIndex))
+			{
+				return ZoomLevelIndex;
+			}
+		}
+
+		return GetDefaultZoomLevel();
+	}
+	
+	FText GetZoomText(int32 InZoomLevel) const override
+	{
+		checkSlow(ZoomLevels.IsValidIndex(InZoomLevel));
+		return ZoomLevels[InZoomLevel].DisplayText;
+	}
+	
+	int32 GetNumZoomLevels() const override
+	{
+		return ZoomLevels.Num();
+	}
+	
+	int32 GetDefaultZoomLevel() const override
+	{
+		return 12;
+	}
+
+	EGraphRenderingLOD::Type GetLOD(int32 InZoomLevel) const override
+	{
+		checkSlow(ZoomLevels.IsValidIndex(InZoomLevel));
+		return ZoomLevels[InZoomLevel].LOD;
+	}
+
+	TArray<FZoomLevelEntry> ZoomLevels;
+};
+
+
 void SPMSGraphPanel::Construct(const FArguments& InArgs)
 {
+	if (!ZoomLevels)
+	{
+		SetZoomLevelsContainer<FPMSZoomLevelsContainer>();
+	}
+	ZoomLevel = ZoomLevels->GetDefaultZoomLevel();
 	SGraphPanel::Construct(InArgs);
 }
 
@@ -1204,50 +1307,51 @@ FReply SPMSGraphPanel::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InK
 FReply SPMSGraphPanel::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 
-	// We want to zoom into this point; i.e. keep it the same fraction offset into the panel
-	const FVector2D WidgetSpaceCursorPos = MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() );
-	const int32 ZoomLevelDelta = FMath::TruncToInt( FMath::RoundFromZero( MouseEvent.GetWheelDelta() ) );
-	
-	// We want to zoom into this point; i.e. keep it the same fraction offset into the panel
-	const FVector2D PointToMaintainGraphSpace = PanelCoordToGraphCoord( WidgetSpaceCursorPos );
-
-	const int32 DefaultZoomLevel = ZoomLevels->GetDefaultZoomLevel();
-	const int32 NumZoomLevels = ZoomLevels->GetNumZoomLevels();
-
-	const bool bAllowFullZoomRange =
-		// To zoom in past 1:1 the user must press control
-		(ZoomLevel == DefaultZoomLevel && ZoomLevelDelta > 0 && MouseEvent.IsControlDown()) ||
-		// If they are already zoomed in past 1:1, user may zoom freely
-		(ZoomLevel > DefaultZoomLevel);
-
-	const float OldZoomLevel = ZoomLevel;
-
-	if ( bAllowFullZoomRange )
-	{
-		ZoomLevel = FMath::Clamp( ZoomLevel + ZoomLevelDelta, 0, NumZoomLevels-1 );
-	}
-	else
-	{
-		// Without control, we do not allow zooming in past 1:1.
-		ZoomLevel = FMath::Clamp( ZoomLevel + ZoomLevelDelta, 0, DefaultZoomLevel );
-	}
-	// ZoomLevel += ZoomLevelDelta;
-
-	if (OldZoomLevel != ZoomLevel)
-	{
-		PostChangedZoom();
-	}
-
-	// Note: This happens even when maxed out at a stop; so the user sees the animation and knows that they're at max zoom in/out
-	ZoomLevelFade.Play( this->AsShared() );
-
-	// Re-center the screen so that it feels like zooming around the cursor.
-	this->ViewOffset = PointToMaintainGraphSpace - WidgetSpaceCursorPos / GetZoomAmount();
-
-	// Stop the zoom-to-fit in favor of user control
-	CancelZoomToFit();
-
-	return FReply::Handled();
+	// // We want to zoom into this point; i.e. keep it the same fraction offset into the panel
+	// const FVector2D WidgetSpaceCursorPos = MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() );
+	// const int32 ZoomLevelDelta = FMath::TruncToInt( FMath::RoundFromZero( MouseEvent.GetWheelDelta() ) );
+	//
+	// // We want to zoom into this point; i.e. keep it the same fraction offset into the panel
+	// const FVector2D PointToMaintainGraphSpace = PanelCoordToGraphCoord( WidgetSpaceCursorPos );
+	//
+	// const int32 DefaultZoomLevel = ZoomLevels->GetDefaultZoomLevel();
+	// const int32 NumZoomLevels = ZoomLevels->GetNumZoomLevels();
+	//
+	// const bool bAllowFullZoomRange =
+	// 	// To zoom in past 1:1 the user must press control
+	// 	(ZoomLevel == DefaultZoomLevel && ZoomLevelDelta > 0 && MouseEvent.IsControlDown()) ||
+	// 	// If they are already zoomed in past 1:1, user may zoom freely
+	// 	(ZoomLevel > DefaultZoomLevel);
+	//
+	// const float OldZoomLevel = ZoomLevel;
+	//
+	// if ( bAllowFullZoomRange )
+	// {
+	// 	ZoomLevel = FMath::Clamp( ZoomLevel + ZoomLevelDelta, 0, NumZoomLevels-1 );
+	// }
+	// else
+	// {
+	// 	// Without control, we do not allow zooming in past 1:1.
+	// 	ZoomLevel = FMath::Clamp( ZoomLevel + ZoomLevelDelta, 0, DefaultZoomLevel );
+	// }
+	// // ZoomLevel += ZoomLevelDelta;
+	//
+	// if (OldZoomLevel != ZoomLevel)
+	// {
+	// 	PostChangedZoom();
+	// }
+	//
+	// // Note: This happens even when maxed out at a stop; so the user sees the animation and knows that they're at max zoom in/out
+	// ZoomLevelFade.Play( this->AsShared() );
+	//
+	// // Re-center the screen so that it feels like zooming around the cursor.
+	// this->ViewOffset = PointToMaintainGraphSpace - WidgetSpaceCursorPos / GetZoomAmount();
+	//
+	// // Stop the zoom-to-fit in favor of user control
+	// CancelZoomToFit();
+	//
+	// return FReply::Handled();
+	return SGraphPanel::OnMouseWheel(MyGeometry,MouseEvent);
 }
 
 bool SPMSGraphPanel::OnHandleLeftMouseRelease(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
