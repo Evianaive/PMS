@@ -21,6 +21,7 @@ UEdGraphNode* FPMSEdGraphSchemaAction_NewNode::PerformAction(class UEdGraph* Par
 
 UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNodeClass, UEdGraph* ParentGraph, UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode) {
 	check(InPMSGraphNodeClass);
+	// MakeUniqueObjectName()
 	UPMSEdGraphNode* PMSEdGraphNodeToSpawn = NewObject<UPMSEdGraphNode>(ParentGraph);
 	const FScopedTransaction Transaction(LOCTEXT("ProceduralModelingSystemEditorNewPMSEdGraphNode", "PMSEditor: New PMSEdGraphNode"));
 	ParentGraph->Modify();
