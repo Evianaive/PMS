@@ -43,7 +43,9 @@ public:
 	void PaintBackgroundAsLines(const FSlateBrush* BackgroundImage, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32& DrawLayerId) const;
 	SGraphPin* GetBestPinFromHoveredSpline() const;
 	bool PassesAssetReferenceFilter(const TArray<FAssetData>& ReferencedAssets, FText* OutFailureReason = nullptr) const;
-
+	void ChangeZoomLevel(int32 ZoomLevelDelta, const FVector2D& WidgetSpaceZoomOrigin, bool bOverrideZoomLimiting);
+	//void PostChangedZoom();
+	
 	EContextEnterState ContextEnterState = EContextEnterState::None;
 	EMouseEnterState MouseEnterState = EMouseEnterState::None;
 
