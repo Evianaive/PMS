@@ -685,8 +685,8 @@ FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEv
 			{
 				FReply ReplyState = FReply::Handled();
 
-				// TotalMouseDeltaXY += CursorDelta.X + CursorDelta.Y;
-				TotalMouseDeltaXY += CursorDelta.X;
+				TotalMouseDeltaXY += CursorDelta.X + CursorDelta.Y;
+				// TotalMouseDeltaXY += CursorDelta.X;
 
 				const int32 ZoomLevelDelta = FMath::RoundToInt(TotalMouseDeltaXY * NodePanelDefs::MouseZoomScaling);
 
@@ -697,8 +697,10 @@ FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEv
 				}
 
 				// Perform zoom centered on the cached start offset
-				ChangeZoomLevel(ZoomLevelDelta, PastePosition, false);
-				SoftwareCursorPosition = PastePosition;
+				FVector2D TempViewOffset = ViewOffset;
+				ChangeZoomLevel(ZoomLevelDelta, ZoomStartOffset, false);
+				/*Check This!!!*/
+				SoftwareCursorPosition = PastePosition - TempViewOffset + ViewOffset;
 
 				this->bIsPanning = false;
 
