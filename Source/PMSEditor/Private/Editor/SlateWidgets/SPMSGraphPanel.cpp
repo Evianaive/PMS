@@ -1,4 +1,7 @@
 #include "Editor/SlateWidgets/SPMSGraphPanel.h"
+
+#include <string>
+
 #include "Editor/SlateWidgets/HackPrivate/SGraphPanelPublic.h"
 
 #include "Rendering/DrawElements.h"
@@ -185,6 +188,7 @@ void SPMSGraphPanel::Construct(const FArguments& InArgs)
 		SetZoomLevelsContainer<FPMSZoomLevelsContainer>();
 	}
 	ZoomLevel = ZoomLevels->GetDefaultZoomLevel();
+	InteractionPayLoad = MakeShareable<FInteractionPayLoad>(new FInteractionPayLoad());
 	SGraphPanel::Construct(InArgs);
 }
 
@@ -257,6 +261,8 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);			
 				NodeDragHelper.DragNodeStartPos = FVector2D(EnterNode->NodePosX,EnterNode->NodePosY);
 				MouseMovementAfterDown = FVector2D::ZeroVector;
+
+				InteractionPayLoad->CursorTraceAfterDown.Add(LastMouseDownGraphPos);
 			}
 			return FReply::Handled().CaptureMouse( SharedThis(this) );
 			//}
@@ -356,14 +362,23 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 		}
 		else if ( MouseEnterState == EMouseEnterState::Left )
 		{
+			if(InteractionPayLoad->bCutKeyState)
+			{
+				// Start Easy Cutting Connection
+				InteractionPayLoad->CursorTraceAfterDown.Add(LastMouseDownGraphPos);
+				/* Todo We will block all zoom level change */
+				
+			}
+			else
+			{
+				// START MARQUEE SELECTION.
+				const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
+				Marquee.Start( GraphMousePos, FMarqueeOperation::OperationTypeFromMouseEvent(MouseEvent) );
+		
+				// If we're marquee selecting, then we're not clicking on a node!
+				//NodeUnderMousePtr.Reset();	
+			}
 			
-		
-			// START MARQUEE SELECTION.
-			const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
-			Marquee.Start( GraphMousePos, FMarqueeOperation::OperationTypeFromMouseEvent(MouseEvent) );
-		
-			// If we're marquee selecting, then we're not clicking on a node!
-			//NodeUnderMousePtr.Reset();
 			ContextEnterState = EContextEnterState::OnSpace;
 		
 			return FReply::Handled().CaptureMouse( SharedThis(this) );
@@ -395,7 +410,9 @@ FReply SPMSGraphPanel::OnMouseButtonUp(const FGeometry& MyGeometry, const FPoint
 
 	// Set to true later if we need to finish with the software cursor
 	bool bRemoveSoftwareCursor = false;
-	
+
+	/* Clean InteractionPayload*/ 
+	InteractionPayLoad->CursorTraceAfterDown.Reset();
 	
 	if(ContextEnterState == EContextEnterState::OnNode)
 	{
@@ -630,6 +647,13 @@ FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEv
 		const FVector2D CursorDelta = MouseEvent.GetCursorDelta();
 		// Track how much the mouse moved since the mouse down.
 		TotalMouseDelta += CursorDelta.Size();
+		if(ContextEnterState != EContextEnterState::None)//可能不需要...
+		{
+			if(InteractionPayLoad->CursorTraceAfterDown.Num())
+			{
+				InteractionPayLoad->CursorTraceAfterDown.Add(PastePosition);
+			}
+		}
 		
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
@@ -737,7 +761,6 @@ FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEv
 			}
 			else if (MouseEnterState == EMouseEnterState::Left)
 			{
-
 				if ( IsEditable.Get() )
 				{
 					// Update the amount to pan panel
@@ -745,17 +768,25 @@ FReply SPMSGraphPanel::OnMouseMove(const FGeometry& MyGeometry, const FPointerEv
 
 					const bool bCursorInDeadZone = TotalMouseDelta <= FSlateApplication::Get().GetDragTriggerDistance();
 				}
+				
+				if(InteractionPayLoad->CursorTraceAfterDown.Num())
+				{
+					UE_LOG(LogTemp,Log,TEXT("ArrayNum : %i"),(InteractionPayLoad->CursorTraceAfterDown.Num()));
+				}
+				else
+				{
+					// We are marquee selecting
+					const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
+					Marquee.Rect.UpdateEndPoint(GraphMousePos);
 
-				// We are marquee selecting
-				const FVector2D GraphMousePos = PanelCoordToGraphCoord( MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() ) );
-				Marquee.Rect.UpdateEndPoint(GraphMousePos);
-
-				FindNodesAffectedByMarquee( /*out*/ Marquee.AffectedNodes );
-				return FReply::Handled();
+					FindNodesAffectedByMarquee( /*out*/ Marquee.AffectedNodes );
+					return FReply::Handled();
 				
 
-				// Stop the zoom-to-fit in favor of user control
-				CancelZoomToFit();
+					// Stop the zoom-to-fit in favor of user control
+					CancelZoomToFit();
+					
+				}
 			}			
 		}
 	}
@@ -1329,29 +1360,147 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 	++MaxLayerId;
 	PaintSoftwareCursor(AllottedGeometry, MyCullingRect, OutDrawElements, MaxLayerId);
 
+	if(InteractionPayLoad->bCutKeyState)
+	{
+		++MaxLayerId;
+		FSlateDrawElement::MakeLines(
+			OutDrawElements,
+			MaxLayerId,
+			AllottedGeometry.ToPaintGeometry(),
+			InteractionPayLoad->CursorTraceAfterDown,
+			ESlateDrawEffect::None,
+			FLinearColor::Red,
+			true,
+			2.0f
+		);
+		//UE_LOG(LogTemp,Log,TEXT(""))
+	}	
+
 	return MaxLayerId;
 }
 
 FReply SPMSGraphPanel::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
 	//LastKeyChordDetected;
-	return SGraphPanel::OnKeyDown(MyGeometry, InKeyEvent);
+	//FModifierKeysState State = StaticCast<FInputEvent>(InKeyEvent).ModifierKeys;
+	//FModifierKeysState();
+	// if( IsEditable.Get() )
+	// {
+	// 	FInputChord CurKeyChordDetected = FInputChord(InKeyEvent.GetKey(), EModifierKey::FromBools(InKeyEvent.IsControlDown(), InKeyEvent.IsAltDown(), InKeyEvent.IsShiftDown(), InKeyEvent.IsCommandDown()));
+	// }
+
+	UE_LOG(LogTemp,Log,TEXT("Down InKeyEvent.GetKey() is %s"),*(InKeyEvent.GetKey().ToString()));
+	
+	const bool bNewCtrlState = InKeyEvent.IsControlDown();
+	const bool bNewShiftState = InKeyEvent.IsShiftDown();
+	const bool bnewAltState = InKeyEvent.IsAltDown();
+	
+
+	bool BlockNextStep = false;
+	bool ReturnType = false;
+	
+	if(bNewCtrlState!=NodeDragHelper.bCtrlState || bNewShiftState!=NodeDragHelper.bShiftState)
+	{
+		if(ContextEnterState == EContextEnterState::OnNode)
+		{
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				const FGraphPanelSelectionSet SelectedNodes = SelectionManager.SelectedNodes;
+				UPMSEdGraphNode* EnterNode = ((SPMSEdGraphNode*)(NodeUnderMousePtr.Pin().Get()))->GetPMSNodeObj();
+
+				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,bNewCtrlState,bNewShiftState);
+				UpdateMoveTogetherNodesPos(NodeDragHelper,EnterNode);
+			
+				ReturnType = true;
+			}
+		}
+	}
+	NodeDragHelper.bCtrlState = bNewCtrlState;
+	NodeDragHelper.bShiftState = bNewShiftState;
+	NodeDragHelper.bAltState = bnewAltState;
+	
+	if(InKeyEvent.GetKey() == EKeys::Y)
+	{
+		const bool CutKeyState = true; 
+		if(ContextEnterState == EContextEnterState::None)
+		{
+			if(CutKeyState!=InteractionPayLoad->bCutKeyState)
+			{
+				//Be able to begin Cutting Connection
+				InteractionPayLoad->bCutKeyState = CutKeyState;				
+			}
+		}
+	}
+	
+
+	// return ReturnType;
+	return SNodePanel::OnKeyDown(MyGeometry, InKeyEvent);
 }
 
 FReply SPMSGraphPanel::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
+	UE_LOG(LogTemp,Log,TEXT("Up InKeyEvent.GetKey() is %s"),*(InKeyEvent.GetKey().ToString()));
+	const bool bNewCtrlState = InKeyEvent.IsControlDown();
+	const bool bNewShiftState = InKeyEvent.IsShiftDown();
+	const bool bnewAltState = InKeyEvent.IsAltDown();
+
+	bool BlockNextStep = false;
+	bool ReturnType = false;
+	
+	// if(InKeyEvent.GetKey() == EKeys::LeftShift || InKeyEvent.GetKey() == EKeys::RightShift
+	// 	|| InKeyEvent.GetKey() == EKeys::LeftControl || InKeyEvent.GetKey() == EKeys::RightControl)
+	if(bNewCtrlState!=NodeDragHelper.bCtrlState || bNewShiftState!=NodeDragHelper.bShiftState)
+	{
+		if(ContextEnterState == EContextEnterState::OnNode)
+		{
+			if(MouseEnterState == EMouseEnterState::Left)
+			{
+				const FGraphPanelSelectionSet SelectedNodes = SelectionManager.SelectedNodes;
+				UPMSEdGraphNode* EnterNode = ((SPMSEdGraphNode*)(NodeUnderMousePtr.Pin().Get()))->GetPMSNodeObj();
+
+				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,bNewCtrlState,bNewShiftState);
+			
+				ReturnType = true;
+			}
+		}
+	}
+	NodeDragHelper.bCtrlState = bNewCtrlState;
+	NodeDragHelper.bShiftState = bNewShiftState;
+	NodeDragHelper.bAltState = bnewAltState;
+	
+	if(InKeyEvent.GetKey() == EKeys::Y)
+	{
+		const bool CutKeyState = false; 
+		if(ContextEnterState == EContextEnterState::OnSpace || ContextEnterState == EContextEnterState::None)
+		{
+			if(CutKeyState!=InteractionPayLoad->bCutKeyState)
+			{
+				//Be able to begin Cutting Connection
+				
+				InteractionPayLoad->bCutKeyState = CutKeyState;				
+			}
+		}
+	}
+	
 	return SNodePanel::OnKeyUp(MyGeometry, InKeyEvent);
 }
 
 FReply SPMSGraphPanel::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	// We want to zoom into this point; i.e. keep it the same fraction offset into the panel
-	const FVector2D WidgetSpaceCursorPos = MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() );
-	const int32 ZoomLevelDelta = FMath::TruncToInt( FMath::RoundFromZero( MouseEvent.GetWheelDelta() )*2 );
-	ChangeZoomLevel( ZoomLevelDelta, WidgetSpaceCursorPos, MouseEvent.IsControlDown() );
+	//Todo 在Houdini中凡是有任何鼠标按键按下后都要屏蔽掉滚轮缩放
+	if(MouseEnterState == EMouseEnterState::None)
+	{
+		// We want to zoom into this point; i.e. keep it the same fraction offset into the panel
+		const FVector2D WidgetSpaceCursorPos = MyGeometry.AbsoluteToLocal( MouseEvent.GetScreenSpacePosition() );
+		const int32 ZoomLevelDelta = FMath::TruncToInt( FMath::RoundFromZero( MouseEvent.GetWheelDelta() )*2 );
+		ChangeZoomLevel( ZoomLevelDelta, WidgetSpaceCursorPos, MouseEvent.IsControlDown() );
 
-	// Stop the zoom-to-fit in favor of user control
-	CancelZoomToFit();
+		// Stop the zoom-to-fit in favor of user control
+		CancelZoomToFit();		
+	}
+	// else
+	// {
+	// }
 
 	return FReply::Handled();
 }

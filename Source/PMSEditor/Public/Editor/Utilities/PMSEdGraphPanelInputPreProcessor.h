@@ -107,6 +107,7 @@ private:
 	
 	FPMSEventContex CurContext;
 	FNodeDragHelper NodeDragHelper;
+	// TSharedRef<FInteractionPayLoad> InteractionPayLoad;
 	// TArray<UPMSEdGraphNode*> MoveTogetherNodes;
 	// TArray<FVector2D> MoveTogetherNodesStartPos;
 

@@ -88,6 +88,7 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
 
     SGraphEditor::FGraphEditorEvents InGraphEvent;
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
+    // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
     if (PMSGraphAsset->EdGraph != nullptr) {
         InArgs = SGraphEditor::FArguments()
             .GraphToEdit(PMSGraphAsset->EdGraph)

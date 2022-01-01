@@ -50,6 +50,7 @@ public:
 	EMouseEnterState MouseEnterState = EMouseEnterState::None;
 
 	FNodeDragHelper NodeDragHelper;
+	TSharedPtr<FInteractionPayLoad> InteractionPayLoad;
 	
 	FVector2D MouseMovementAfterDown = FVector2D::ZeroVector;
 	FVector2D LastMouseDownGraphPos;

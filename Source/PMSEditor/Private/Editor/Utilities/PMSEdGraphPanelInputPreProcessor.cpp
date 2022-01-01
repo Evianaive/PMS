@@ -442,15 +442,15 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyDownEvent(FSlateApplication& Sl
 {
 	//FModifierKeysState State = StaticCast<FInputEvent>(InKeyEvent).ModifierKeys;
 	//FModifierKeysState();
-	const bool CtrlState = InKeyEvent.IsControlDown();
-	const bool ShiftState = InKeyEvent.IsShiftDown();
-	const bool AltState = InKeyEvent.IsAltDown();
+	const bool bNewCtrlState = InKeyEvent.IsControlDown();
+	const bool bNewShiftState = InKeyEvent.IsShiftDown();
+	const bool bnewAltState = InKeyEvent.IsAltDown();
 
 	bool BlockNextStep = false;
 	bool ReturnType = false;
 	
-	UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), ToCStr(InKeyEvent.ToText().ToString()));
-	if(CtrlState!=PrvCtrlState || ShiftState!=PrvShiftState)
+	// UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), ToCStr(InKeyEvent.ToText().ToString()));
+	if(bNewCtrlState!=NodeDragHelper.bCtrlState || bNewShiftState!=NodeDragHelper.bShiftState)
 	{
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
@@ -459,16 +459,16 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyDownEvent(FSlateApplication& Sl
 				const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
 				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 
-				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
+				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,bNewCtrlState,bNewShiftState);
 				UpdateMoveTogetherNodesPos(NodeDragHelper,EnterNode);
 			
 				ReturnType = true;
 			}
 		}
 	}
-	PrvCtrlState = CtrlState;
-	PrvShiftState = ShiftState;
-	PrvAltState = AltState;
+	NodeDragHelper.bCtrlState = bNewCtrlState;
+	NodeDragHelper.bShiftState = bNewShiftState;
+	NodeDragHelper.bAltState = bnewAltState;
 
 	return ReturnType;
 	/*Todo 是否需要在这里加上这部分才可以让UICommandMap起作用？？
@@ -494,17 +494,17 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyDownEvent(FSlateApplication& Sl
 bool FPMSEdGraphPanelInputPreProcessor::HandleKeyUpEvent(FSlateApplication& SlateApp, const FKeyEvent& InKeyEvent)
 {
 	//UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), InKeyEvent.GetKey().GetDisplayName().ToString());
-	const bool CtrlState = InKeyEvent.IsControlDown();
-	const bool ShiftState = InKeyEvent.IsShiftDown();
-	const bool AltState = InKeyEvent.IsAltDown();
+	const bool bNewCtrlState = InKeyEvent.IsControlDown();
+	const bool bNewShiftState = InKeyEvent.IsShiftDown();
+	const bool bnewAltState = InKeyEvent.IsAltDown();
 
 	bool BlockNextStep = false;
 	bool ReturnType = false;
-	UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), ToCStr(InKeyEvent.ToText().ToString()));
+	// UE_LOG(LogTemp, Log, TEXT("Node Name is %s"), ToCStr(InKeyEvent.ToText().ToString()));
 	
 	// if(InKeyEvent.GetKey() == EKeys::LeftShift || InKeyEvent.GetKey() == EKeys::RightShift
 	// 	|| InKeyEvent.GetKey() == EKeys::LeftControl || InKeyEvent.GetKey() == EKeys::RightControl)
-	if(CtrlState!=PrvCtrlState || ShiftState!=PrvShiftState)
+	if(bNewCtrlState!=NodeDragHelper.bCtrlState || bNewShiftState!=NodeDragHelper.bShiftState)
 	{
 		if(ContextEnterState == EContextEnterState::OnNode)
 		{
@@ -513,15 +513,15 @@ bool FPMSEdGraphPanelInputPreProcessor::HandleKeyUpEvent(FSlateApplication& Slat
 				const FGraphPanelSelectionSet SelectedNodes = CurContext.GraphPanel->SelectionManager.SelectedNodes;
 				UPMSEdGraphNode* EnterNode = NodeBeingDrag.Pin()->GetPMSNodeObj();
 
-				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,CtrlState,ShiftState);
+				NodeDragHelper.UpdateMoveTogetherNodes(EnterNode,SelectedNodes,bNewCtrlState,bNewShiftState);
 			
 				ReturnType = true;
 			}
 		}
 	}
-	PrvCtrlState = CtrlState;
-	PrvShiftState = ShiftState;
-	PrvAltState = AltState;
+	NodeDragHelper.bCtrlState = bNewCtrlState;
+	NodeDragHelper.bShiftState = bNewShiftState;
+	NodeDragHelper.bAltState = bnewAltState;
 
 	return ReturnType;
 }

@@ -10,7 +10,24 @@ struct FNodeDragHelper
 	FVector2D DragNodeStartPos;
 	TArray<UPMSEdGraphNode*> MoveTogetherNodes;
 	TArray<FVector2D> MoveTogetherNodesStartPos;
+	bool bCtrlState;
+	bool bShiftState;
+	bool bAltState;
 	void UpdateMoveTogetherNodes(UPMSEdGraphNode* EnterNode, TSet<class UObject*> SelectedNodes, bool CtrlState, bool ShiftState);
+};
+
+struct FInteractionPayLoad
+{
+	// Track Mouse movement after press left button on node or space
+	// block zoom level change if cutting
+	bool bCutKeyState = false;
+	TArray<FVector2D> CursorTraceAfterDown = TArray<FVector2D>();
+	
+	// void AppendPointByCursorDelta(FVector2D CursorDelta)
+	// {
+	// 	FVector2D& LastPoint = CursorTraceAfterDown[CursorTraceAfterDown.Num()-1];
+	// 	CursorTraceAfterDown.Add(LastPoint + CursorDelta);
+	// }
 };
 
 UENUM()
