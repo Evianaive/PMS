@@ -52,11 +52,12 @@ void FPMSEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& InTa
     InTabManager->UnregisterTabSpawner(PMSSpreadSheetTabId);
 }
 
-void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InitToolkitHost, UPMS_Graph* InPMSGraphAsset)
+void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr<class IToolkitHost>& InitToolkitHost, UPMSEdGraph* InPMSGraphAsset)
 {
-    PMSGraphAsset = InPMSGraphAsset;
-    if (PMSGraphAsset->EdGraph == nullptr)
+    PMSGraph = InPMSGraphAsset;
+    if (InPMSGraphAsset == nullptr)
     {
+        // Todo 此处是否要指定Outer???
         PMSGraph = NewObject<UPMSEdGraph>();
         //PMSGraphAsset->EdGraph = NewObject<UEdGraph>(PMSGraphAsset,NAME_None, RF_Transactional);
         
@@ -75,56 +76,60 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
 
         
 
-        PMSGraphAsset->EdGraph = Cast<UEdGraph>(PMSGraph);
+        InPMSGraphAsset = PMSGraph;
         //PMSGraphAsset->EdGraph = PMSGraph;
         //UPMSEdGraph* PMSEdGraph = Cast<UPMSEdGraph>(PMSGraphAsset->EdGraph);
         //PMSEdGraph->AddTestNode();
         //Schema->CreateDefaultNodesForGraph(*PMSGraphAsset->EdGraph);
     }
     else {
-        PMSGraph = Cast<UPMSEdGraph>(PMSGraphAsset->EdGraph);
+        PMSGraph = InPMSGraphAsset;
+        PMSGraph->Schema = UPMSEdGraphSchema::StaticClass();
         //PMSGraph = PMSGraphAsset->EdGraph;
     }
 
     SGraphEditor::FGraphEditorEvents InGraphEvent;
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
     // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
-    if (PMSGraphAsset->EdGraph != nullptr) {
-        InArgs = SGraphEditor::FArguments()
-            .GraphToEdit(PMSGraphAsset->EdGraph)
-            .GraphEvents(InGraphEvent);
-        
-        MakeTDecl<SGraphEditor>( "SGraphEditor", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( EdGraphEditor ) <<= TYPENAME_OUTSIDE_TEMPLATE InArgs;
-
-        
-        //EdGraphEditor
-        SGraphEditorImpl* Implementation = (SGraphEditorImpl*)(((SGraphEditorPublic*)EdGraphEditor.Get())->Implementation.Get());
-        SGraphEditorImplPublic* ImplementationPublic = (SGraphEditorImplPublic*)Implementation;
-
-        //((SGraphPanelFriend*)ImplementationPublic->GraphPanel.Get())->OnGetContextMenuFor;
-        
-        SPMSGraphPanel::FArguments NewGraphPanelArgs = SPMSGraphPanel::FArguments()
-        .GraphObj(PMSGraphAsset->EdGraph)
-        .GraphObjToDiff(InArgs._GraphToDiff)
-        //.OnGetContextMenuFor( ImplementationPublic, &SGraphEditorImplPublic::GraphEd_OnGetContextMenuFor )
-        .OnSelectionChanged( InArgs._GraphEvents.OnSelectionChanged )
-        .OnNodeDoubleClicked( InArgs._GraphEvents.OnNodeDoubleClicked )
-        .IsEditable_Lambda( [this](){return InArgs._IsEditable.Get();} )
-        .DisplayAsReadOnly_Lambda( [this](){return InArgs._DisplayAsReadOnly.Get();} )
-        .OnDropActor( InArgs._GraphEvents.OnDropActor )
-        .OnDropStreamingLevel( InArgs._GraphEvents.OnDropStreamingLevel )
-        .OnVerifyTextCommit( InArgs._GraphEvents.OnVerifyTextCommit )
-        .OnTextCommitted( InArgs._GraphEvents.OnTextCommitted )
-        .OnSpawnNodeByShortcut( InArgs._GraphEvents.OnSpawnNodeByShortcut )
-        //.OnUpdateGraphPanel( this, &SGraphEditorImpl::GraphEd_OnPanelUpdated )
-        .OnDisallowedPinConnection( InArgs._GraphEvents.OnDisallowedPinConnection )
-        .ShowGraphStateOverlay(InArgs._ShowGraphStateOverlay)
-        .OnDoubleClicked(InArgs._GraphEvents.OnDoubleClicked);
-        NewGraphPanelArgs._OnGetContextMenuFor = ((SGraphPanelPublic*)ImplementationPublic->GraphPanel.Get())->OnGetContextMenuFor;
-
-        MakeTDecl<SPMSGraphPanel>( "SPMSGraphPanel", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( ImplementationPublic->GraphPanel ) <<= TYPENAME_OUTSIDE_TEMPLATE NewGraphPanelArgs;
-        ImplementationPublic->GraphPanel->RestoreViewSettings(FVector2D::ZeroVector, -1);
-        ImplementationPublic->GraphPanelSlot->AttachWidget(ImplementationPublic->GraphPanel.ToSharedRef());
+    if (InPMSGraphAsset != nullptr) {
+        EdGraphEditor = SNew(SGraphEditor)
+        .GraphToEdit(InPMSGraphAsset);
+        // .GraphEvents(InGraphEvent);
+        // InArgs = SGraphEditor::FArguments()
+        //     .GraphToEdit(InPMSGraphAsset)
+        //     .GraphEvents(InGraphEvent);
+        //
+        // MakeTDecl<SGraphEditor>( "SGraphEditor", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( EdGraphEditor ) <<= TYPENAME_OUTSIDE_TEMPLATE InArgs;
+        //
+        //
+        // //EdGraphEditor
+        // SGraphEditorImpl* Implementation = (SGraphEditorImpl*)(((SGraphEditorPublic*)EdGraphEditor.Get())->Implementation.Get());
+        // SGraphEditorImplPublic* ImplementationPublic = (SGraphEditorImplPublic*)Implementation;
+        //
+        // //((SGraphPanelFriend*)ImplementationPublic->GraphPanel.Get())->OnGetContextMenuFor;
+        //
+        // SPMSGraphPanel::FArguments NewGraphPanelArgs = SPMSGraphPanel::FArguments()
+        // .GraphObj(InPMSGraphAsset)
+        // .GraphObjToDiff(InArgs._GraphToDiff)
+        // //.OnGetContextMenuFor( ImplementationPublic, &SGraphEditorImplPublic::GraphEd_OnGetContextMenuFor )
+        // .OnSelectionChanged( InArgs._GraphEvents.OnSelectionChanged )
+        // .OnNodeDoubleClicked( InArgs._GraphEvents.OnNodeDoubleClicked )
+        // .IsEditable_Lambda( [this](){return InArgs._IsEditable.Get();} )
+        // .DisplayAsReadOnly_Lambda( [this](){return InArgs._DisplayAsReadOnly.Get();} )
+        // .OnDropActor( InArgs._GraphEvents.OnDropActor )
+        // .OnDropStreamingLevel( InArgs._GraphEvents.OnDropStreamingLevel )
+        // .OnVerifyTextCommit( InArgs._GraphEvents.OnVerifyTextCommit )
+        // .OnTextCommitted( InArgs._GraphEvents.OnTextCommitted )
+        // .OnSpawnNodeByShortcut( InArgs._GraphEvents.OnSpawnNodeByShortcut )
+        // //.OnUpdateGraphPanel( this, &SGraphEditorImpl::GraphEd_OnPanelUpdated )
+        // .OnDisallowedPinConnection( InArgs._GraphEvents.OnDisallowedPinConnection )
+        // .ShowGraphStateOverlay(InArgs._ShowGraphStateOverlay)
+        // .OnDoubleClicked(InArgs._GraphEvents.OnDoubleClicked);
+        // NewGraphPanelArgs._OnGetContextMenuFor = ((SGraphPanelPublic*)ImplementationPublic->GraphPanel.Get())->OnGetContextMenuFor;
+        //
+        // MakeTDecl<SPMSGraphPanel>( "SPMSGraphPanel", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( ImplementationPublic->GraphPanel ) <<= TYPENAME_OUTSIDE_TEMPLATE NewGraphPanelArgs;
+        // ImplementationPublic->GraphPanel->RestoreViewSettings(FVector2D::ZeroVector, -1);
+        // ImplementationPublic->GraphPanelSlot->AttachWidget(ImplementationPublic->GraphPanel.ToSharedRef());
     }
     //check(PMSGraphAsset->EdGraph != nullptr)
     /*Init Viewport*/
@@ -186,7 +191,7 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
         )
     );
 
-    FAssetEditorToolkit::InitAssetEditor(InMode, InitToolkitHost, FName("GraphEditorIdentifier"), Layout, true, true, PMSGraphAsset);
+    FAssetEditorToolkit::InitAssetEditor(InMode, InitToolkitHost, FName("GraphEditorIdentifier"), Layout, true, true, InPMSGraphAsset);
 }
 
 FLinearColor FPMSEditor::GetWorldCentricTabColorScale() const

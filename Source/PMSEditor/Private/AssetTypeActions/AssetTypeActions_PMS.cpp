@@ -21,7 +21,7 @@ FColor FAssetTypeActions_PMS::GetTypeColor() const
 
 UClass* FAssetTypeActions_PMS::GetSupportedClass() const 
 {
-	return UPMS_Graph::StaticClass();
+	return UPMSEdGraph::StaticClass();
 }
 
 void FAssetTypeActions_PMS::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor) 
@@ -29,7 +29,7 @@ void FAssetTypeActions_PMS::OpenAssetEditor(const TArray<UObject*>& InObjects, T
 	EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
 	for (auto Object = InObjects.CreateConstIterator(); Object; Object++)
 	{
-		auto Graph = Cast<UPMS_Graph>(*Object);
+		auto Graph = Cast<UPMSEdGraph>(*Object);
 		if (Graph != nullptr)
 		{
 			TSharedRef<FPMSEditor>EditorToolkit = MakeShareable(new FPMSEditor());

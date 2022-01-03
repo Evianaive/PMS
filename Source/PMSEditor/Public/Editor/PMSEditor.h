@@ -23,7 +23,7 @@
 class FPMSEditor : public FWorkflowCentricApplication, public FEditorUndoClient, public FNotifyHook
 {
 public:
-	void InitPMSAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, UPMS_Graph* InPMSGraphAsset);
+	void InitPMSAssetEditor(const EToolkitMode::Type InMode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, UPMSEdGraph* InPMSGraphAsset);
 	//void InitPMSEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, UPMS* InObject);
 
 public:
@@ -38,7 +38,7 @@ public:
 	virtual FString GetWorldCentricTabPrefix() const override;
 
 private:
-	UPMS_Graph* PMSGraphAsset;
+	// UPMS_Graph* PMSGraphAsset;
 	UPMSEdGraph* PMSGraph;
 	
 	static const FName PMSDetailsTabId;
