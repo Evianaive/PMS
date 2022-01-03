@@ -82,8 +82,20 @@ const FPinConnectionResponse UPMSEdGraphSchema::CanCreateConnection(const UEdGra
 		}
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW,FText::Format(LOCTEXT("NewConnectionFailTips","You can't link two {PinType}"),InputType));
 	}
+	
+	if(A->Direction==EEdGraphPinDirection::EGPD_Output)
+	{
+		// if(A->LinkedTo.Num() > 0)
+		// {			
+			return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_B,TEXT("Create"));
+		// }	
+	}
+	else
+	{
+		return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_A,TEXT("Create"));		
+	}
+	
 	//TODO 需要添加检测是否连线成环的部分
-	return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_B,TEXT("Create"));
 }
 
 FConnectionDrawingPolicy* UPMSEdGraphSchema::CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID,

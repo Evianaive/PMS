@@ -186,10 +186,11 @@ void SPMSGraphPanel::Construct(const FArguments& InArgs)
 	if (!ZoomLevels)
 	{
 		SetZoomLevelsContainer<FPMSZoomLevelsContainer>();
+		ZoomLevel = ZoomLevels->GetDefaultZoomLevel();
 	}
-	ZoomLevel = ZoomLevels->GetDefaultZoomLevel();
 	InteractionPayLoad = MakeShareable<FInteractionPayLoad>(new FInteractionPayLoad());
 	SGraphPanel::Construct(InArgs);
+	// bAllowContinousZoomInterpolation = true;
 }
 
 FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
@@ -1363,10 +1364,13 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 	if(InteractionPayLoad->bCutKeyState)
 	{
 		++MaxLayerId;
+		// float TempZoomFactor = ZoomFactor;
+		// ViewOffset,ZoomLevels->GetZoomAmount();
+		// ZoomLevels->GetNearestZoomLevel()[ZoomLevel]
 		FSlateDrawElement::MakeLines(
 			OutDrawElements,
 			MaxLayerId,
-			AllottedGeometry.ToPaintGeometry(),
+			AllottedGeometry.ToPaintGeometry(FSlateLayoutTransform( GetZoomAmount(),-ViewOffset * GetZoomAmount())),
 			InteractionPayLoad->CursorTraceAfterDown,
 			ESlateDrawEffect::None,
 			FLinearColor::Red,
