@@ -52,6 +52,7 @@ private:
 	TSharedPtr<SPMSEditorViewport> PMSEditorViewport;
 	/*需要重新实现*/
 	TSharedPtr<SScrollBox> PMSEdtiorSpreadSheet;
+	// TSharedPtr<SHorizontalBox> Hirechy;
 
 	TSharedRef<SDockTab> SpawnTab_UpdateGraph(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Viewport(const FSpawnTabArgs& Args);
@@ -60,4 +61,6 @@ private:
 
 	void OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionNode);
 	void OnFinishedChangingPMSProperties(const FPropertyChangedEvent& InEvent);
+	void UpdateEditorByGraph(UPMSEdGraph* InGraph);
+	void OnTryOpenSubGraph(UEdGraphNode* InNode);
 };

@@ -9,6 +9,7 @@
 TSharedPtr<SGraphNode> UPMSEdGraphNode::CreateVisualWidget()
 {
 	SlateNode = SNew(SPMSEdGraphNode, this);
+	// SlateNode->OnMouseButtonDoubleClick()
 	//SlateNode = MakeTDecl<SPMSEdGraphNode>( "SPMSEdGraphNode", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs(this, Display) ) <<=  SPMSEdGraphNode::FArguments();
 	return SlateNode;
 }

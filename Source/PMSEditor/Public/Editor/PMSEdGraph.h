@@ -22,5 +22,7 @@ public:
 	UPROPERTY()
 	TSet<TObjectPtr<UEdGraphNode>> TemplateNodes;
 
+	UPROPERTY()
+	UObject* ParentNode;
 	//PMSGraphNodeNamePool GraphNodeNamePool;
 };

@@ -20,6 +20,7 @@
 
 #include "SGraphPanel.h"
 #include "Editor/PMSEdGraph.h"
+#include "Editor/PMSEdSubGraphNode.h"
 #include "Editor/SlateWidgets/SNodeFlagCheckBox.h"
 #include "Editor/Style/PMSEditorStyle.h"
 
@@ -99,7 +100,11 @@ void SPMSEdGraphNode::UpdateGraphNode()
 		SNew(SBorder)
 		.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
 		//.BorderBackgroundColor(*NodeColor)
-		.BorderBackgroundColor_Lambda([this](){return FSlateColor(*this->NodeColor);})
+		.BorderBackgroundColor_Lambda([this]()
+		{
+			//Todo Hover Color Change
+			return FSlateColor(*this->NodeColor);
+		})
 		.VAlign(VAlign_Fill)
 		.HAlign(HAlign_Fill)
 		.Padding(FMargin(1.0f,1.0f))
@@ -377,4 +382,31 @@ UPMSEdGraphNode* SPMSEdGraphNode::GetPMSNodeObj()
 void SPMSEdGraphNode::OnLabelTextCommitted(const FText& NewLabel, ETextCommit::Type CommitInfo)
 {
 	Cast<UPMSEdGraphNode>(GraphNode)->NodeLabel = NewLabel;
+}
+
+void SPMSEdGraphNode::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	SGraphNode::OnMouseEnter(MyGeometry, MouseEvent);
+}
+
+FReply SPMSEdGraphNode::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
+{
+	// if(UPMSEdSubGraphNode* Temp = Cast<UPMSEdSubGraphNode>(GraphNode)){
+	// 	if(Temp->SubGraph){	
+	// 		// Temp->GetGraph()
+	// 	}
+	// 	else{
+	// 		//Todo 完成创建的部分
+	// 		NewObject<UPMSEdGraph>();
+	// 	}
+	// }
+	return SGraphNode::OnMouseButtonDoubleClick(InMyGeometry, InMouseEvent);
+	// Todo 查看一下OnDoubleClick的使用情况
+	
+	// if(InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+	// {
+	// 	OnDoubleClick.ExecuteIfBound(GraphNode);
+	// 	return FReply::Handled();
+	// }
+	// return FReply::Unhandled();
 }

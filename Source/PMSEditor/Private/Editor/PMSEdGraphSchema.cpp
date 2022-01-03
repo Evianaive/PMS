@@ -4,8 +4,10 @@
 #include "Editor/PMSEdGraphSchema.h"
 #include "UObject/UObjectIterator.h"
 #include "PMSGraphNode.h"
+#include "PMSSubGraphNode.h"
 #include "Editor/PMSEdGraph.h"
 #include "Editor/PMSEdGraphNode.h"
+#include "Editor/PMSEdSubGraphNode.h"
 #include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
 
 #define LOCTEXT_NAMESPACE "PMSEdGraphSchema"
@@ -22,7 +24,16 @@ UEdGraphNode* FPMSEdGraphSchemaAction_NewNode::PerformAction(class UEdGraph* Par
 UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNodeClass, UEdGraph* ParentGraph, UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode) {
 	check(InPMSGraphNodeClass);
 	// MakeUniqueObjectName()
-	UPMSEdGraphNode* PMSEdGraphNodeToSpawn = NewObject<UPMSEdGraphNode>(ParentGraph);
+	UPMSEdGraphNode* PMSEdGraphNodeToSpawn;
+	if(InPMSGraphNodeClass->IsChildOf(UPMSSubGraphNode::StaticClass()))
+	{
+		PMSEdGraphNodeToSpawn = NewObject<UPMSEdSubGraphNode>(ParentGraph);
+	}
+	else
+	{
+		PMSEdGraphNodeToSpawn = NewObject<UPMSEdGraphNode>(ParentGraph);		
+	}
+	
 	const FScopedTransaction Transaction(LOCTEXT("ProceduralModelingSystemEditorNewPMSEdGraphNode", "PMSEditor: New PMSEdGraphNode"));
 	ParentGraph->Modify();
 
@@ -127,7 +138,7 @@ void UPMSEdGraphSchema::GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMen
 		
 		//(new FPMSEdGraphSchemaAction_NewNode(FText::FromString("PMSNode"), NodeName, Tips, 0)).ToSharedPtr()
 		//}
-	}
+	}	
 }
 
 void UPMSEdGraphSchema::InitPMSGraphNodeClasses()

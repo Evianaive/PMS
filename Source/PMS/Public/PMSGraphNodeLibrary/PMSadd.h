@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PMSGraphNode.h"
+#include "PMSSubGraphNode.h"
 #include "PMSadd.generated.h"
 
 
@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class PMS_API UPMSadd : public UPMSGraphNode
+class PMS_API UPMSadd : public UPMSSubGraphNode
 {
     GENERATED_BODY()
 public:

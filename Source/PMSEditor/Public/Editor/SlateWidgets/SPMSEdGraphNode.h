@@ -44,6 +44,10 @@ public:
 	UPMSEdGraphNode* GetPMSNodeObj();
 	void OnLabelTextCommitted(const FText& NewLabel, ETextCommit::Type CommitInfo);
 
+	
+	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent) override;
+
 	//TODO Parameter related with NodeShape, this should be moved to SLATE_BEGIN_ARGS
 	FVector2D* NodeMargin;
 	FVector2D* NodePadding;
