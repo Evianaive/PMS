@@ -46,15 +46,17 @@ private:
 	static const FName PMSViewportTabId;
 	static const FName PMSSpreadSheetTabId;
 	
-	TSharedPtr<SGraphEditor> EdGraphEditor;
 	SGraphEditor::FArguments InArgs;
 	TSharedPtr<IDetailsView> DetailsWidget;
 	TSharedPtr<SPMSEditorViewport> PMSEditorViewport;
 	/*需要重新实现*/
 	TSharedPtr<SScrollBox> PMSEdtiorSpreadSheet;
-	// TSharedPtr<SHorizontalBox> Hirechy;
+	
+	TSharedPtr<SVerticalBox> GraphEditor;
+	TSharedPtr<SHorizontalBox> HirechyNavigation;
+	TSharedPtr<SGraphEditor> GraphEditorViewport;
 
-	TSharedRef<SDockTab> SpawnTab_UpdateGraph(const FSpawnTabArgs& Args);
+	TSharedRef<SDockTab> SpawnTab_GraphEditor(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Viewport(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_Details(const FSpawnTabArgs& Args);
 	TSharedRef<SDockTab> SpawnTab_SpreadSheet(const FSpawnTabArgs& Args);
@@ -62,5 +64,6 @@ private:
 	void OnSelectedPMSNodeChanged(const TSet<class UObject*>& SelectionNode);
 	void OnFinishedChangingPMSProperties(const FPropertyChangedEvent& InEvent);
 	void UpdateEditorByGraph(UPMSEdGraph* InGraph);
+	void UpdateHirechyNavigation(UPMSEdGraph* InGraph);
 	void OnTryOpenSubGraph(UEdGraphNode* InNode);
 };

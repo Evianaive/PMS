@@ -27,7 +27,7 @@ void FPMSEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabM
 
     FWorkflowCentricApplication::RegisterTabSpawners(InTabManager);
 
-    InTabManager->RegisterTabSpawner(PMSGraphTabId, FOnSpawnTab::CreateSP(this, &FPMSEditor::SpawnTab_UpdateGraph))
+    InTabManager->RegisterTabSpawner(PMSGraphTabId, FOnSpawnTab::CreateSP(this, &FPMSEditor::SpawnTab_GraphEditor))
         .SetDisplayName(LOCTEXT("Graph", "Graph"))
         .SetGroup(WorkspaceMenuCategoryRef);
     InTabManager->RegisterTabSpawner(PMSDetailsTabId, FOnSpawnTab::CreateSP(this, &FPMSEditor::SpawnTab_Details))
@@ -91,6 +91,9 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
     InGraphEvent.OnNodeDoubleClicked = FSingleNodeEvent::CreateSP(this,&FPMSEditor::OnTryOpenSubGraph);
     // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
+
+    GraphEditor = SNew(SVerticalBox);
+    
     InArgs = SGraphEditor::FArguments()
         .GraphEvents(InGraphEvent);
     UpdateEditorByGraph(PMSGraph);
@@ -178,14 +181,14 @@ FString FPMSEditor::GetWorldCentricTabPrefix() const
     return FString();
 }
 
-TSharedRef<SDockTab> FPMSEditor::SpawnTab_UpdateGraph(const FSpawnTabArgs& Args) {
+TSharedRef<SDockTab> FPMSEditor::SpawnTab_GraphEditor(const FSpawnTabArgs& Args) {
     check(Args.GetTabId() == PMSGraphTabId);
     
-    check(EdGraphEditor);
+    check(GraphEditor);
     return SNew(SDockTab)
         .TabRole(ETabRole::PanelTab)
         [
-            EdGraphEditor.ToSharedRef()
+            GraphEditor.ToSharedRef()
         ];
 }
 TSharedRef<SDockTab> FPMSEditor::SpawnTab_Viewport(const FSpawnTabArgs& Args)
@@ -288,10 +291,10 @@ void FPMSEditor::UpdateEditorByGraph(UPMSEdGraph* InGraph)
 {
     if (InGraph != nullptr) {
         InArgs.GraphToEdit(InGraph);
-        MakeTDecl<SGraphEditor>( "SGraphEditor", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( EdGraphEditor ) <<= TYPENAME_OUTSIDE_TEMPLATE InArgs;
+        MakeTDecl<SGraphEditor>( "SGraphEditor", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( GraphEditorViewport ) <<= TYPENAME_OUTSIDE_TEMPLATE InArgs;
         
         //EdGraphEditor
-        SGraphEditorImpl* Implementation = (SGraphEditorImpl*)(((SGraphEditorPublic*)EdGraphEditor.Get())->Implementation.Get());
+        SGraphEditorImpl* Implementation = (SGraphEditorImpl*)(((SGraphEditorPublic*)GraphEditorViewport.Get())->Implementation.Get());
         SGraphEditorImplPublic* ImplementationPublic = (SGraphEditorImplPublic*)Implementation;
         
         //((SGraphPanelFriend*)ImplementationPublic->GraphPanel.Get())->OnGetContextMenuFor;
@@ -318,9 +321,71 @@ void FPMSEditor::UpdateEditorByGraph(UPMSEdGraph* InGraph)
         MakeTDecl<SPMSGraphPanel>( "SPMSGraphPanel", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( ImplementationPublic->GraphPanel ) <<= TYPENAME_OUTSIDE_TEMPLATE NewGraphPanelArgs;
         ImplementationPublic->GraphPanel->RestoreViewSettings(FVector2D::ZeroVector, -1);
         ImplementationPublic->GraphPanelSlot->AttachWidget(ImplementationPublic->GraphPanel.ToSharedRef());
+
+        /*Rebuild GraphEditor*/
+        GraphEditor->ClearChildren();
+
+        GraphEditor->AddSlot()
+        .HAlign(HAlign_Left)
+        .VAlign(VAlign_Top)
+        .AutoHeight()
+        [
+            SAssignNew(HirechyNavigation, SHorizontalBox)
+        ];
+        
+        UpdateHirechyNavigation(InGraph);
+        GraphEditor->AddSlot()
+        .HAlign(HAlign_Fill)
+        .VAlign(VAlign_Fill)
+        .FillHeight(10000)
+        [
+            GraphEditorViewport.ToSharedRef()
+        ];
     }
 }
 
+void FPMSEditor::UpdateHirechyNavigation(UPMSEdGraph* InGraph)
+{
+    if(HirechyNavigation)
+    {
+        HirechyNavigation->ClearChildren();
+
+        TArray<UPMSEdGraphNode*> ButtonNodes;
+        UPMSEdGraph* TempGraph = InGraph;
+        while(TempGraph->ParentNode)
+        {
+            ButtonNodes.Add(Cast<UPMSEdGraphNode>(TempGraph->ParentNode));
+            TempGraph = Cast<UPMSEdGraph>(Cast<UPMSEdGraphNode>(TempGraph->ParentNode)->GetGraph());
+        }
+        
+        
+        HirechyNavigation->AddSlot()
+            .HAlign(HAlign_Left)
+            .VAlign(VAlign_Center)
+            .AutoWidth()
+            [
+                SNew(SButton)
+                .Text(FText::FromString("Root/"))
+            ];
+		
+        for (UPMSEdGraphNode* Node:ButtonNodes)
+        {
+            HirechyNavigation->AddSlot()
+            .HAlign(HAlign_Left)
+            .VAlign(VAlign_Center)
+            .AutoWidth()
+            [
+                SNew(SButton)
+                .Text(FText::FromString(Node->GetName()+"/"))
+                // .OnClicked_Lambda([this,ChildGraph]() -> FReply
+                // {
+                //         OpenChildEditor(ChildGraph.OwerEdGraph);
+                //         return FReply::Handled();
+                // })
+            ];
+        }
+    }    
+}
 #undef LOCTEXT_NAMESPACE
 
 // typedef TDelegate<void(class UEdGraphNode*)> FSingleNodeEvent;;
