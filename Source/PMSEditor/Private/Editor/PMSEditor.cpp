@@ -350,12 +350,12 @@ void FPMSEditor::UpdateHirechyNavigation(UPMSEdGraph* InGraph)
     {
         HirechyNavigation->ClearChildren();
 
-        TArray<UPMSEdGraphNode*> ButtonNodes;
+        TArray<UPMSEdSubGraphNode*> ButtonNodes;
         UPMSEdGraph* TempGraph = InGraph;
         while(TempGraph->ParentNode)
         {
-            ButtonNodes.Add(Cast<UPMSEdGraphNode>(TempGraph->ParentNode));
-            TempGraph = Cast<UPMSEdGraph>(Cast<UPMSEdGraphNode>(TempGraph->ParentNode)->GetGraph());
+            ButtonNodes.Add(Cast<UPMSEdSubGraphNode>(TempGraph->ParentNode));
+            TempGraph = Cast<UPMSEdGraph>(Cast<UPMSEdSubGraphNode>(TempGraph->ParentNode)->GetGraph());
         }
         
         
@@ -364,24 +364,36 @@ void FPMSEditor::UpdateHirechyNavigation(UPMSEdGraph* InGraph)
             .VAlign(VAlign_Center)
             .AutoWidth()
             [
+                //Todo 将FAppStyle里注册的ButtonStyle移植到PMSEditorStyle里
                 SNew(SButton)
+                .ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("SimpleButton"))
+                // .ForegroundColor(FSlateColor::UseForeground())
+                // .ContentPadding(0.f)
+                .ButtonColorAndOpacity(FSlateColor::UseForeground())
                 .Text(FText::FromString("Root/"))
+                .OnClicked_Lambda([this,TempGraph]()
+                {
+                    UpdateEditorByGraph(TempGraph);
+                    return FReply::Handled();
+                })
             ];
 		
-        for (UPMSEdGraphNode* Node:ButtonNodes)
+        for (int i = ButtonNodes.Num()-1; i>=0 ; i--)
         {
+            UPMSEdSubGraphNode* Node = ButtonNodes[i];
             HirechyNavigation->AddSlot()
             .HAlign(HAlign_Left)
             .VAlign(VAlign_Center)
             .AutoWidth()
             [
                 SNew(SButton)
-                .Text(FText::FromString(Node->GetName()+"/"))
-                // .OnClicked_Lambda([this,ChildGraph]() -> FReply
-                // {
-                //         OpenChildEditor(ChildGraph.OwerEdGraph);
-                //         return FReply::Handled();
-                // })
+                .ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("SimpleButton"))
+                .Text(FText::FromString(Node->NodeLabel.ToString()+"/"))
+                .OnClicked_Lambda([this,Node]()
+                {
+                        UpdateEditorByGraph(Node->SubGraph);
+                        return FReply::Handled();
+                })
             ];
         }
     }    
