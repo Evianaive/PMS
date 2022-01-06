@@ -40,6 +40,7 @@ public:
 private:
 	UPMS_Graph* PMSGraphAsset;
 	UPMSEdGraph* PMSGraph;
+	UPMSEdGraph* GraphToShow;
 	
 	static const FName PMSDetailsTabId;
 	static const FName PMSGraphTabId;

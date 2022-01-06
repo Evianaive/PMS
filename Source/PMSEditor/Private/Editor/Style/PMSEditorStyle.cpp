@@ -13,6 +13,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Slate/SlateGameResources.h"
 #include "Interfaces/IPluginManager.h"
+// #include "Styling/SlateTypes.h"
 
 TSharedPtr< FSlateStyleSet > FPMSEditorStyle::PMSEditorStyleInstance = NULL;
 
@@ -181,6 +182,12 @@ void InitButtonStyle(TSharedRef< FSlateStyleSet > Style)
 		.SetCheckedPressedImage(BOX_PLUGIN_BRUSH("NodeBrushes/StateNode_Node_Button_Right",FlagMargin,FLinearColor(0.000000f,0.327778f,0.672443f)))
 		.SetPadding(FlagPadding);
 	Style->Set("PMSEditor.NodeFlags.Display",DisplayFlagStyle);
+
+
+	
+	// const FButtonStyle BorderlessButton = FButtonStyle(GetWidgetStyle<FButtonStyle>("SimpleButton"))
+	// 		.SetNormalPadding(0.f)
+	// 		.SetPressedPadding(0.f);
 	
 	// //Style->Set("PMSEditor.NodeFlags.Left",FButtonStyle()
 	// 	.Set
@@ -194,6 +201,14 @@ void InitColorStyle(TSharedRef< FSlateStyleSet > Style)
 }
 } // namespace PMSEditorStyleImpl
 
+void InitNavigationBarStyle(TSharedRef< FSlateStyleSet > Style)
+{
+	FString NavigationBarFolderPath = Style->GetContentRootDir()/TEXT("HirechyNavigation");
+	FString NavigationBarArrow = NavigationBarFolderPath/TEXT("Test.png");
+	FString StyleName = FString("PMSEditor.NavigationBar.Arrow");
+	Style->Set(FName(StyleName),new IMAGE_BRUSH_SVG(NavigationBarArrow,Icon64x64));
+	
+}
 TSharedRef< FSlateStyleSet > FPMSEditorStyle::Create()
 {
 	using namespace PMSEditorStyleImpl;
@@ -204,6 +219,7 @@ TSharedRef< FSlateStyleSet > FPMSEditorStyle::Create()
 	InitNodeIcons(Style);
 	InitButtonStyle(Style);
 	InitColorStyle(Style);
+	InitNavigationBarStyle(Style);
 	
 	return Style;
 }

@@ -67,6 +67,11 @@ void UPMSEdGraphSchema::CreateDefaultNodesForGraph(UEdGraph& Graph) const
 
 }
 
+void UPMSEdGraphSchema::GetContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const
+{
+	Super::GetContextMenuActions(Menu, Context);
+}
+
 void UPMSEdGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
 {
 	GetAllPMSNodeActions(ContextMenuBuilder);

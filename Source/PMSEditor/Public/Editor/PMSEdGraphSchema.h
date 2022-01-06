@@ -42,6 +42,9 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 
 	//void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const override;
 	virtual void CreateDefaultNodesForGraph(UEdGraph& Graph) const override;
+
+	virtual void GetContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const override;
+	
 	/*Right Click Menu*/
 	virtual void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const;
 	void GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMenuBuilder) const;
