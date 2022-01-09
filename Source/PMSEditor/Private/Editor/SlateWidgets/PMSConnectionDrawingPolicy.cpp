@@ -427,8 +427,12 @@ void FPMSConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* OutputPin, U
 
 TArray<FVector2D> FPMSConnectionDrawingPolicy::MakeInputToCursorLines(const FVector2D& Start, const FVector2D& End)
 {
+	TArray<FVector2D> Default;
+	return Default;
 }
 
 TArray<FVector2D> FPMSConnectionDrawingPolicy::MakeOutputConnection(const FVector2D& Start, const FVector2D& End)
 {
+	TArray<FVector2D> Default;
+	return Default;
 }

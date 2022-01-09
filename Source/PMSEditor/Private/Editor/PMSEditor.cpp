@@ -21,6 +21,62 @@ const FName FPMSEditor::PMSGraphTabId(TEXT("PMSGraphTabId"));
 const FName FPMSEditor::PMSViewportTabId(TEXT("PMSViewportTabId"));
 const FName FPMSEditor::PMSSpreadSheetTabId(TEXT("PMSGeoSpreadSheetTabId"));
 
+void PushMenu()
+{
+	// FMenuBuilder MenuBuilder(true, nullptr);
+	// MenuBuilder.BeginSection("PathFolderMoveCopy", FText::FromString(TEXT("Test Begin")));
+	// {
+	// 	MenuBuilder.AddMenuEntry(
+	// 		  FText::FromString(TEXT("Test Entry0")),
+	// 		  FText::FromString(TEXT("Test Entry1")),
+	// 		  FSlateIcon(),
+	// 		  FUIAction(FExecuteAction::CreateLambda([]() { }))
+	// 	);
+	// }
+	// MenuBuilder.EndSection();
+ //              
+	// TSharedPtr< SWindow > Parent = FSlateApplication::Get().GetActiveTopLevelWindow();
+	// if (Parent.IsValid())
+	// {
+	// 	FSlateApplication::Get().PushMenu(
+	// 		  Parent.ToSharedRef(),
+	// 		  FWidgetPath(),
+	// 		  MenuBuilder.MakeWidget(),
+	// 		  FSlateApplication::Get().GetCursorPos(),
+	// 		   FPopupTransitionEffect(FPopupTransitionEffect::ContextMenu)
+	// 	);
+	// }
+	
+
+	auto textBlock = SNew(STextBlock).Text(FText::FromString("Test"));
+	
+	auto testWindow = SNew(SWindow)
+	.Title(LOCTEXT("Asset Window", "Asset Window"))
+	.ClientSize(FVector2D(30, 20))
+	.SupportsMaximize(false)
+	.SupportsMinimize(false)
+	.SizingRule(ESizingRule::Autosized)
+	.AutoCenter(EAutoCenter::None)
+	.IsInitiallyMaximized(false)
+	.bDragAnywhere(true)
+	[
+		textBlock
+	];
+ 
+	TSharedPtr<SWindow> TopWindow = FSlateApplication::Get().GetActiveTopLevelWindow();
+	if (TopWindow.IsValid())
+	{
+		//Add as Native
+		FSlateApplication::Get().AddWindowAsNativeChild(testWindow, TopWindow.ToSharedRef(), true);
+	}
+	else
+	{
+ 
+		//Default in case no top window
+		FSlateApplication::Get().AddWindow(testWindow);
+	}
+}
+
 void FPMSEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
 {
     WorkspaceMenuCategory = InTabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_PMSEditor", "Procedural Modeling System Editor"));
@@ -91,6 +147,7 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     SGraphEditor::FGraphEditorEvents InGraphEvent;
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
     InGraphEvent.OnNodeDoubleClicked = FSingleNodeEvent::CreateSP(this,&FPMSEditor::OnTryOpenSubGraph);
+	InGraphEvent.OnDoubleClicked = SGraphEditor::FOnDoubleClicked::CreateStatic(&PushMenu);
     // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
 
     GraphEditor = SNew(SVerticalBox);
