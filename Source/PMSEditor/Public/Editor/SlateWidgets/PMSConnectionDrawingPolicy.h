@@ -27,4 +27,7 @@ public:
 	virtual void DrawConnection(int32 LayerId, const FVector2D& Start, const FVector2D& End, const FConnectionParams& Params) override;
 	virtual void DrawPreviewConnector(const FGeometry& PinGeometry, const FVector2D& StartPoint, const FVector2D& EndPoint, UEdGraphPin* Pin) override;
 	virtual void DetermineWiringStyle(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, /*inout*/ FConnectionParams& Params) override;
+
+	TArray<FVector2D> MakeInputToCursorLines(const FVector2D& Start, const FVector2D& End);
+	TArray<FVector2D> MakeOutputConnection(const FVector2D& Start, const FVector2D& End);
 };

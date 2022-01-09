@@ -94,6 +94,8 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
 
     GraphEditor = SNew(SVerticalBox);
+
+    /* SGraphEditor::FArguments().Appearance(FGraphAppearanceInfo) */
     
     InArgs = SGraphEditor::FArguments()
         .GraphEvents(InGraphEvent);
@@ -319,7 +321,9 @@ void FPMSEditor::UpdateEditorByGraph(UPMSEdGraph* InGraph)
         .ShowGraphStateOverlay(InArgs._ShowGraphStateOverlay)
         .OnDoubleClicked(InArgs._GraphEvents.OnDoubleClicked);
         NewGraphPanelArgs._OnGetContextMenuFor = ((SGraphPanelPublic*)ImplementationPublic->GraphPanel.Get())->OnGetContextMenuFor;
-    
+
+    	// ((SGraphPanelPublic*)ImplementationPublic->GraphPanel.Get())->OnGetContextMenuFor.
+    	
         MakeTDecl<SPMSGraphPanel>( "SPMSGraphPanel", __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs() ) . Expose( ImplementationPublic->GraphPanel ) <<= TYPENAME_OUTSIDE_TEMPLATE NewGraphPanelArgs;
         ImplementationPublic->GraphPanel->RestoreViewSettings(FVector2D::ZeroVector, -1);
         ImplementationPublic->GraphPanelSlot->AttachWidget(ImplementationPublic->GraphPanel.ToSharedRef());
@@ -423,6 +427,131 @@ void FPMSEditor::UpdateHirechyNavigation(UPMSEdGraph* InGraph)
         // UE_LOG(LogTemp,Log,TEXT("Size = %s"),*(HirechyNavigation->GetDesiredSize().ToString()));
     }    
 }
+
+/*
+FActionMenuContent FPMSEditor::GraphEd_OnGetContextMenuFor(const FGraphContextMenuArguments& SpawnInfo)
+{
+	FActionMenuContent Result;
+
+	if (GraphToShow != NULL)
+	{
+		Result = FActionMenuContent( SNew(STextBlock) .Text( NSLOCTEXT("GraphEditor", "NoNodes", "No Nodes") ) );
+
+		const UEdGraphSchema* Schema = GraphToShow->GetSchema();
+		check(Schema);
+		
+		//Todo 将此二者转为类变量，查看SGraphEditorImpl中的引用
+		FEdGraphPinReference  GraphPinForMenu;
+		TWeakObjectPtr<UEdGraphNode> GraphNodeForMenu;
+		
+		GraphPinForMenu.SetPin(SpawnInfo.GraphPin);
+		GraphNodeForMenu = SpawnInfo.GraphNode;
+
+
+		//若在Node或Pin上
+		if ((SpawnInfo.GraphPin != NULL) || (SpawnInfo.GraphNode != NULL))
+		{
+			// Get all menu extenders for this context menu from the graph editor module
+			FGraphEditorModule& GraphEditorModule = FModuleManager::GetModuleChecked<FGraphEditorModule>( TEXT("GraphEditor") );
+			TArray<FGraphEditorModule::FGraphEditorMenuExtender_SelectedNode> MenuExtenderDelegates = GraphEditorModule.GetAllGraphEditorContextMenuExtender();
+
+			TArray<TSharedPtr<FExtender>> Extenders;
+			for (int32 i = 0; i < MenuExtenderDelegates.Num(); ++i)
+			{
+				if (MenuExtenderDelegates[i].IsBound())
+				{
+					Extenders.Add(MenuExtenderDelegates[i].Execute(this->Commands.ToSharedRef(), EdGraphObj, SpawnInfo.GraphNode, SpawnInfo.GraphPin, !IsEditable.Get()));
+				}
+			}
+			TSharedPtr<FExtender> MenuExtender = FExtender::Combine(Extenders);
+
+			if (OnCreateNodeOrPinMenu.IsBound())
+			{
+				// Show the menu for the pin or node under the cursor
+				const bool bShouldCloseAfterAction = true;
+				FMenuBuilder MenuBuilder( bShouldCloseAfterAction, this->Commands, MenuExtender );
+
+				Result = OnCreateNodeOrPinMenu.Execute(EdGraphObj, SpawnInfo.GraphNode, SpawnInfo.GraphPin, &MenuBuilder, !IsEditable.Get());
+			}
+			else
+			{
+				UGraphNodeContextMenuContext* ContextObject = NewObject<UGraphNodeContextMenuContext>();
+				ContextObject->Init(EdGraphObj, SpawnInfo.GraphNode, SpawnInfo.GraphPin, !IsEditable.Get());
+
+				FToolMenuContext Context(this->Commands, MenuExtender, ContextObject);
+
+				UAssetEditorToolkitMenuContext* ToolkitMenuContext = NewObject<UAssetEditorToolkitMenuContext>();
+				ToolkitMenuContext->Toolkit = AssetEditorToolkit;
+				Context.AddObject(ToolkitMenuContext);
+
+				if (TSharedPtr<FAssetEditorToolkit> SharedToolKit = AssetEditorToolkit.Pin())
+				{
+					SharedToolKit->InitToolMenuContext(Context);
+				}
+
+				// Need to additionally pass through the asset toolkit to hook up those commands?
+
+				UToolMenus* ToolMenus = UToolMenus::Get();
+				UToolMenu* GeneratedMenu = GenerateContextMenu(Schema, Context);
+				Result = FActionMenuContent(ToolMenus->GenerateWidget(GeneratedMenu));
+			}
+		}
+		
+		else if (IsEditable.Get())
+		{
+			if (EdGraphObj->GetSchema() != NULL )
+			{
+				if(OnCreateActionMenu.IsBound())
+				{
+					Result = OnCreateActionMenu.Execute(
+						EdGraphObj, 
+						SpawnInfo.NodeAddPosition,
+						SpawnInfo.DragFromPins,
+						bAutoExpandActionMenu, 
+						SGraphEditor::FActionMenuClosed::CreateSP(this, &SGraphEditorImpl::OnClosedActionMenu)
+						);
+				}
+				else
+				{
+					TSharedRef<SGraphEditorActionMenu> Menu =	
+						SNew(SGraphEditorActionMenu)
+						.GraphObj( EdGraphObj )
+						.NewNodePosition(SpawnInfo.NodeAddPosition)
+						.DraggedFromPins(SpawnInfo.DragFromPins)
+						.AutoExpandActionMenu(bAutoExpandActionMenu)
+						.OnClosedCallback( SGraphEditor::FActionMenuClosed::CreateSP(this, &SGraphEditorImpl::OnClosedActionMenu)
+						);
+
+					Result = FActionMenuContent( Menu, Menu->GetFilterTextBox() );
+				}
+
+				if (SpawnInfo.DragFromPins.Num() > 0)
+				{
+					GraphPanel->PreservePinPreviewUntilForced();
+				}
+			}
+		}
+		else
+		{
+			Result = FActionMenuContent( SNew(STextBlock)  .Text( NSLOCTEXT("GraphEditor", "CannotCreateWhileDebugging", "Cannot create new nodes in a read only graph") ) );
+		}
+	}
+	else
+	{
+		Result = FActionMenuContent( SNew(STextBlock) .Text( NSLOCTEXT("GraphEditor", "GraphObjectIsNull", "Graph Object is Null") ) );
+	}
+
+	Result.OnMenuDismissed.AddLambda([this]()
+	{
+		bResetMenuContext = true;
+	});
+
+	return Result;
+}
+
+*/
+
+
 #undef LOCTEXT_NAMESPACE
 
 // typedef TDelegate<void(class UEdGraphNode*)> FSingleNodeEvent;;

@@ -22,7 +22,8 @@ struct FInteractionPayLoad
 	// block zoom level change if cutting
 	bool bCutKeyState = false;
 	TArray<FVector2D> CursorTraceAfterDown = TArray<FVector2D>();
-	
+
+	// FVector2D CurPos;
 	// void AppendPointByCursorDelta(FVector2D CursorDelta)
 	// {
 	// 	FVector2D& LastPoint = CursorTraceAfterDown[CursorTraceAfterDown.Num()-1];

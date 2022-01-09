@@ -194,7 +194,8 @@ void FPMSConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D&
 			float ConnectionPolyLineLength = radius*(StartAngel + EndAngel) + MidConnectionLength;
 			
 			FVector2D TempMousePos = bMirrorEnd?FVector2D(2*Start.X - LocalMousePosition.X,LocalMousePosition.Y):LocalMousePosition;
-			
+
+			// UE_LOG(LogTemp,Log,TEXT("Graph Name %s"),*(GraphObj->GetClass()->GetFName().ToString()));
 			
 			bool bClose = false;
 			bool bHovered = false;
@@ -422,4 +423,12 @@ void FPMSConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* OutputPin, U
 	{
 		ApplyHoverDeemphasis(OutputPin, InputPin, /*inout*/ Params.WireThickness, /*inout*/ Params.WireColor);
 	}
+}
+
+TArray<FVector2D> FPMSConnectionDrawingPolicy::MakeInputToCursorLines(const FVector2D& Start, const FVector2D& End)
+{
+}
+
+TArray<FVector2D> FPMSConnectionDrawingPolicy::MakeOutputConnection(const FVector2D& Start, const FVector2D& End)
+{
 }

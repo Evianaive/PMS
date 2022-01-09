@@ -25,9 +25,11 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 		TArray<UEdGraphPin*> SourceNodePins = SourceNode->Pins;
 		for(UEdGraphPin* SourceNodePin : SourceNodePins)
 		{
+			bool bOutandIn = true;
 			if(bUpStream && SourceNodePin->Direction == EGPD_Input || bDownStream && SourceNodePin->Direction == EGPD_Output)
 			{
 				TArray<UEdGraphPin*> SourceNodePinLinks = SourceNodePin->LinkedTo;
+				bOutandIn = (SourceNodePinLinks.Num()>0);
 				for(UEdGraphPin* SourceNodePinLink : SourceNodePinLinks)
 				{
 					UPMSEdGraphNode* LinkedNode = Cast<UPMSEdGraphNode>(SourceNodePinLink->GetOwningNode());
@@ -40,6 +42,10 @@ TArray<UPMSEdGraphNode*> PMSEditorUtilities::GetNodesByConnectivity(TArray<UPMSE
 						LinkedNode->AlreadyMoveTogether = true;
 					}
 				}	
+			}
+			if(!bOutandIn)
+			{
+				
 			}
 		}
 	}
