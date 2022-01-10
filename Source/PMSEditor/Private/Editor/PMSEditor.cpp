@@ -14,12 +14,100 @@
 #include "Editor/SlateWidgets/HackPrivate/SGraphPanelPublic.h"
 #include "Editor/Style/PMSEditorStyle.h"
 
+#include "GeomTools.h"
+#include "Editor/SlateWidgets/S2DMeshWidget.h"
+#include "Json.h"
+#include "Slate/SlateVectorArtData.h"
+#include "Slate/SMeshWidget.h"
+
+
 #define LOCTEXT_NAMESPACE "ProceduralModelingSystemEditor"
 
 const FName FPMSEditor::PMSDetailsTabId(TEXT("PMSDetailsTabId"));
 const FName FPMSEditor::PMSGraphTabId(TEXT("PMSGraphTabId"));
 const FName FPMSEditor::PMSViewportTabId(TEXT("PMSViewportTabId"));
 const FName FPMSEditor::PMSSpreadSheetTabId(TEXT("PMSGeoSpreadSheetTabId"));
+
+TArray<TArray<FClipSMTriangle>> StaticMeshFromJson(FString JsonFilePath)
+{
+	FString JsonStr;
+	TArray<TArray<FClipSMTriangle>> OutGeo;
+	bool bLoadSuccess = FFileHelper::LoadFileToString(JsonStr,*JsonFilePath);
+	if(!bLoadSuccess)
+	{
+		return OutGeo;
+	}
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(JsonStr);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+
+	FJsonSerializer::Deserialize(JsonReader,JsonObject);
+	//variable name is the same as its name in json
+	FString name = JsonObject->GetStringField("name");
+	TSharedPtr<FJsonObject> flags = JsonObject->GetObjectField("flags");
+	TArray<TSharedPtr<FJsonValue>> outline = JsonObject->GetArrayField("outline");
+	TArray<TSharedPtr<FJsonValue>> inputs = JsonObject->GetArrayField("inputs");
+	TArray<TSharedPtr<FJsonValue>> outputs = JsonObject->GetArrayField("outputs");
+	TArray<TSharedPtr<FJsonValue>> icon = JsonObject->GetArrayField("icon");
+	//TArray<UStaticMesh> ShapeVectors;
+	for(int i=0;i<4;i++)
+	{
+		TSharedPtr<FJsonObject> CurFlag = flags->GetObjectField(FString::FromInt(i));
+		TArray<TSharedPtr<FJsonValue>> CurOutline = CurFlag->GetArrayField("outline");
+		//FRawMesh FlagRawMesh;
+		FString MeshName = "Flag"+FString::FromInt(i);
+		//init FlagPolygon, param means the count of triangle?
+		FClipSMPolygon FlagPolygon(CurOutline.Num()-2);
+		TArray<FClipSMTriangle> FlagTriangles;
+		//FlagRawMesh.VertexPositions.Add()
+		//FlagRawMesh.WedgeIndices.Add();
+		
+		FVector2D MaxBound(CurOutline[0]->AsArray()[0]->AsNumber()*100,CurOutline[1]->AsArray()[0]->AsNumber()*100);
+		FVector2D MinBound(MaxBound);
+		for(TSharedPtr<FJsonValue> Point:CurOutline)
+		{
+			auto PointElementsArray = Point->AsArray();
+			FClipSMVertex Flagvertex;
+			Flagvertex.Pos = FVector3f(PointElementsArray[0]->AsNumber()*100,0,PointElementsArray[1]->AsNumber()*100);
+			Flagvertex.Color = FColor::White;
+			FlagPolygon.Vertices.Add(Flagvertex);
+			MaxBound.X = FMath::Max(Flagvertex.Pos.X,MaxBound.X);
+			MaxBound.Y = FMath::Max(Flagvertex.Pos.Z,MaxBound.Y);
+			MinBound.X = FMath::Min(Flagvertex.Pos.X,MinBound.X);
+			MinBound.Y = FMath::Min(Flagvertex.Pos.Z,MinBound.Y);
+		}
+		for(FClipSMVertex Flagvertex:FlagPolygon.Vertices)
+		{
+			Flagvertex.UVs[0].X = (Flagvertex.Pos.X-MinBound.X)/(MaxBound.X-MinBound.X);
+			Flagvertex.UVs[1].X = Flagvertex.UVs[0].X;
+			Flagvertex.UVs[2].X = Flagvertex.UVs[1].X;
+			
+			Flagvertex.UVs[0].Y = (Flagvertex.Pos.Z-MinBound.Y)/(MaxBound.Y-MinBound.Y);
+			Flagvertex.UVs[1].Y = Flagvertex.UVs[0].Y;
+			Flagvertex.UVs[2].Y = Flagvertex.UVs[1].Y;
+		}
+		//these triangles has unique points
+		FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon);
+		OutGeo.Add(FlagTriangles);
+		// ;
+		// int vtxid=0;
+		// for(auto trin:FlagTriangles)
+		// {
+		// 	for(auto vtx:trin.Vertices)
+		// 	{
+		// 		FlagRawMesh.VertexPositions.Add(vtx.Pos);
+		// 		FlagRawMesh.WedgeIndices.Add(vtxid);
+		// 		//FlagRawMesh.WedgeColors.Add(FColor());
+		// 		FlagRawMesh.WedgeTangentX.Add(vtx.TangentX);
+		// 		FlagRawMesh.WedgeTangentY.Add(vtx.TangentY);
+		// 		FlagRawMesh.WedgeTangentZ.Add(vtx.TangentZ);
+		// 		FlagRawMesh.WedgeTexCoords->Add(vtx.UVs[0]);
+		// 		vtxid++;
+		// 	}
+		// }
+		// FStaticMeshSourceModel& SrcModel = FlagStaticMesh->AddSourceModel();
+	}
+	return OutGeo;
+}
 
 void PushMenu()
 {
@@ -46,10 +134,19 @@ void PushMenu()
 	// 		   FPopupTransitionEffect(FPopupTransitionEffect::ContextMenu)
 	// 	);
 	// }
-	
+	FSoftObjectPath Asset = FSoftObjectPath("/Game/NewSlateVectorArtData.NewSlateVectorArtData");
+	UObject* Object = Asset.ResolveObject();
+	USlateVectorArtData* VectorArtData = Cast<USlateVectorArtData>(Object);
+	auto SMesh = SNew(SMeshWidget).MeshData(VectorArtData);
 
-	auto textBlock = SNew(STextBlock).Text(FText::FromString("Test"));
 	
+	
+	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/bone.json");
+	TArray<TArray<FClipSMTriangle>> Shapes = StaticMeshFromJson(NodeShape);
+
+	// auto textBlock = SNew(STextBlock).Text(FText::FromString("Test"));
+	auto TextLeafWidget = SNew(STestLeafWidget); 
+	// auto S2dMeshWidget = SNew(S2DMeshWidget).MeshData(Shapes[0]);
 	auto testWindow = SNew(SWindow)
 	.Title(LOCTEXT("Asset Window", "Asset Window"))
 	.ClientSize(FVector2D(30, 20))
@@ -60,7 +157,7 @@ void PushMenu()
 	.IsInitiallyMaximized(false)
 	.bDragAnywhere(true)
 	[
-		textBlock
+		SMesh
 	];
  
 	TSharedPtr<SWindow> TopWindow = FSlateApplication::Get().GetActiveTopLevelWindow();

@@ -63,6 +63,8 @@ public class PMSEditor : ModuleRules
 				/*视图相关模块*/
 				"AdvancedPreviewScene",
 				
+				"UMG"
+				
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

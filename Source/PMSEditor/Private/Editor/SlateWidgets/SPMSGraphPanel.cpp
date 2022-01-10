@@ -39,6 +39,10 @@
 #include "Editor/PMSEditorSettings.h"
 #include "Editor/SlateWidgets/SPMSEdGraphNode.h"
 
+#include "Json.h"
+#include "GeomTools.h"
+#include "Editor/Style/PMSEditorStyle.h"
+
 namespace NodePanelDefs
 {
 	// Default Zoom Padding Value
@@ -1378,9 +1382,145 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 			2.0f
 		);
 		//UE_LOG(LogTemp,Log,TEXT(""))
-	}	
+	}
+	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/bone.json");
+	PaintNodeShape(AllottedGeometry, MyCullingRect, OutDrawElements, MaxLayerId, NodeShape);
+	++MaxLayerId;
 
 	return MaxLayerId;
+}
+
+void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 DrawLayerId, FString JsonFilePath) const
+{
+	FString JsonStr;
+	TArray<TArray<FClipSMTriangle>> OutGeo;
+	bool bLoadSuccess = FFileHelper::LoadFileToString(JsonStr,*JsonFilePath);
+	if(bLoadSuccess)
+	{
+		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(JsonStr);
+		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+
+		FJsonSerializer::Deserialize(JsonReader,JsonObject);
+		//variable name is the same as its name in json
+		FString name = JsonObject->GetStringField("name");
+		TSharedPtr<FJsonObject> flags = JsonObject->GetObjectField("flags");
+		TArray<TSharedPtr<FJsonValue>> outline = JsonObject->GetArrayField("outline");
+		TArray<TSharedPtr<FJsonValue>> inputs = JsonObject->GetArrayField("inputs");
+		TArray<TSharedPtr<FJsonValue>> outputs = JsonObject->GetArrayField("outputs");
+		TArray<TSharedPtr<FJsonValue>> icon = JsonObject->GetArrayField("icon");
+		//TArray<UStaticMesh> ShapeVectors;
+		for(int i=0;i<4;i++)
+		{
+			TSharedPtr<FJsonObject> CurFlag = flags->GetObjectField(FString::FromInt(i));
+			TArray<TSharedPtr<FJsonValue>> CurOutline = CurFlag->GetArrayField("outline");
+			//FRawMesh FlagRawMesh;
+			FString MeshName = "Flag"+FString::FromInt(i);
+			//init FlagPolygon, param means the count of triangle?
+			FClipSMPolygon FlagPolygon(CurOutline.Num()-2);
+			TArray<FClipSMTriangle> FlagTriangles;
+			//FlagRawMesh.VertexPositions.Add()
+			//FlagRawMesh.WedgeIndices.Add();
+			
+			FVector2D MaxBound(CurOutline[0]->AsArray()[0]->AsNumber()*100,CurOutline[1]->AsArray()[0]->AsNumber()*100);
+			FVector2D MinBound(MaxBound);
+			for(TSharedPtr<FJsonValue> Point:CurOutline)
+			{
+				auto PointElementsArray = Point->AsArray();
+				FClipSMVertex Flagvertex;
+				Flagvertex.Pos = FVector3f(PointElementsArray[0]->AsNumber()*100,0,PointElementsArray[1]->AsNumber()*100);
+				Flagvertex.Color = FColor::White;
+				FlagPolygon.Vertices.Add(Flagvertex);
+				MaxBound.X = FMath::Max(Flagvertex.Pos.X,MaxBound.X);
+				MaxBound.Y = FMath::Max(Flagvertex.Pos.Z,MaxBound.Y);
+				MinBound.X = FMath::Min(Flagvertex.Pos.X,MinBound.X);
+				MinBound.Y = FMath::Min(Flagvertex.Pos.Z,MinBound.Y);
+			}
+			for(FClipSMVertex Flagvertex:FlagPolygon.Vertices)
+			{
+				Flagvertex.UVs[0].X = (Flagvertex.Pos.X-MinBound.X)/(MaxBound.X-MinBound.X);
+				Flagvertex.UVs[1].X = Flagvertex.UVs[0].X;
+				Flagvertex.UVs[2].X = Flagvertex.UVs[1].X;
+				
+				Flagvertex.UVs[0].Y = (Flagvertex.Pos.Z-MinBound.Y)/(MaxBound.Y-MinBound.Y);
+				Flagvertex.UVs[1].Y = Flagvertex.UVs[0].Y;
+				Flagvertex.UVs[2].Y = Flagvertex.UVs[1].Y;
+			}
+			//these triangles has unique points
+			FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon);
+			OutGeo.Add(FlagTriangles);
+			// ;
+			// int vtxid=0;
+			// for(auto trin:FlagTriangles)
+			// {
+			// 	for(auto vtx:trin.Vertices)
+			// 	{
+			// 		FlagRawMesh.VertexPositions.Add(vtx.Pos);
+			// 		FlagRawMesh.WedgeIndices.Add(vtxid);
+			// 		//FlagRawMesh.WedgeColors.Add(FColor());
+			// 		FlagRawMesh.WedgeTangentX.Add(vtx.TangentX);
+			// 		FlagRawMesh.WedgeTangentY.Add(vtx.TangentY);
+			// 		FlagRawMesh.WedgeTangentZ.Add(vtx.TangentZ);
+			// 		FlagRawMesh.WedgeTexCoords->Add(vtx.UVs[0]);
+			// 		vtxid++;
+			// 	}
+			// }
+			// FStaticMeshSourceModel& SrcModel = FlagStaticMesh->AddSourceModel();
+		}
+		TArray<FSlateVertex> OutSlateVerts;
+		TArray<SlateIndex> OutIndexes;
+		int vtxid = 0;
+		for(auto trin:OutGeo[0])
+		{
+			for(auto vtx:trin.Vertices)
+			{
+				FSlateVertex& NewVert = OutSlateVerts[OutSlateVerts.AddUninitialized()];
+			
+				// Copy Position
+				{	
+					NewVert.Position[0] = vtx.Pos[0];
+					NewVert.Position[1] = vtx.Pos[2];
+				}
+				// Copy Color
+				{
+					NewVert.Color = vtx.Color;
+				}
+				// Copy all the UVs that we have, and as many as we can fit.
+				{
+					NewVert.TexCoords[0] = vtx.UVs[0].X;
+					NewVert.TexCoords[1] = vtx.UVs[0].Y;
+					
+					NewVert.TexCoords[2] = vtx.UVs[1].X;
+					NewVert.TexCoords[3] = vtx.UVs[1].Y;
+					
+					NewVert.MaterialTexCoords[0] = vtx.UVs[2].X;
+					NewVert.MaterialTexCoords[1] = vtx.UVs[2].Y;
+					// NewVert.TexCoords[0] = 0.5f;
+					// NewVert.TexCoords[1] = 0.5f;
+					//
+					// NewVert.TexCoords[2] = 0.5f;
+					// NewVert.TexCoords[3] = 0.5f;
+					//
+					// NewVert.MaterialTexCoords[0] = 0.5f;
+					// NewVert.MaterialTexCoords[1] = 0.5f;
+				}
+				OutIndexes.Add(vtxid);
+				vtxid++;
+			}
+		};
+
+		auto RenderingResourceHandle = FEditorStyle::GetBrush("Graph.StateNode.Body")->GetRenderingResource();
+		
+		FSlateDrawElement::MakeCustomVerts(
+			OutDrawElements,
+			DrawLayerId,
+			RenderingResourceHandle,
+			OutSlateVerts,
+			OutIndexes,
+			nullptr,
+			0,0
+			);
+	}
+	
 }
 
 FReply SPMSGraphPanel::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)

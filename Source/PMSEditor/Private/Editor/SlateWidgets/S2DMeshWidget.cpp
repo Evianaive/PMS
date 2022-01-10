@@ -77,6 +77,9 @@ void S2DMeshWidget::Construct(const FArguments& Args)
 uint32 S2DMeshWidget::AddMesh(const TArray<FClipSMTriangle>& InMeshData)
 {	
 	FRenderData& NewRenderData = RenderData[RenderData.Add(FRenderData())];
+
+
+	//Todo 此处的资源获取方式需要更改
 	//NewRenderData.Brush = MakeShareable(new FSlateDynamicImageBrush( FName(TEXT("None")),	FVector2D::ZeroVector));
 	NewRenderData.Brush = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
 	//NewRenderData.Brush = MakeShareable(new FSlateBrush(ESlateBrushDrawType::Image, NAME_None, FMargin(0.0f), ESlateBrushTileType::NoTile, ESlateBrushImageType::NoImage, FVector2D::ZeroVector, FLinearColor(255,255,255)));
@@ -149,6 +152,11 @@ int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 				{
 					// Drawing a single widget, no instancing
 					FSlateDrawElement::MakeCustomVerts(OutDrawElements, LayerId, RunRenderData.RenderingResourceHandle, RunRenderData.VertexData, RunRenderData.IndexData, nullptr, 0, 0);
+					FSlateDrawElement::MakeText(
+						OutDrawElements,
+						LayerId,
+						FPaintGeometry(),
+						FString("Test"),0,3,FCoreStyle::GetDefaultFontStyle("Regular",20));
 				}
 			}
 			// else
@@ -171,5 +179,31 @@ int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 FVector2D S2DMeshWidget::ComputeDesiredSize(float) const
 {
 	return FVector2D(256,256);
+}
+
+void STestLeafWidget::Construct(const FArguments& Args)
+{
+	ShowText = Args._ShowText;
+}
+
+int32 STestLeafWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
+                               const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+                               const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+{
+	FSlateDrawElement::MakeText(
+		OutDrawElements,
+		LayerId,
+		FPaintGeometry(),
+		FString("Test"),
+		0,
+		3,
+		FCoreStyle::GetDefaultFontStyle("Regular",20)
+		);
+	return LayerId;
+}
+
+FVector2D STestLeafWidget::ComputeDesiredSize(float LayoutScaleMultiplier) const
+{
+	return FVector2D(20.0,20.0);
 }
 

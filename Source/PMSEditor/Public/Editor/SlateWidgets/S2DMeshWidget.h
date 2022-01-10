@@ -100,3 +100,20 @@ private:
 	};
 	TArray<FRenderRun> RenderRuns;
 };
+
+
+class STestLeafWidget : public SLeafWidget
+{
+	SLATE_BEGIN_ARGS(STestLeafWidget)
+		:_ShowText(FString("Test"))
+	{}
+		/** The StaticMesh asset that should be drawn. */
+		SLATE_ARGUMENT(FString, ShowText)
+	SLATE_END_ARGS()
+
+	void Construct(const FArguments& Args);
+	virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+	virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
+
+	FString ShowText;
+};

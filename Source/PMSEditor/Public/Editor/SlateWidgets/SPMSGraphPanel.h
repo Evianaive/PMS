@@ -45,6 +45,8 @@ public:
 	bool PassesAssetReferenceFilter(const TArray<FAssetData>& ReferencedAssets, FText* OutFailureReason = nullptr) const;
 	void ChangeZoomLevel(int32 ZoomLevelDelta, const FVector2D& WidgetSpaceZoomOrigin, bool bOverrideZoomLimiting);
 	//void PostChangedZoom();
+
+	void PaintNodeShape(const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 DrawLayerId, FString JsonFilePath) const;
 	
 	EContextEnterState ContextEnterState = EContextEnterState::None;
 	EMouseEnterState MouseEnterState = EMouseEnterState::None;
