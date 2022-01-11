@@ -1383,7 +1383,7 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 		);
 		//UE_LOG(LogTemp,Log,TEXT(""))
 	}
-	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/bone.json");
+	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/light.json");
 	PaintNodeShape(AllottedGeometry, MyCullingRect, OutDrawElements, MaxLayerId, NodeShape);
 	++MaxLayerId;
 
@@ -1420,6 +1420,9 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			TArray<FClipSMTriangle> FlagTriangles;
 			//FlagRawMesh.VertexPositions.Add()
 			//FlagRawMesh.WedgeIndices.Add();
+
+			TArray<FVector2D> Lines;
+
 			
 			FVector2D MaxBound(CurOutline[0]->AsArray()[0]->AsNumber()*100,CurOutline[1]->AsArray()[0]->AsNumber()*100);
 			FVector2D MinBound(MaxBound);
@@ -1427,6 +1430,9 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			{
 				auto PointElementsArray = Point->AsArray();
 				FClipSMVertex Flagvertex;
+				
+				Lines.Add(FVector2D(PointElementsArray[0]->AsNumber()*100,PointElementsArray[1]->AsNumber()*100)*6);
+				
 				Flagvertex.Pos = FVector3f(PointElementsArray[0]->AsNumber()*100,0,PointElementsArray[1]->AsNumber()*100);
 				Flagvertex.Color = FColor::White;
 				FlagPolygon.Vertices.Add(Flagvertex);
@@ -1448,6 +1454,24 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			//these triangles has unique points
 			FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon);
 			OutGeo.Add(FlagTriangles);
+
+
+		
+		
+			// Lines.Reserve(OutSlateVerts.Num());
+		
+			FSlateDrawElement::MakeLines(
+				OutDrawElements,
+				DrawLayerId,
+				AllottedGeometry.ToPaintGeometry(FSlateLayoutTransform( GetZoomAmount(),-ViewOffset * GetZoomAmount())),
+				Lines,
+				ESlateDrawEffect::None,
+				FLinearColor::White,
+				true,
+				1.0f);
+
+
+			
 			// ;
 			// int vtxid=0;
 			// for(auto trin:FlagTriangles)
@@ -1519,6 +1543,22 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			nullptr,
 			0,0
 			);
+
+
+		TArray<FVector2D> Lines;
+		for(auto OutSlateVert: OutSlateVerts)
+		{
+			Lines.Add(OutSlateVert.Position*6);
+		}
+		FSlateDrawElement::MakeLines(
+				OutDrawElements,
+				DrawLayerId,
+				AllottedGeometry.ToPaintGeometry(FSlateLayoutTransform( GetZoomAmount(),-ViewOffset * GetZoomAmount())),
+				Lines,
+				ESlateDrawEffect::None,
+				FLinearColor::White,
+				true,
+				1.0f);
 	}
 	
 }

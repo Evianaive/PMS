@@ -145,8 +145,11 @@ void PushMenu()
 	TArray<TArray<FClipSMTriangle>> Shapes = StaticMeshFromJson(NodeShape);
 
 	// auto textBlock = SNew(STextBlock).Text(FText::FromString("Test"));
-	auto TextLeafWidget = SNew(STestLeafWidget); 
+	// auto TextLeafWidget = SNew(STestLeafWidget); 
 	// auto S2dMeshWidget = SNew(S2DMeshWidget).MeshData(Shapes[0]);
+
+	// SNew(SElementTesting)
+	
 	auto testWindow = SNew(SWindow)
 	.Title(LOCTEXT("Asset Window", "Asset Window"))
 	.ClientSize(FVector2D(30, 20))
