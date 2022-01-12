@@ -254,11 +254,14 @@ private:
 
 	int32 TestCustomVerts(const FOnPaintHandlerParams& InParams)
 	{
-		const float Radius = FMath::Min(InParams.Geometry.GetLocalSize().X, InParams.Geometry.GetLocalSize().Y) * 0.5f;
+		// const float Radius = FMath::Min(InParams.Geometry.GetLocalSize().X, InParams.Geometry.GetLocalSize().Y) * 0.5f;
 		const FVector2D Center = InParams.Geometry.AbsolutePosition + InParams.Geometry.GetLocalSize() * 0.5f;
-
-		// const FSlateBrush* MyBrush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
-		const FSlateBrush* MyBrush = FEditorStyle::GetBrush("Graph.StateNode.Body");
+		
+		const float Radius = 50;
+		// const FVector2D Center = FVector2D::ZeroVector;
+		
+		const FSlateBrush* MyBrush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
+		// const FSlateBrush* MyBrush = FEditorStyle::GetBrush("Graph.StateNode.Body");
 
 		FSlateResourceHandle Handle = MyBrush->GetRenderingResource();
 		const FSlateShaderResourceProxy* ResourceProxy = Handle.GetResourceProxy();
@@ -284,6 +287,8 @@ private:
 			NewVert.Position[1] = Center.Y;
 			NewVert.TexCoords[0] = UVCenter.X;
 			NewVert.TexCoords[1] = UVCenter.Y;
+			// NewVert.TexCoords[2] = UVCenter.X;
+			// NewVert.TexCoords[3] = UVCenter.Y;
 			NewVert.TexCoords[2] = NewVert.TexCoords[3] = 1.0f;
 			NewVert.Color = FColor::White;
 		}
@@ -298,8 +303,16 @@ private:
 				FSlateVertex& NewVert = Verts.Last();
 				NewVert.Position[0] = Center.X + Edge.X;
 				NewVert.Position[1] = Center.Y + Edge.Y;
-				NewVert.TexCoords[0] = UVCenter.X + UVRadius.X*EdgeDirection.X;
-				NewVert.TexCoords[1] = UVCenter.Y + UVRadius.Y*EdgeDirection.Y;
+				// NewVert.TexCoords[0] = UVCenter.X + UVRadius.X*EdgeDirection.X;
+				// NewVert.TexCoords[1] = UVCenter.Y + UVRadius.Y*EdgeDirection.Y;
+				// NewVert.TexCoords[0] = UVCenter.X;
+				// NewVert.TexCoords[1] = UVCenter.Y;
+				// NewVert.TexCoords[0] = 1.0;
+				// NewVert.TexCoords[1] = 1.0;
+				NewVert.TexCoords[0] = NewVert.Position[0];
+				NewVert.TexCoords[1] = NewVert.Position[1];
+				// NewVert.TexCoords[0] = UVCenter.X + UVRadius.X*EdgeDirection.X*2;
+				// NewVert.TexCoords[1] = UVCenter.Y + UVRadius.Y*EdgeDirection.Y*2;
 				NewVert.TexCoords[2] = NewVert.TexCoords[3] = 1.0f;
 				NewVert.Color = FColor::White;
 			}

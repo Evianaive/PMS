@@ -45,8 +45,8 @@ static void SlateMeshToSlateRenderData(const TArray<FClipSMTriangle>& DataSource
 				NewVert.TexCoords[0] = vtx.UVs[0].X;
 				NewVert.TexCoords[1] = vtx.UVs[0].Y;
 				
-				NewVert.TexCoords[2] = vtx.UVs[1].X;
-				NewVert.TexCoords[3] = vtx.UVs[1].Y;
+				NewVert.TexCoords[2] = 1.0f;
+				NewVert.TexCoords[3] = 1.0f;
 				
 				NewVert.MaterialTexCoords[0] = vtx.UVs[2].X;
 				NewVert.MaterialTexCoords[1] = vtx.UVs[2].Y;
@@ -151,7 +151,15 @@ int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 				else
 				{
 					// Drawing a single widget, no instancing
-					FSlateDrawElement::MakeCustomVerts(OutDrawElements, LayerId, RunRenderData.RenderingResourceHandle, RunRenderData.VertexData, RunRenderData.IndexData, nullptr, 0, 0);
+					FSlateDrawElement::MakeCustomVerts(
+						OutDrawElements,
+						LayerId,
+						RunRenderData.RenderingResourceHandle,
+						RunRenderData.VertexData,
+						RunRenderData.IndexData,
+						nullptr,
+						0,
+						0);
 					FSlateDrawElement::MakeText(
 						OutDrawElements,
 						LayerId,
