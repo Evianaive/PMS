@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 //#include "Textures/SlateShaderResource.h"
+#include <string>
+
 #include "Rendering/RenderingCommon.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Widgets/SLeafWidget.h"
@@ -116,4 +118,207 @@ class STestLeafWidget : public SLeafWidget
 	virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
 
 	FString ShowText;
+};
+
+
+
+struct FOnPaintHandlerParams
+{
+	const FGeometry& Geometry;
+	const FSlateRect& ClippingRect;
+	FSlateWindowElementList& OutDrawElements;
+	const int32 Layer;
+	const bool bEnabled;
+
+	FOnPaintHandlerParams( const FGeometry& InGeometry, const FSlateRect& InClippingRect, FSlateWindowElementList& InOutDrawElements, int32 InLayer, bool bInEnabled )
+		: Geometry( InGeometry )
+		, ClippingRect( InClippingRect )
+		, OutDrawElements( InOutDrawElements )
+		, Layer( InLayer )
+		, bEnabled( bInEnabled )
+	{
+	}
+
+};
+
+/** Delegate type for allowing custom OnPaint handlers */
+DECLARE_DELEGATE_RetVal_OneParam( 
+	int32,
+	FOnPaintHandler,
+	const FOnPaintHandlerParams& );
+
+/** Widget with a handler for OnPaint; convenient for testing various DrawPrimitives. */
+class SCustomPaintWidget : public SCompoundWidget
+{
+public:
+	SLATE_BEGIN_ARGS( SCustomPaintWidget )
+		: _OnPaintHandler()
+	{}
+
+	SLATE_EVENT( FOnPaintHandler, OnPaintHandler )
+SLATE_END_ARGS()
+
+/**
+ * Construct this widget
+ *
+ * @param	InArgs	The declaration data for this widget
+ */
+void Construct(const FArguments& InArgs)
+	{
+		OnPaintHandler = InArgs._OnPaintHandler;
+	}
+
+	virtual FVector2D ComputeDesiredSize(float) const override
+	{
+		return FVector2D(128, 128);
+	}
+
+	virtual int32 OnPaint( const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled ) const override
+	{
+		if( OnPaintHandler.IsBound() )
+		{
+			FOnPaintHandlerParams Params( AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, bParentEnabled && IsEnabled() ); 
+			OnPaintHandler.Execute( Params );
+		}
+		else
+		{
+			FSlateDrawElement::MakeDebugQuad(
+				OutDrawElements,
+				LayerId,
+				AllottedGeometry.ToPaintGeometry()
+			);
+		}
+
+		return SCompoundWidget::OnPaint( Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled && IsEnabled() );
+	}
+
+private:
+	FOnPaintHandler OnPaintHandler;
+};
+
+class SElementTesting : public SCompoundWidget
+{
+public:
+	SLATE_BEGIN_ARGS( SElementTesting ){}
+	SLATE_END_ARGS()
+
+	/**
+	 * Construct the widget
+	 *
+	 * @param InArgs   Declartion from which to construct the widget
+	 */
+	void Construct(const FArguments& InArgs)
+	{
+		FontScale = 1.0f;
+
+		// Arrange a bunch of DrawElement tester widgets in a vertical stack.
+		// Use custom OnPaint handlers.
+		this->ChildSlot
+		[
+			SAssignNew( VerticalBox, SVerticalBox )
+			+ SVerticalBox::Slot()
+			.FillHeight(1)
+			[
+				SNew(SCustomPaintWidget)
+				.OnPaintHandler(this, &SElementTesting::TestCustomVerts)
+			]
+		];
+	}
+
+	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime ) override
+	{
+		CenterRotation += InDeltaTime*.3;
+		if( CenterRotation > 2*PI)
+		{
+			CenterRotation-= 2*PI;
+		}
+
+		OuterRotation += (InDeltaTime *1.5);
+		if( OuterRotation > 2*PI)
+		{
+			OuterRotation-= 2*PI;
+		}
+	}
+
+	SElementTesting()
+	{
+		CenterRotation = 0;
+		OuterRotation = 0;
+	}
+
+private:
+	TSharedPtr<SVerticalBox> VerticalBox;
+	float FontScale;
+	float CenterRotation;
+	float OuterRotation;
+
+	int32 TestCustomVerts(const FOnPaintHandlerParams& InParams)
+	{
+		const float Radius = FMath::Min(InParams.Geometry.GetLocalSize().X, InParams.Geometry.GetLocalSize().Y) * 0.5f;
+		const FVector2D Center = InParams.Geometry.AbsolutePosition + InParams.Geometry.GetLocalSize() * 0.5f;
+
+		// const FSlateBrush* MyBrush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
+		const FSlateBrush* MyBrush = FEditorStyle::GetBrush("Graph.StateNode.Body");
+
+		FSlateResourceHandle Handle = MyBrush->GetRenderingResource();
+		const FSlateShaderResourceProxy* ResourceProxy = Handle.GetResourceProxy();
+
+		FVector2D UVCenter = FVector2D::ZeroVector;
+		FVector2D UVRadius = FVector2D(1,1);
+		if (ResourceProxy != nullptr)
+		{
+			UVRadius = 0.5f * ResourceProxy->SizeUV;
+			UVCenter = ResourceProxy->StartUV + UVRadius;
+		}
+
+		// Make a triangle fan in the area allotted
+		const int NumTris = 12;
+		TArray<FSlateVertex> Verts;
+		Verts.Reserve(NumTris*3);
+
+		// Center Vertex
+		Verts.AddZeroed();
+		{
+			FSlateVertex& NewVert = Verts.Last();
+			NewVert.Position[0] = Center.X;
+			NewVert.Position[1] = Center.Y;
+			NewVert.TexCoords[0] = UVCenter.X;
+			NewVert.TexCoords[1] = UVCenter.Y;
+			NewVert.TexCoords[2] = NewVert.TexCoords[3] = 1.0f;
+			NewVert.Color = FColor::White;
+		}
+
+		for (int i = 0; i < NumTris; ++i)
+		{
+			Verts.AddZeroed();
+			{
+				const float Angle = (2*PI*i) / NumTris;
+				const FVector2D EdgeDirection(FMath::Cos(Angle), FMath::Sin(Angle));
+				const FVector2D Edge(Radius*EdgeDirection);
+				FSlateVertex& NewVert = Verts.Last();
+				NewVert.Position[0] = Center.X + Edge.X;
+				NewVert.Position[1] = Center.Y + Edge.Y;
+				NewVert.TexCoords[0] = UVCenter.X + UVRadius.X*EdgeDirection.X;
+				NewVert.TexCoords[1] = UVCenter.Y + UVRadius.Y*EdgeDirection.Y;
+				NewVert.TexCoords[2] = NewVert.TexCoords[3] = 1.0f;
+				NewVert.Color = FColor::White;
+			}
+		}
+
+		TArray<SlateIndex> Indexes;
+		for (int i = 1; i <= NumTris; ++i)
+		{
+			Indexes.Add(0);
+			Indexes.Add(i);
+			Indexes.Add( (i+1 > 12) ? (1) : (i+1) );
+		}
+		// SlateIndex last = Indexes[Indexes.Num()-1];
+		// Indexes.Pop();
+		// Indexes.Add(last);
+		// UE_LOG(LogTemp,Log,TEXT("ff %s"),ToCStr(FVector2D(Indexes[0],Indexes[1]).ToString()));
+
+		FSlateDrawElement::MakeCustomVerts(InParams.OutDrawElements, InParams.Layer, Handle, Verts, Indexes, nullptr, 0, 0);
+
+		return InParams.Layer;
+	}
 };

@@ -19,7 +19,7 @@
 #include "Json.h"
 #include "Slate/SlateVectorArtData.h"
 #include "Slate/SMeshWidget.h"
-
+// #include "AppFramework/Private/Widgets/Testing/STestSuite.cpp"
 
 #define LOCTEXT_NAMESPACE "ProceduralModelingSystemEditor"
 
@@ -148,7 +148,7 @@ void PushMenu()
 	// auto TextLeafWidget = SNew(STestLeafWidget); 
 	// auto S2dMeshWidget = SNew(S2DMeshWidget).MeshData(Shapes[0]);
 
-	// SNew(SElementTesting)
+	
 	
 	auto testWindow = SNew(SWindow)
 	.Title(LOCTEXT("Asset Window", "Asset Window"))
@@ -160,7 +160,8 @@ void PushMenu()
 	.IsInitiallyMaximized(false)
 	.bDragAnywhere(true)
 	[
-		SMesh
+		// SMesh
+		SNew(SElementTesting)
 	];
  
 	TSharedPtr<SWindow> TopWindow = FSlateApplication::Get().GetActiveTopLevelWindow();
