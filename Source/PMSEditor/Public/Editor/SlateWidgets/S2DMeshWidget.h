@@ -170,7 +170,7 @@ void Construct(const FArguments& InArgs)
 
 	virtual FVector2D ComputeDesiredSize(float) const override
 	{
-		return FVector2D(128, 128);
+		return FVector2D(1024, 1024);
 	}
 
 	virtual int32 OnPaint( const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled ) const override
@@ -254,10 +254,10 @@ private:
 
 	int32 TestCustomVerts(const FOnPaintHandlerParams& InParams)
 	{
-		// const float Radius = FMath::Min(InParams.Geometry.GetLocalSize().X, InParams.Geometry.GetLocalSize().Y) * 0.5f;
+		const float Radius = FMath::Min(InParams.Geometry.GetLocalSize().X, InParams.Geometry.GetLocalSize().Y) * 0.5f;
 		const FVector2D Center = InParams.Geometry.AbsolutePosition + InParams.Geometry.GetLocalSize() * 0.5f;
 		
-		const float Radius = 50;
+		// const float Radius = 50;
 		// const FVector2D Center = FVector2D::ZeroVector;
 		
 		const FSlateBrush* MyBrush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
@@ -309,10 +309,10 @@ private:
 				// NewVert.TexCoords[1] = UVCenter.Y;
 				// NewVert.TexCoords[0] = 1.0;
 				// NewVert.TexCoords[1] = 1.0;
-				NewVert.TexCoords[0] = NewVert.Position[0];
-				NewVert.TexCoords[1] = NewVert.Position[1];
-				// NewVert.TexCoords[0] = UVCenter.X + UVRadius.X*EdgeDirection.X*2;
-				// NewVert.TexCoords[1] = UVCenter.Y + UVRadius.Y*EdgeDirection.Y*2;
+				// NewVert.TexCoords[0] = NewVert.Position[0];
+				// NewVert.TexCoords[1] = NewVert.Position[1];
+				NewVert.TexCoords[0] = UVCenter.X + UVRadius.X*EdgeDirection.X*20;
+				NewVert.TexCoords[1] = UVCenter.Y + UVRadius.Y*EdgeDirection.Y*20;
 				NewVert.TexCoords[2] = NewVert.TexCoords[3] = 1.0f;
 				NewVert.Color = FColor::White;
 			}
