@@ -10,6 +10,7 @@
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Widgets/SLeafWidget.h"
 #include "GeomTools.h"
+#include "Editor/Style/PMSEditorStyle.h"
 
 class FPaintArgs;
 class FSlateWindowElementList;
@@ -71,7 +72,7 @@ protected:
 		/** Connectivity data: Order in which the vertexes occur to make up a series of triangles. */
 		TArray<SlateIndex> IndexData;
 		/** Holds on to the material that is found on the StaticMesh. */
-		FSlateBrush* Brush;
+		const FSlateBrush* Brush;
 		/** A rendering handle used to quickly access the rendering data for the slate element*/
 		FSlateResourceHandle RenderingResourceHandle;
 		/** Per instance data that can be passed to */
@@ -260,7 +261,9 @@ private:
 		// const float Radius = 50;
 		// const FVector2D Center = FVector2D::ZeroVector;
 		
-		const FSlateBrush* MyBrush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
+		// const FSlateBrush* MyBrush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
+		const FSlateBrush* MyBrush = FPMSEditorStyle::Get().GetBrush("PMSEditor.NodeIcons.polyexpand2d");
+		
 		// const FSlateBrush* MyBrush = FEditorStyle::GetBrush("Graph.StateNode.Body");
 
 		FSlateResourceHandle Handle = MyBrush->GetRenderingResource();

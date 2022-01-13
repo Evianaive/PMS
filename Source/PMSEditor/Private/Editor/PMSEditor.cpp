@@ -146,7 +146,7 @@ void PushMenu()
 
 	// auto textBlock = SNew(STextBlock).Text(FText::FromString("Test"));
 	// auto TextLeafWidget = SNew(STestLeafWidget); 
-	// auto S2dMeshWidget = SNew(S2DMeshWidget).MeshData(Shapes[0]);
+	auto S2dMeshWidget = SNew(S2DMeshWidget).MeshData(Shapes[0]);
 
 	
 	
@@ -161,7 +161,8 @@ void PushMenu()
 	.bDragAnywhere(true)
 	[
 		// SMesh
-		SNew(SElementTesting)
+	S2dMeshWidget
+		// SNew(SElementTesting)
 	];
  
 	TSharedPtr<SWindow> TopWindow = FSlateApplication::Get().GetActiveTopLevelWindow();

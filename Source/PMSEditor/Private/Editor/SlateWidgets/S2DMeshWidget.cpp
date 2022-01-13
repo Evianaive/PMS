@@ -17,13 +17,25 @@
 
 
 /** Populate OutSlateVerts and OutIndexes with data from this static mesh such that Slate can render it. */
-static void SlateMeshToSlateRenderData(const TArray<FClipSMTriangle>& DataSource, TArray<FSlateVertex>& OutSlateVerts, TArray<SlateIndex>& OutIndexes)
+static void SlateMeshToSlateRenderData(const TArray<FClipSMTriangle>& DataSource, TArray<FSlateVertex>& OutSlateVerts, TArray<SlateIndex>& OutIndexes, FSlateResourceHandle Handle)
 {
 	// Populate Index data
 	OutIndexes.Empty();
 	OutIndexes.Reserve(DataSource.Num()*3);
 	OutSlateVerts.Empty();
 	OutSlateVerts.Reserve(DataSource.Num()*3);
+
+	const FSlateShaderResourceProxy* ResourceProxy = Handle.GetResourceProxy();
+
+	FVector2D UVCenter = FVector2D::ZeroVector;
+	FVector2D UVRadius = FVector2D(1,1);
+	if (ResourceProxy != nullptr)
+	{
+		UVRadius = 0.5f * ResourceProxy->SizeUV;
+		UVCenter = ResourceProxy->StartUV + UVRadius;
+	}
+	
+	
 	int vtxid=0;
 	for(auto trin:DataSource)
 	{
@@ -42,8 +54,8 @@ static void SlateMeshToSlateRenderData(const TArray<FClipSMTriangle>& DataSource
 			}
 			// Copy all the UVs that we have, and as many as we can fit.
 			{
-				NewVert.TexCoords[0] = vtx.UVs[0].X;
-				NewVert.TexCoords[1] = vtx.UVs[0].Y;
+				NewVert.TexCoords[0] = UVCenter.X;
+				NewVert.TexCoords[1] = UVCenter.Y;
 				
 				NewVert.TexCoords[2] = 1.0f;
 				NewVert.TexCoords[3] = 1.0f;
@@ -81,13 +93,14 @@ uint32 S2DMeshWidget::AddMesh(const TArray<FClipSMTriangle>& InMeshData)
 
 	//Todo 此处的资源获取方式需要更改
 	//NewRenderData.Brush = MakeShareable(new FSlateDynamicImageBrush( FName(TEXT("None")),	FVector2D::ZeroVector));
-	NewRenderData.Brush = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
+	// NewRenderData.Brush = new FSlateBoxBrush(FPaths::EngineContentDir() / TEXT("Editor/Slate")/"/Persona/StateMachineEditor/StateNode_Node_Body.png", FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f));
 	//NewRenderData.Brush = MakeShareable(new FSlateBrush(ESlateBrushDrawType::Image, NAME_None, FMargin(0.0f), ESlateBrushTileType::NoTile, ESlateBrushImageType::NoImage, FVector2D::ZeroVector, FLinearColor(255,255,255)));
 	//NewRenderData.Brush = MakeShareable(new FSlateBoxBrush(FPaths::ProjectPluginsDir() / TEXT("PMS/Resources/NodeBrush/StateNode_Node_Button_Center.png"), FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f)));
 	//wRenderData.RenderingResourceHandle = FSlateApplication::Get().GetRenderer()->GetResourceHandle( *NewRenderData.Brush );
+	NewRenderData.Brush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
 	NewRenderData.RenderingResourceHandle = NewRenderData.Brush->GetRenderingResource();
 	
-	SlateMeshToSlateRenderData(InMeshData, NewRenderData.VertexData, NewRenderData.IndexData);
+	SlateMeshToSlateRenderData(InMeshData, NewRenderData.VertexData, NewRenderData.IndexData, NewRenderData.RenderingResourceHandle);
 	return RenderData.Num()-1;
 }
 
