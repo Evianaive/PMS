@@ -45,8 +45,8 @@ static void SlateMeshToSlateRenderData(const TArray<FClipSMTriangle>& DataSource
 			
 			// Copy Position
 			{	
-				NewVert.Position[0] = vtx.Pos[0];
-				NewVert.Position[1] = vtx.Pos[2];
+				NewVert.Position[0] = vtx.Pos[0]*2+128;
+				NewVert.Position[1] = vtx.Pos[2]*2+128;
 			}
 			// Copy Color
 			{
@@ -111,7 +111,8 @@ void S2DMeshWidget::ClearRuns(int32 NumRuns)
 
 int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
-
+	const FVector2D Center = AllottedGeometry.AbsolutePosition + AllottedGeometry.GetLocalSize() * 0.5f;
+		
 	if (RenderRuns.Num() > 0)
 	{
 		// We have multiple render runs. Assume that we have per-instance data.

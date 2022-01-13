@@ -1490,6 +1490,17 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			// }
 			// FStaticMeshSourceModel& SrcModel = FlagStaticMesh->AddSourceModel();
 		}
+
+		auto RenderingResourceHandle = FEditorStyle::GetBrush("Graph.StateNode.Body")->GetRenderingResource();
+		auto ResourceProxy = RenderingResourceHandle.GetResourceProxy();
+		FVector2D UVCenter = FVector2D::ZeroVector;
+		FVector2D UVRadius = FVector2D(1,1);
+		if (ResourceProxy != nullptr)
+		{
+			UVRadius = 0.5f * ResourceProxy->SizeUV;
+			UVCenter = ResourceProxy->StartUV + UVRadius;
+		}
+		
 		TArray<FSlateVertex> OutSlateVerts;
 		TArray<SlateIndex> OutIndexes;
 		int vtxid = 0;
@@ -1510,11 +1521,11 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 				}
 				// Copy all the UVs that we have, and as many as we can fit.
 				{
-					NewVert.TexCoords[0] = vtx.UVs[0].X;
-					NewVert.TexCoords[1] = vtx.UVs[0].Y;
+					NewVert.TexCoords[0] = UVCenter.X;
+					NewVert.TexCoords[1] = UVCenter.Y;
 					
-					NewVert.TexCoords[2] = vtx.UVs[1].X;
-					NewVert.TexCoords[3] = vtx.UVs[1].Y;
+					NewVert.TexCoords[2] = 1.0f;
+					NewVert.TexCoords[3] = 1.0f;
 					
 					NewVert.MaterialTexCoords[0] = vtx.UVs[2].X;
 					NewVert.MaterialTexCoords[1] = vtx.UVs[2].Y;
@@ -1532,7 +1543,7 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			}
 		};
 
-		auto RenderingResourceHandle = FEditorStyle::GetBrush("Graph.StateNode.Body")->GetRenderingResource();
+
 		
 		FSlateDrawElement::MakeCustomVerts(
 			OutDrawElements,
@@ -1545,20 +1556,20 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			);
 
 
-		TArray<FVector2D> Lines;
-		for(auto OutSlateVert: OutSlateVerts)
-		{
-			Lines.Add(OutSlateVert.Position*6);
-		}
-		FSlateDrawElement::MakeLines(
-				OutDrawElements,
-				DrawLayerId,
-				AllottedGeometry.ToPaintGeometry(FSlateLayoutTransform( GetZoomAmount(),-ViewOffset * GetZoomAmount())),
-				Lines,
-				ESlateDrawEffect::None,
-				FLinearColor::White,
-				true,
-				1.0f);
+		// TArray<FVector2D> Lines;
+		// for(auto OutSlateVert: OutSlateVerts)
+		// {
+		// 	Lines.Add(OutSlateVert.Position*6);
+		// }
+		// FSlateDrawElement::MakeLines(
+		// 		OutDrawElements,
+		// 		DrawLayerId,
+		// 		AllottedGeometry.ToPaintGeometry(FSlateLayoutTransform( GetZoomAmount(),-ViewOffset * GetZoomAmount())),
+		// 		Lines,
+		// 		ESlateDrawEffect::None,
+		// 		FLinearColor::White,
+		// 		true,
+		// 		1.0f);
 	}
 	
 }

@@ -137,16 +137,20 @@ void PushMenu()
 	FSoftObjectPath Asset = FSoftObjectPath("/Game/NewSlateVectorArtData.NewSlateVectorArtData");
 	UObject* Object = Asset.ResolveObject();
 	USlateVectorArtData* VectorArtData = Cast<USlateVectorArtData>(Object);
+	
 	auto SMesh = SNew(SMeshWidget).MeshData(VectorArtData);
 
 	
 	
-	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/bone.json");
+	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/light.json");
 	TArray<TArray<FClipSMTriangle>> Shapes = StaticMeshFromJson(NodeShape);
 
 	// auto textBlock = SNew(STextBlock).Text(FText::FromString("Test"));
 	// auto TextLeafWidget = SNew(STestLeafWidget); 
-	auto S2dMeshWidget = SNew(S2DMeshWidget).MeshData(Shapes[0]);
+	// auto S2dMeshWidget = SNew(S2DMeshWidget)
+	// .MeshData(Shapes[0])
+	// .RenderTransform(FVector2D(12.0f,12.0f))
+	;
 
 	
 	
@@ -161,7 +165,27 @@ void PushMenu()
 	.bDragAnywhere(true)
 	[
 		// SMesh
-	S2dMeshWidget
+		SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		[
+			SNew(S2DMeshWidget)
+			.MeshData(Shapes[0])
+		]
+		+ SHorizontalBox::Slot()
+		[
+			SNew(S2DMeshWidget)
+			.MeshData(Shapes[1])
+		]
+		+ SHorizontalBox::Slot()
+		[
+			SNew(S2DMeshWidget)
+			.MeshData(Shapes[2])
+		]
+		+ SHorizontalBox::Slot()
+		[
+			SNew(S2DMeshWidget)
+			.MeshData(Shapes[3])
+		]
 		// SNew(SElementTesting)
 	];
  
