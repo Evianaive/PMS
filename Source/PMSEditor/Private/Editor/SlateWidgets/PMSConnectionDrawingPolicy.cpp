@@ -45,11 +45,21 @@ void FPMSConnectionDrawingPolicy::DrawPinGeometries(TMap<TSharedRef<SWidget>, FA
 	}
 }
 
+FVector2D CenterOf(const FGeometry& SomeGeometry)
+{
+	const FVector2D GeometryDrawSize = SomeGeometry.GetDrawSize();
+	return SomeGeometry.GetAccumulatedRenderTransform().GetTranslation() + (GeometryDrawSize * 0.5f);
+}
+
 void FPMSConnectionDrawingPolicy::DrawSplineWithArrow(const FGeometry& StartGeom, const FGeometry& EndGeom, const FConnectionParams& Params)
 {
-	const FVector2D StartPoint = FGeometryHelper::CenterOf(StartGeom);
-	const FVector2D EndPoint = FGeometryHelper::CenterOf(EndGeom);
+	// const FVector2D StartPoint = FGeometryHelper::CenterOf(StartGeom);
+	// const FVector2D EndPoint = FGeometryHelper::CenterOf(EndGeom);
 
+	/* Use RenderTransform As Pin Center*/
+	const FVector2D StartPoint = CenterOf(StartGeom);
+	const FVector2D EndPoint = CenterOf(EndGeom);
+	
 	FPMSConnectionDrawingPolicy::DrawSplineWithArrow(StartPoint, EndPoint, Params);
 }
 void FPMSConnectionDrawingPolicy::DrawSplineWithArrow(const FVector2D& StartPoint, const FVector2D& EndPoint, const FConnectionParams& Params)

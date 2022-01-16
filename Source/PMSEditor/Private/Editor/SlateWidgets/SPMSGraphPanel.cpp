@@ -1386,6 +1386,7 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/light.json");
 	PaintNodeShape(AllottedGeometry, MyCullingRect, OutDrawElements, MaxLayerId, NodeShape);
 	++MaxLayerId;
+	++MaxLayerId;
 
 	return MaxLayerId;
 }
@@ -1431,7 +1432,7 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 				auto PointElementsArray = Point->AsArray();
 				FClipSMVertex Flagvertex;
 				
-				Lines.Add(FVector2D(PointElementsArray[0]->AsNumber()*100,PointElementsArray[1]->AsNumber()*100)*6);
+				Lines.Add(FVector2D(PointElementsArray[0]->AsNumber()*100,PointElementsArray[1]->AsNumber()*100));
 				
 				Flagvertex.Pos = FVector3f(PointElementsArray[0]->AsNumber()*100,0,PointElementsArray[1]->AsNumber()*100);
 				Flagvertex.Color = FColor::White;
@@ -1491,7 +1492,17 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			// FStaticMeshSourceModel& SrcModel = FlagStaticMesh->AddSourceModel();
 		}
 
-		auto RenderingResourceHandle = FEditorStyle::GetBrush("Graph.StateNode.Body")->GetRenderingResource();
+
+		TArray<FSlateVertex> OutSlateVerts;
+		TArray<SlateIndex> OutIndexes;
+		OutIndexes.Empty();
+		OutIndexes.Reserve(OutGeo[0].Num()*3);
+		
+		OutSlateVerts.Empty();
+		OutSlateVerts.Reserve(OutGeo[0].Num()*3);
+		
+		auto Brush =  FEditorStyle::GetBrush("Graph.StateNode.Body");
+		auto RenderingResourceHandle = Brush->GetRenderingResource();
 		auto ResourceProxy = RenderingResourceHandle.GetResourceProxy();
 		FVector2D UVCenter = FVector2D::ZeroVector;
 		FVector2D UVRadius = FVector2D(1,1);
@@ -1501,8 +1512,7 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 			UVCenter = ResourceProxy->StartUV + UVRadius;
 		}
 		
-		TArray<FSlateVertex> OutSlateVerts;
-		TArray<SlateIndex> OutIndexes;
+		
 		int vtxid = 0;
 		for(auto trin:OutGeo[0])
 		{
@@ -1547,12 +1557,13 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 		
 		FSlateDrawElement::MakeCustomVerts(
 			OutDrawElements,
-			DrawLayerId,
+			DrawLayerId+1,
 			RenderingResourceHandle,
 			OutSlateVerts,
 			OutIndexes,
 			nullptr,
-			0,0
+			0,
+			0
 			);
 
 

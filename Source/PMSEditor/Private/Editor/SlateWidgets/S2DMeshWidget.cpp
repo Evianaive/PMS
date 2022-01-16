@@ -174,11 +174,11 @@ int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 						nullptr,
 						0,
 						0);
-					FSlateDrawElement::MakeText(
-						OutDrawElements,
-						LayerId,
-						FPaintGeometry(),
-						FString("Test"),0,3,FCoreStyle::GetDefaultFontStyle("Regular",20));
+					// FSlateDrawElement::MakeText(
+					// 	OutDrawElements,
+					// 	LayerId,
+					// 	FPaintGeometry(),
+					// 	FString("Test"),0,3,FCoreStyle::GetDefaultFontStyle("Regular",20));
 				}
 			}
 			// else

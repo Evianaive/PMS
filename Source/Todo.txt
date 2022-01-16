@@ -4,3 +4,5 @@ NameSystem
 NodeShape
 ConnectionDrawing
 Cursor
+
+NodeShape中Flag的DesiredSize需要为0，而代表NodeShape自身的其Size则为自身大小
