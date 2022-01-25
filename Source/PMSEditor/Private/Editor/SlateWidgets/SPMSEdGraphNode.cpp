@@ -20,7 +20,9 @@
 
 #include "SGraphPanel.h"
 #include "Editor/PMSEdGraph.h"
+#include "Editor/PMSEditorSettings.h"
 #include "Editor/PMSEdSubGraphNode.h"
+#include "Editor/SlateWidgets/S2DMeshWidget.h"
 #include "Editor/SlateWidgets/SNodeFlagCheckBox.h"
 #include "Editor/Style/PMSEditorStyle.h"
 
@@ -93,95 +95,105 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	FName NodeName = FName("PMSEditor.NodeIcons."+NodeNameFString);
 	FVector2D PinHorizontalBoxSize = FVector2D(NodeSize->X*0.6,NodeSize->Y*0.25);
 	
-	
-	GetOrAddSlot(ENodeZone::Center)
-	.SlotSize(*NodeSize)
-	[
-		SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
-		//.BorderBackgroundColor(*NodeColor)
-		.BorderBackgroundColor_Lambda([this]()
-		{
-			//Todo Hover Color Change
-			return FSlateColor(*this->NodeColor);
-		})
-		.VAlign(VAlign_Fill)
-		.HAlign(HAlign_Fill)
-		.Padding(FMargin(1.0f,1.0f))
-		.Clipping(EWidgetClipping::ClipToBoundsAlways)
+	if(GetDefault<UPMSEditorSettings>()->bNodeContextMode)
+	{
+		GetOrAddSlot(ENodeZone::Center)
+		.SlotSize(*NodeSize)
 		[
-			SNew(SHorizontalBox)	                
-            + SHorizontalBox::Slot()
-            .AutoWidth()
-            .VAlign(VAlign_Fill)
-            .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,0.0f))
-            [
-                SAssignNew(BypassFlag,SNodeFlagCheckBox)
-                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Bypass"))                
-                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->BypassState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
-                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnBypassChanged)
-			]
-#if insert
-			INSERT_BLOCK
-#endif
-            + SHorizontalBox::Slot()
-            .AutoWidth()
-            .VAlign(VAlign_Fill)
-            .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,0.0f))
-            [
-                SAssignNew(LockFlag,SNodeFlagCheckBox)
-                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Lock"))
-                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->LockState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
-                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnLockChanged)
-            ]
-#if insert
-			INSERT_BLOCK
-#endif
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-            .VAlign(VAlign_Center)
-            .HAlign(HAlign_Center)
-			.Padding(FMargin(*NodePadding))
+			SNew(SBorder)
+			.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+			//.BorderBackgroundColor(*NodeColor)
+			.BorderBackgroundColor_Lambda([this]()
+			{
+				//Todo Hover Color Change
+				return FSlateColor(*this->NodeColor);
+			})
+			.VAlign(VAlign_Fill)
+			.HAlign(HAlign_Fill)
+			.Padding(FMargin(1.0f,1.0f))
+			.Clipping(EWidgetClipping::ClipToBoundsAlways)
 			[
-				SNew(SImage)
-				.Image(FPMSEditorStyle::Get().GetBrush(NodeName))
-				.DesiredSizeOverride(FVector2D(48.0f,48.0f))
-				
+				SNew(SHorizontalBox)	                
+	            + SHorizontalBox::Slot()
+	            .AutoWidth()
+	            .VAlign(VAlign_Fill)
+	            .HAlign(HAlign_Fill)
+				.Padding(FMargin(0.0f,0.0f))
+	            [
+	                SAssignNew(BypassFlag,SNodeFlagCheckBox)
+	                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Bypass"))                
+	                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->BypassState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+	                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnBypassChanged)
+				]
+	#if insert
+				INSERT_BLOCK
+	#endif
+	            + SHorizontalBox::Slot()
+	            .AutoWidth()
+	            .VAlign(VAlign_Fill)
+	            .HAlign(HAlign_Fill)
+				.Padding(FMargin(0.0f,0.0f))
+	            [
+	                SAssignNew(LockFlag,SNodeFlagCheckBox)
+	                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Lock"))
+	                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->LockState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+	                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnLockChanged)
+	            ]
+	#if insert
+				INSERT_BLOCK
+	#endif
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+	            .VAlign(VAlign_Center)
+	            .HAlign(HAlign_Center)
+				.Padding(FMargin(*NodePadding))
+				[
+					SNew(SImage)
+					.Image(FPMSEditorStyle::Get().GetBrush(NodeName))
+					.DesiredSizeOverride(FVector2D(48.0f,48.0f))
+					
+				]
+	#if insert
+				INSERT_BLOCK
+	#endif
+	            + SHorizontalBox::Slot()
+	            .AutoWidth()
+	            .VAlign(VAlign_Fill)
+	            .HAlign(HAlign_Fill)
+				.Padding(FMargin(0.0f,0.0f))
+	            [
+	                SAssignNew(TemplateFlag,SNodeFlagCheckBox)
+	                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Template"))
+	                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->TemplateState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+	                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnTemplateChanged)
+				]
+	#if insert
+				INSERT_BLOCK
+	#endif
+	            + SHorizontalBox::Slot()
+	            //.FillWidth(0.145f)
+	            .AutoWidth()
+	            .VAlign(VAlign_Fill)
+	            .HAlign(HAlign_Fill)
+				.Padding(FMargin(0.0f,0.0f))
+	            [
+	                SAssignNew(DisplayFlag,SNodeFlagCheckBox)
+	                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Display"))
+	                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->DisplayState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
+	                .OnCheckStateChanged( this, &SPMSEdGraphNode::OnDisplayChanged)
+	            ]
 			]
-#if insert
-			INSERT_BLOCK
-#endif
-            + SHorizontalBox::Slot()
-            .AutoWidth()
-            .VAlign(VAlign_Fill)
-            .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,0.0f))
-            [
-                SAssignNew(TemplateFlag,SNodeFlagCheckBox)
-                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Template"))
-                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->TemplateState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
-                .OnCheckStateChanged(this, &SPMSEdGraphNode::OnTemplateChanged)
-			]
-#if insert
-			INSERT_BLOCK
-#endif
-            + SHorizontalBox::Slot()
-            //.FillWidth(0.145f)
-            .AutoWidth()
-            .VAlign(VAlign_Fill)
-            .HAlign(HAlign_Fill)
-			.Padding(FMargin(0.0f,0.0f))
-            [
-                SAssignNew(DisplayFlag,SNodeFlagCheckBox)
-                .Style(&FPMSEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>("PMSEditor.NodeFlags.Display"))
-                .IsChecked_Lambda([this]()->ECheckBoxState{return Cast<UPMSEdGraphNode>(this->GraphNode)->DisplayState? ECheckBoxState::Checked : ECheckBoxState::Unchecked;})
-                .OnCheckStateChanged( this, &SPMSEdGraphNode::OnDisplayChanged)
-            ]
+			
+		];	
+	}
+	else
+	{
+		GetOrAddSlot(ENodeZone::Center)
+		[
+			SNew(S2DMeshWidget)
 		]
-		
-	];
+		;
+	}
 	GetOrAddSlot(ENodeZone::Right)
 	.SlotSize(PinHorizontalBoxSize)
 	.SlotOffset(FVector2D((NodeSize->X-PinHorizontalBoxSize.X)/2,(+NodeSize->Y+5)))

@@ -197,8 +197,9 @@ void SPMSEdGraphPin::Construct(const FArguments& InArgs,UEdGraphPin* InPin)
 
 	TSharedPtr<IToolTip> TooltipWidget = SNew(SToolTip)
 		.Text(this, &SPMSEdGraphPin::GetTooltipText)
-		.IsInteractive(this, &SPMSEdGraphPin::IsTooltipInteractive)
-		.OnSetInteractiveWindowLocation(this, &SPMSEdGraphPin::OnSetInteractiveTooltipLocation);
+		// .IsInteractive(this, &SPMSEdGraphPin::IsTooltipInteractive)
+		// .OnSetInteractiveWindowLocation(this, &SPMSEdGraphPin::OnSetInteractiveTooltipLocation)
+	;
 
 	SetToolTip(TooltipWidget);
 }
