@@ -100,8 +100,25 @@ void FNodeShape::UpdataByJsonValue(TArray<FVector2D>& ShapeLine, FSlateVertexArr
 	//
 
 	//these triangles has unique points
-	TArray<FClipSMTriangle> FlagTriangles;
-	FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon,true);
+	// TArray<FClipSMTriangle> FlagTriangles;
+	// FGeomTools::TriangulatePoly(FlagTriangles,FlagPolygon,true);
+	// Todo 此方式在light.json文件转化时会有问题
+	TArray<FVector2D> TrianVertices;
+	FGeomTools2D::TriangulatePoly(TrianVertices,ShapeLine,true);
+	
+	// TArray<FVector2D> InputPolygon;
+	// InputPolygon.Add(FVector2D(0,0));
+	// InputPolygon.Add(FVector2D(1,0));
+	// InputPolygon.Add(FVector2D(1,1));
+	// InputPolygon.Add(FVector2D(0,1));
+	// TArray<FVector2D> TrianVerticesTest;
+	// FGeomTools2D::TriangulatePoly(TrianVerticesTest,InputPolygon,true);
+	// for(FVector2D Vt : TrianVerticesTest)
+	// {
+	// 	UE_LOG(LogTemp,Log,TEXT("%s"),*(Vt.ToString()));
+	// }
+	
+	
 	auto Brush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
 	auto Handle = Brush->GetRenderingResource();
 	const FSlateShaderResourceProxy* ResourceProxy = Handle.GetResourceProxy();
@@ -113,36 +130,65 @@ void FNodeShape::UpdataByJsonValue(TArray<FVector2D>& ShapeLine, FSlateVertexArr
 		UVRadius = 0.5f * ResourceProxy->SizeUV;
 		UVCenter = ResourceProxy->StartUV + UVRadius;
 	}
-	
+
 	int vtxid=0;
-	for(auto trin:FlagTriangles)
+	for(auto vtx:TrianVertices)
 	{
-		for(auto vtx:trin.Vertices)
-		{
-			FSlateVertex& NewVert = ShapeVertices[ShapeVertices.AddUninitialized()];
-	
-			// Copy Position
-			{	
-				NewVert.Position[0] = vtx.Pos[0]*2+128;
-				NewVert.Position[1] = vtx.Pos[2]*2+128;
-			}
-			// Copy Color
-			{
-				NewVert.Color = vtx.Color;
-			}
-			// Copy all the UVs that we have, and as many as we can fit.
-			{
-				NewVert.TexCoords[0] = UVCenter.X;
-				NewVert.TexCoords[1] = UVCenter.Y;
-		
-				NewVert.TexCoords[2] = 1.0f;
-				NewVert.TexCoords[3] = 1.0f;
-		
-				NewVert.MaterialTexCoords[0] = vtx.UVs[2].X;
-				NewVert.MaterialTexCoords[1] = vtx.UVs[2].Y;
-			}
-			ShapeIndexes.Add(vtxid);
-			vtxid++;
+		FSlateVertex& NewVert = ShapeVertices[ShapeVertices.AddUninitialized()];
+
+		// Copy Position
+		{	
+			NewVert.Position[0] = vtx.X+128;
+			NewVert.Position[1] = vtx.Y+128;
 		}
+		// Copy Color
+		{
+			NewVert.Color = FColor::White;
+		}
+		// Copy all the UVs that we have, and as many as we can fit.
+		{
+			NewVert.TexCoords[0] = UVCenter.X;
+			NewVert.TexCoords[1] = UVCenter.Y;
+	
+			NewVert.TexCoords[2] = 1.0f;
+			NewVert.TexCoords[3] = 1.0f;
+	
+			// NewVert.MaterialTexCoords[0] = vtx.UVs[2].X;
+			// NewVert.MaterialTexCoords[1] = vtx.UVs[2].Y;
+		}
+		ShapeIndexes.Add(vtxid);
+		vtxid++;
 	}
+	
+	// int vtxid=0;
+	// for(auto trin:FlagTriangles)
+	// {
+	// 	for(auto vtx:trin.Vertices)
+	// 	{
+	// 		FSlateVertex& NewVert = ShapeVertices[ShapeVertices.AddUninitialized()];
+	//
+	// 		// Copy Position
+	// 		{	
+	// 			NewVert.Position[0] = vtx.Pos[0]*2+128;
+	// 			NewVert.Position[1] = vtx.Pos[2]*2+128;
+	// 		}
+	// 		// Copy Color
+	// 		{
+	// 			NewVert.Color = vtx.Color;
+	// 		}
+	// 		// Copy all the UVs that we have, and as many as we can fit.
+	// 		{
+	// 			NewVert.TexCoords[0] = UVCenter.X;
+	// 			NewVert.TexCoords[1] = UVCenter.Y;
+	// 	
+	// 			NewVert.TexCoords[2] = 1.0f;
+	// 			NewVert.TexCoords[3] = 1.0f;
+	// 	
+	// 			NewVert.MaterialTexCoords[0] = vtx.UVs[2].X;
+	// 			NewVert.MaterialTexCoords[1] = vtx.UVs[2].Y;
+	// 		}
+	// 		ShapeIndexes.Add(vtxid);
+	// 		vtxid++;
+	// 	}
+	// }
 }

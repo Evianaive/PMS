@@ -55,7 +55,10 @@ public:
 	static TSharedRef<FNodeShapeCollection> Create(){return MakeShareable(new FNodeShapeCollection());};
 	static void Initialize(){if(!Instance.IsValid()){Instance = Create();bInitialized = true;}};
 	static void Shutdown(){Instance.Reset();}
-	FNodeShape* GetNodeShapeByName(FName NodeShapeName){return NodeShapes.Find(NodeShapeName);}
+	FNodeShape* GetNodeShapeByName(FName NodeShapeName)
+	{
+		return NodeShapes.Find(NodeShapeName);
+	}
 	
 private:
 	static TSharedPtr<FNodeShapeCollection> Instance;
