@@ -10,6 +10,7 @@
 #include "AssetTypeActions/AssetTypeActions_PMS.h"
 #include "Editor/PMSEditorSettings.h"
 #include "Editor/Style/PMSEditorStyle.h"
+#include "Editor/Utilities/FNodeShape.h"
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
 
 #define LOCTEXT_NAMESPACE "FPMSEditorModule"
@@ -25,6 +26,7 @@ void FPMSEditorModule::StartupModule()
 	//Register Style
 	FPMSEditorStyle::Initialize();
 	FPMSEditorStyle::ReloadTextures();
+	FNodeShapeCollection::Initialize();
 
 	//Register InputPreProcessor hacker
 	if(FSlateApplication::IsInitialized())
@@ -54,6 +56,7 @@ void FPMSEditorModule::ShutdownModule()
 	
 	//Unregister Style
 	FPMSEditorStyle::Shutdown();
+	FNodeShapeCollection::Shutdown();
 
 	//Unregister InputPreProcessor hacker
 	if(PMSInputPreProcessor.IsValid() && FSlateApplication::IsInitialized())

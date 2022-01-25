@@ -11,13 +11,14 @@
 #include "Widgets/SLeafWidget.h"
 #include "GeomTools.h"
 #include "Editor/Style/PMSEditorStyle.h"
+#include "Editor/Utilities/FNodeShape.h"
 
 class FPaintArgs;
 class FSlateWindowElementList;
 struct FSlateBrush;
 
 //FClipSMTriangle DefaultTriangle(0);
-inline TArray<FClipSMTriangle> DefaultMeshData;
+// inline TArray<FClipSMTriangle> DefaultMeshData;
 /**
  * A widget that draws vertexes provided by a 2.5D StaticMesh.
  * The Mesh's material is used.
@@ -27,10 +28,10 @@ class S2DMeshWidget : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(S2DMeshWidget)
-		:_MeshData(DefaultMeshData)
+		:_MeshData(FNodeShapeCollection::Get()->GetNodeShapeByName(FName("rect")))
 	{}
 		/** The StaticMesh asset that should be drawn. */
-		SLATE_ARGUMENT(TArray<FClipSMTriangle>, MeshData)
+		SLATE_ARGUMENT(FNodeShape*, MeshData)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& Args);
@@ -40,7 +41,7 @@ public:
 	 *
 	 * @return the Index of the mesh data that was added; cache this value for use with @see FRenderRun.
 	 */
-	uint32 AddMesh(const TArray<FClipSMTriangle>& InMeshData);
+	uint32 AddMesh(const FNodeShape* InMeshData);
 
 	/** Discard any previous runs and reserve space for new render runs if needed. */
 	void ClearRuns(int32 NumRuns);

@@ -80,13 +80,13 @@ static void SlateMeshToSlateRenderData(const TArray<FClipSMTriangle>& DataSource
 
 void S2DMeshWidget::Construct(const FArguments& Args)
 {
-	if (Args._MeshData.Num() != 0)
+	if (Args._MeshData)
 	{
 		AddMesh(Args._MeshData);
 	}
 }
 
-uint32 S2DMeshWidget::AddMesh(const TArray<FClipSMTriangle>& InMeshData)
+uint32 S2DMeshWidget::AddMesh(const FNodeShape* InMeshData)
 {	
 	FRenderData& NewRenderData = RenderData[RenderData.Add(FRenderData())];
 
@@ -99,8 +99,10 @@ uint32 S2DMeshWidget::AddMesh(const TArray<FClipSMTriangle>& InMeshData)
 	//wRenderData.RenderingResourceHandle = FSlateApplication::Get().GetRenderer()->GetResourceHandle( *NewRenderData.Brush );
 	NewRenderData.Brush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
 	NewRenderData.RenderingResourceHandle = NewRenderData.Brush->GetRenderingResource();
-	
-	SlateMeshToSlateRenderData(InMeshData, NewRenderData.VertexData, NewRenderData.IndexData, NewRenderData.RenderingResourceHandle);
+
+	NewRenderData.VertexData = InMeshData->OutLineVertices;
+	NewRenderData.IndexData = InMeshData->OutlineIndex;
+	// SlateMeshToSlateRenderData(InMeshData, NewRenderData.VertexData, NewRenderData.IndexData, NewRenderData.RenderingResourceHandle);
 	return RenderData.Num()-1;
 }
 
