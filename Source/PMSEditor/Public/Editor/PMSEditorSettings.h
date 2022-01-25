@@ -72,6 +72,21 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, meta=(ClampMin=1, ClampMax=4096), Category="Graph Editor Setting")
 	int32 MoveStepSize = 1;
+
+	UPROPERTY(Config, EditAnywhere)
+	bool bNodeContextMode = true;
+
+	UPROPERTY(config, EditAnywhere)
+	TMap<FName,FName> NameToDebug;
+
+	UPROPERTY(Config, EditAnywhere)
+	TMap<FName,int> IntToDebug;
+
+	UPROPERTY(Config, EditAnywhere)
+	TMap<FName,float> FloatToDebug;
+
+	UPROPERTY(Config, EditAnywhere)
+	TMap<FName,FString> StringToDebug;
 public:
 	// Configures the background shown behind the UI material preview
 	//UPROPERTY(config, EditAnywhere, Category = "User Interface Domain")
