@@ -194,6 +194,7 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
     InGraphEvent.OnNodeDoubleClicked = FSingleNodeEvent::CreateSP(this,&FPMSEditor::OnTryOpenSubGraph);
 	InGraphEvent.OnDoubleClicked = SGraphEditor::FOnDoubleClicked::CreateStatic(&PushMenu);
+	// InGraphEvent.OnCreateActionMenu = SGraphEditor::FOnCreateActionMenu::CreateSP(this,&FPMSEditor::OnGetContextMenu);
     // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
 
     GraphEditor = SNew(SVerticalBox);
@@ -381,6 +382,15 @@ void FPMSEditor::OnTryOpenSubGraph(UEdGraphNode* InNode)
         UpdateEditorByGraph(Temp->SubGraph);
     }
 }
+
+FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector2D& NodePos, const TArray<UEdGraphPin*>& DragedPins, bool, SGraphEditor::FActionMenuClosed OnClosedHandle)
+{
+	
+	// FMenuBuilder MenuBuilder(true);
+	
+	return FActionMenuContent( SNew(STextBlock) .Text( NSLOCTEXT("GraphEditor", "GraphObjectIsNull", "Graph Object is Null") ) );
+}
+
 void FPMSEditor::OnFinishedChangingPMSProperties(const FPropertyChangedEvent& PropertyChangedEvent)
 {
     //TSharedPtr<UPMSEdGraphNode> Node = DetailsWidget->GetSelectedObjects()[0];

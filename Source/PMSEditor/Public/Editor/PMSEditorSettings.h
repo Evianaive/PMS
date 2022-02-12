@@ -41,6 +41,14 @@
 // 	}
 //
 // };
+UCLASS()
+class USelfArray : public UObject
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TMap<FString,USelfArray*> Contains;
+};
 
 UCLASS(config = EditorPerProjectUserSettings)
 class UPMSEditorSettings : public UObject
@@ -87,6 +95,9 @@ public:
 
 	UPROPERTY(Config, EditAnywhere)
 	TMap<FName,FString> StringToDebug;
+
+	// UPROPERTY(EditAnywhere)
+	// USelfArray* SelfArray;
 public:
 	// Configures the background shown behind the UI material preview
 	//UPROPERTY(config, EditAnywhere, Category = "User Interface Domain")

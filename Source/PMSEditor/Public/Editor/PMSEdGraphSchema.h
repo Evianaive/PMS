@@ -57,6 +57,7 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 		float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements,
 		UEdGraph* InGraphObj) const override;
 
+	void GetAllPMSNodeActionsWithMenu() const;
 private:
 	static void InitPMSGraphNodeClasses();
 
