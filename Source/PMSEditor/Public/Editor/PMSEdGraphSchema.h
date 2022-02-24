@@ -35,6 +35,48 @@ public:
 	static UPMSEdGraphNode* SpawnNode(UClass* PMSGraphNodeClass, UEdGraph* ParentGraph, UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode);
 };
 
+/*既要用来构建菜单的Node，也要用于点击时执行操作*/
+USTRUCT()
+struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FEdGraphSchemaAction
+{
+	UPROPERTY()
+	class UClass* PMSGraphNodeClass;
+	UPROPERTY()
+	FString IconName;
+	
+	GENERATED_BODY()
+	FPMSEdGraphSchemaAction_ShelfTool()
+		: FEdGraphSchemaAction()
+		, PMSGraphNodeClass(nullptr)
+	{}
+
+	FPMSEdGraphSchemaAction_ShelfTool(FText InNodeCategory, FText InMenuDesc, FText InToolTip, const int32 InGrouping)
+		: FEdGraphSchemaAction(MoveTemp(InNodeCategory), MoveTemp(InMenuDesc), MoveTemp(InToolTip), InGrouping)
+		, PMSGraphNodeClass(nullptr)
+	{}
+
+	virtual UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override;
+
+	static UPMSEdGraphNode* SpawnNode(UClass* PMSGraphNodeClass, UEdGraph* ParentGraph, UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode);
+};
+
+USTRUCT()
+struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfToolSubMenu : public FEdGraphSchemaAction
+{
+	TMap<FName,FEdGraphSchemaAction*> Children;
+	GENERATED_BODY()
+	FPMSEdGraphSchemaAction_ShelfToolSubMenu()
+		: FEdGraphSchemaAction()
+	{}
+
+	FPMSEdGraphSchemaAction_ShelfToolSubMenu(FText InNodeCategory, FText InMenuDesc, FText InToolTip, const int32 InGrouping)
+		: FEdGraphSchemaAction(MoveTemp(InNodeCategory), MoveTemp(InMenuDesc), MoveTemp(InToolTip), InGrouping)
+	{}
+
+	virtual UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override;
+
+};
+
 UCLASS()
 class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 {
@@ -48,6 +90,7 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 	/*Right Click Menu*/
 	virtual void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const;
 	void GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMenuBuilder) const;
+	// void GetAllPMSShelfToolActions();
 	
 	/*Which Connection Between nodes are allowed*/
 	virtual const FPinConnectionResponse CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const override;
@@ -57,12 +100,13 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 		float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements,
 		UEdGraph* InGraphObj) const override;
 
-	void GetAllPMSNodeActionsWithMenu() const;
+	// void GetAllPMSNodeActionsWithMenu() const;
 private:
 	static void InitPMSGraphNodeClasses();
+	static void InitPMSToolShelfLib();
 
 private:
 	static TArray<UClass*> PMSGraphNodeClasses;
-
+	static TArray<FPMSEdGraphSchemaAction_ShelfToolSubMenu> PMSToolShelfLib;
 	static bool bPMSGraphNodeClassesInitialized;
 };

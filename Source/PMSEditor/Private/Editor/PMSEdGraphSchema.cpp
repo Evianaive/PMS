@@ -9,11 +9,13 @@
 #include "Editor/PMSEdGraphNode.h"
 #include "Editor/PMSEdSubGraphNode.h"
 #include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
+#include "Interfaces/IPluginManager.h"
 
 #define LOCTEXT_NAMESPACE "PMSEdGraphSchema"
 
 //Static Member of UPMSEdGraphSchema
 TArray<UClass*> UPMSEdGraphSchema::PMSGraphNodeClasses;
+TArray<FPMSEdGraphSchemaAction_ShelfToolSubMenu> UPMSEdGraphSchema::PMSToolShelfLib;
 bool UPMSEdGraphSchema::bPMSGraphNodeClassesInitialized = false;
 
 UEdGraphNode* FPMSEdGraphSchemaAction_NewNode::PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode /* = true */) {
@@ -57,11 +59,31 @@ UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNo
 	//Cast<UPMSEdGraph>(ParentGraph)->SelectNode = PMSEdGraphNodeToSpawn;
 	return PMSEdGraphNodeToSpawn;
 }
+
+UEdGraphNode* FPMSEdGraphSchemaAction_ShelfTool::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin,
+	const FVector2D Location, bool bSelectNewNode)
+{
+	return FEdGraphSchemaAction::PerformAction(ParentGraph, FromPin, Location, bSelectNewNode);
+}
+
+UPMSEdGraphNode* FPMSEdGraphSchemaAction_ShelfTool::SpawnNode(UClass* PMSGraphNodeClass, UEdGraph* ParentGraph,
+	UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode)
+{
+	return nullptr;
+}
+
 UPMSEdGraphSchema::UPMSEdGraphSchema(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	
 }
+
+UEdGraphNode* FPMSEdGraphSchemaAction_ShelfToolSubMenu::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin,
+	const FVector2D Location, bool bSelectNewNode)
+{
+	return FEdGraphSchemaAction::PerformAction(ParentGraph, FromPin, Location, bSelectNewNode);
+}
+
 void UPMSEdGraphSchema::CreateDefaultNodesForGraph(UEdGraph& Graph) const 
 {
 
@@ -161,6 +183,36 @@ void UPMSEdGraphSchema::InitPMSGraphNodeClasses()
 	}
 	PMSGraphNodeClasses.Sort();
 	bPMSGraphNodeClassesInitialized = true;
+}
+
+void UPMSEdGraphSchema::InitPMSToolShelfLib()
+{
+	if (bPMSGraphNodeClassesInitialized) {
+		return;
+	}
+	static FString ToolShelfsDir = IPluginManager::Get().FindPlugin(TEXT("PMS"))->GetBaseDir() / TEXT("Resources/ToolShelfs");
+	TArray<FString> AllToolShelfFilesPath;
+	IFileManager::Get().FindFilesRecursive(AllToolShelfFilesPath,*ToolShelfsDir,TEXT("*.shelf"),true,false);
+
+	for (auto ToolShelfFilePath : AllToolShelfFilesPath)
+	{
+		// FXmlFile* ToolShelfFile = new FXmlFile(*ToolShelfFilePath);
+		// FXmlNode* rootnode_ShelfDocument = ToolShelfFile->GetRootNode();
+		// const TArray<FXmlNode*> nodes_Tool = rootnode_ShelfDocument->GetChildrenNodes();
+		// for(auto node_Tool : nodes_Tool)
+		// {
+		// 	FString ToolName = node_Tool->GetAttribute(TEXT("name"));
+		// 	FString ToolLabel = node_Tool->GetAttribute(TEXT("name"));
+		// 	FString ToolIcon = node_Tool->GetAttribute(TEXT("name"));
+		//
+		// 	node_Tool->FindChildNode(TEXT("toolSubmenu"));
+		// }
+		
+	}
+		
+	
+	
+	//PMSToolShelfLib;
 }
 
 #undef LOCTEXT_NAMESPACE
