@@ -16,7 +16,7 @@
 
 //Static Member of UPMSEdGraphSchema
 TArray<UClass*> UPMSEdGraphSchema::PMSGraphNodeClasses;
-TArray<FPMSEdGraphSchemaAction_ShelfToolSubMenu> UPMSEdGraphSchema::PMSToolShelfLib;
+FPMSEdGraphSchemaAction_ShelfToolSubMenu UPMSEdGraphSchema::PMSToolShelfLib;
 bool UPMSEdGraphSchema::bPMSGraphNodeClassesInitialized = false;
 
 UEdGraphNode* FPMSEdGraphSchemaAction_NewNode::PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode /* = true */) {
@@ -148,6 +148,7 @@ FConnectionDrawingPolicy* UPMSEdGraphSchema::CreateConnectionDrawingPolicy(int32
 void UPMSEdGraphSchema::GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMenuBuilder) const
 {
 	InitPMSGraphNodeClasses();
+	InitPMSToolShelfLib();
 	for (UClass* PMSGraphNodeClass : PMSGraphNodeClasses) {
 		//it seems there is no need to add the next line.
 		//if(PMSGraphNodeClass){
@@ -194,12 +195,13 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 	static FString ToolShelfsDir = IPluginManager::Get().FindPlugin(TEXT("PMS"))->GetBaseDir() / TEXT("Resources/ToolShelfs");
 	TArray<FString> AllToolShelfFilesPath;
 	IFileManager::Get().FindFilesRecursive(AllToolShelfFilesPath,*ToolShelfsDir,TEXT("*.shelf"),true,false);
-
-
-	TSet<FPMSEdGraphSchemaAction_ShelfToolSubMenu> UPMSEdGraphSchema::PMSToolShelfLibSet;
 	
 	for (const auto ToolShelfFilePath : AllToolShelfFilesPath)
 	{
+
+		if(ToolShelfFilePath!=FString(L"../../../../../../UnrealProject/ProceduralModeling/Plugins/PMS/Resources/ToolShelfs/SopToolsTest.shelf"))
+			continue;
+		
 		tinyxml2::XMLDocument ToolShelfFile;
 		ToolShelfFile.LoadFile(TCHAR_TO_ANSI(*ToolShelfFilePath));
 		auto RootNodeShelfDocument = ToolShelfFile.RootElement();
@@ -211,36 +213,35 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 			FString ToolIcon(NodeTool->Attribute("icon"));
 
 			FString ToolPath = TEXT("Unkown");
+			FString ToolScriptType = TEXT("python");
 			FString ToolScript = TEXT("No Script");
 			
 			if(tinyxml2::XMLElement* NodeToolPath = NodeTool->FirstChildElement("toolSubmenu"))
 			{
 				ToolPath = FString(NodeToolPath->GetText());
 			}
-			if(tinyxml2::XMLElement* NodeToolScript = NodeTool->FirstChildElement("toolSubmenu"))
+			if(tinyxml2::XMLElement* NodeToolScript = NodeTool->FirstChildElement("script"))
 			{
-				ToolScript = FString(NodeToolScript->Value());
+				ToolScriptType = NodeToolScript->FirstAttribute()->Value();
+				auto FC = NodeToolScript->FirstChild();
+				ToolScript = FString(FC->Value());
 			}
-			// PMSToolShelfLibSet.FindOrAdd()
-		}
+			TArray<FString> ToolPathArray;
+			ToolPath.ParseIntoArray(ToolPathArray,TEXT("/"),true);
 
-		
-		// FXmlNode* rootnode_ShelfDocument = ToolShelfFile->GetRootNode();
-		// const TArray<FXmlNode*> nodes_Tool = rootnode_ShelfDocument->GetChildrenNodes();
-		// for(auto node_Tool : nodes_Tool)
-		// {
-		// 	FString ToolName = node_Tool->GetAttribute(TEXT("name"));
-		// 	FString ToolLabel = node_Tool->GetAttribute(TEXT("name"));
-		// 	FString ToolIcon = node_Tool->GetAttribute(TEXT("name"));
-		//
-		// 	node_Tool->FindChildNode(TEXT("toolSubmenu"));
-		// }
-		
+			/*Add Tool*/
+			FPMSEdGraphSchemaAction_ShelfToolSubMenu* CurSubMenu = &PMSToolShelfLib;
+			for(auto CurToolPath:ToolPathArray)
+			{
+				FEdGraphSchemaAction* NextSubMenu = CurSubMenu->Children.FindOrAdd(FName(CurToolPath),new FPMSEdGraphSchemaAction_ShelfToolSubMenu());
+				CurSubMenu = (FPMSEdGraphSchemaAction_ShelfToolSubMenu*)(NextSubMenu);
+			}
+			auto InClass = UPMSGraphNode::StaticClass();
+			CurSubMenu->Children.FindOrAdd(FName(ToolName),new FPMSEdGraphSchemaAction_ShelfTool(InClass,ToolIcon,ToolLabel));
+			
+			NodeTool = NodeTool->NextSiblingElement();
+		}		
 	}
-		
-	
-	
-	//PMSToolShelfLib;
 }
 
 #undef LOCTEXT_NAMESPACE

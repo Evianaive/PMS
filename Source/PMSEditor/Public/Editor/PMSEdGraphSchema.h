@@ -43,16 +43,29 @@ struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FEdGraphSchemaAc
 	class UClass* PMSGraphNodeClass;
 	UPROPERTY()
 	FString IconName;
+	UPROPERTY()
+	FString Label;
 	
 	GENERATED_BODY()
 	FPMSEdGraphSchemaAction_ShelfTool()
 		: FEdGraphSchemaAction()
 		, PMSGraphNodeClass(nullptr)
+		, IconName(L"polyexpand2d")
+		, Label(L"Unknown")
+	{}
+
+	FPMSEdGraphSchemaAction_ShelfTool(UClass* InPMSGraphNodeClass,FString InIconName,FString InLabel)
+		: FEdGraphSchemaAction()
+		, PMSGraphNodeClass(InPMSGraphNodeClass)
+		, IconName(InIconName)
+		, Label(InLabel)
 	{}
 
 	FPMSEdGraphSchemaAction_ShelfTool(FText InNodeCategory, FText InMenuDesc, FText InToolTip, const int32 InGrouping)
 		: FEdGraphSchemaAction(MoveTemp(InNodeCategory), MoveTemp(InMenuDesc), MoveTemp(InToolTip), InGrouping)
-		, PMSGraphNodeClass(nullptr)
+		, PMSGraphNodeClass(nullptr)	
+		, IconName("polyexpand2d")
+		, Label(L"Unknown")
 	{}
 
 	virtual UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override;
@@ -107,6 +120,6 @@ private:
 
 private:
 	static TArray<UClass*> PMSGraphNodeClasses;
-	static TArray<FPMSEdGraphSchemaAction_ShelfToolSubMenu> PMSToolShelfLib;
+	static FPMSEdGraphSchemaAction_ShelfToolSubMenu PMSToolShelfLib;
 	static bool bPMSGraphNodeClassesInitialized;
 };
