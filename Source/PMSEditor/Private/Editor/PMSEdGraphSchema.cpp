@@ -10,6 +10,7 @@
 #include "Editor/PMSEdSubGraphNode.h"
 #include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
 #include "Interfaces/IPluginManager.h"
+#include "Utilities/tinyxml2.h"
 
 #define LOCTEXT_NAMESPACE "PMSEdGraphSchema"
 
@@ -194,9 +195,36 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 	TArray<FString> AllToolShelfFilesPath;
 	IFileManager::Get().FindFilesRecursive(AllToolShelfFilesPath,*ToolShelfsDir,TEXT("*.shelf"),true,false);
 
-	for (auto ToolShelfFilePath : AllToolShelfFilesPath)
+
+	TSet<FPMSEdGraphSchemaAction_ShelfToolSubMenu> UPMSEdGraphSchema::PMSToolShelfLibSet;
+	
+	for (const auto ToolShelfFilePath : AllToolShelfFilesPath)
 	{
-		// FXmlFile* ToolShelfFile = new FXmlFile(*ToolShelfFilePath);
+		tinyxml2::XMLDocument ToolShelfFile;
+		ToolShelfFile.LoadFile(TCHAR_TO_ANSI(*ToolShelfFilePath));
+		auto RootNodeShelfDocument = ToolShelfFile.RootElement();
+		auto NodeTool = RootNodeShelfDocument->FirstChildElement();
+		while (NodeTool)
+		{
+			FString ToolName(NodeTool->Attribute("name"));
+			FString ToolLabel(NodeTool->Attribute("label"));
+			FString ToolIcon(NodeTool->Attribute("icon"));
+
+			FString ToolPath = TEXT("Unkown");
+			FString ToolScript = TEXT("No Script");
+			
+			if(tinyxml2::XMLElement* NodeToolPath = NodeTool->FirstChildElement("toolSubmenu"))
+			{
+				ToolPath = FString(NodeToolPath->GetText());
+			}
+			if(tinyxml2::XMLElement* NodeToolScript = NodeTool->FirstChildElement("toolSubmenu"))
+			{
+				ToolScript = FString(NodeToolScript->Value());
+			}
+			// PMSToolShelfLibSet.FindOrAdd()
+		}
+
+		
 		// FXmlNode* rootnode_ShelfDocument = ToolShelfFile->GetRootNode();
 		// const TArray<FXmlNode*> nodes_Tool = rootnode_ShelfDocument->GetChildrenNodes();
 		// for(auto node_Tool : nodes_Tool)
