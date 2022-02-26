@@ -14,7 +14,11 @@
 USTRUCT()
 struct PMSEDITOR_API FPMSEdGraphSchemaAction_NewNode :public FEdGraphSchemaAction
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
+
+	// Simple type info
+	static FName StaticGetTypeId() {static FName Type("FPMSEdGraphSchemaAction_NewNode"); return Type;}
+	virtual FName GetTypeId() const override { return StaticGetTypeId(); } 
 public:
 	//要创建的UPMSEdGraphNode中为哪个UPMSGraphNode的子类
 	UPROPERTY()
@@ -35,10 +39,18 @@ public:
 	static UPMSEdGraphNode* SpawnNode(UClass* PMSGraphNodeClass, UEdGraph* ParentGraph, UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode);
 };
 
-/*既要用来构建菜单的Node，也要用于点击时执行操作*/
+/*既要用来构建菜单的Node，也要用于点击时执行操作
+ * 此处不必继承自FEdGraphSchemaAction
+ */
 USTRUCT()
 struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FEdGraphSchemaAction
 {
+	GENERATED_USTRUCT_BODY()
+
+	// Simple type info
+	static FName StaticGetTypeId() {static FName Type("FPMSEdGraphSchemaAction_ShelfTool"); return Type;}
+	virtual FName GetTypeId() const override { return StaticGetTypeId(); }
+	
 	UPROPERTY()
 	class UClass* PMSGraphNodeClass;
 	UPROPERTY()
@@ -46,7 +58,6 @@ struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FEdGraphSchemaAc
 	UPROPERTY()
 	FString Label;
 	
-	GENERATED_BODY()
 	FPMSEdGraphSchemaAction_ShelfTool()
 		: FEdGraphSchemaAction()
 		, PMSGraphNodeClass(nullptr)
@@ -76,8 +87,15 @@ struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FEdGraphSchemaAc
 USTRUCT()
 struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfToolSubMenu : public FEdGraphSchemaAction
 {
+	GENERATED_USTRUCT_BODY()
+
+	// Simple type info
+	static FName StaticGetTypeId() {static FName Type("FPMSEdGraphSchemaAction_ShelfToolSubMenu"); return Type;}
+	virtual FName GetTypeId() const override { return StaticGetTypeId(); }
+
+	
 	TMap<FName,FEdGraphSchemaAction*> Children;
-	GENERATED_BODY()
+
 	FPMSEdGraphSchemaAction_ShelfToolSubMenu()
 		: FEdGraphSchemaAction()
 	{}
@@ -114,12 +132,11 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 		UEdGraph* InGraphObj) const override;
 
 	// void GetAllPMSNodeActionsWithMenu() const;
+	static FPMSEdGraphSchemaAction_ShelfToolSubMenu PMSToolShelfLib;
+	static void InitPMSToolShelfLib();
 private:
 	static void InitPMSGraphNodeClasses();
-	static void InitPMSToolShelfLib();
 
-private:
 	static TArray<UClass*> PMSGraphNodeClasses;
-	static FPMSEdGraphSchemaAction_ShelfToolSubMenu PMSToolShelfLib;
 	static bool bPMSGraphNodeClassesInitialized;
 };

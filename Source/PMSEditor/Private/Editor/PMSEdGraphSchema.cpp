@@ -199,8 +199,8 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 	for (const auto ToolShelfFilePath : AllToolShelfFilesPath)
 	{
 
-		if(ToolShelfFilePath!=FString(L"../../../../../../UnrealProject/ProceduralModeling/Plugins/PMS/Resources/ToolShelfs/SopToolsTest.shelf"))
-			continue;
+		// if(ToolShelfFilePath!=FString(L"../../../../../../UnrealProject/ProceduralModeling/Plugins/PMS/Resources/ToolShelfs/SopToolsTest.shelf"))
+		// 	continue;
 		
 		tinyxml2::XMLDocument ToolShelfFile;
 		ToolShelfFile.LoadFile(TCHAR_TO_ANSI(*ToolShelfFilePath));
@@ -211,6 +211,7 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 			FString ToolName(NodeTool->Attribute("name"));
 			FString ToolLabel(NodeTool->Attribute("label"));
 			FString ToolIcon(NodeTool->Attribute("icon"));
+			ToolIcon.RightChopInline(4);
 
 			FString ToolPath = TEXT("Unkown");
 			FString ToolScriptType = TEXT("python");
@@ -242,6 +243,9 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 			NodeTool = NodeTool->NextSiblingElement();
 		}		
 	}
+	/*需要实现Sort*/
+	// PMSToolShelfLib.Children.KeyStableSort([](FName A,FName B){return !!A.Compare(B);});
+	
 }
 
 #undef LOCTEXT_NAMESPACE

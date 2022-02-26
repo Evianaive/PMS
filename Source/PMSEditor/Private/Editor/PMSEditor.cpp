@@ -17,6 +17,7 @@
 #include "GeomTools.h"
 #include "Editor/SlateWidgets/S2DMeshWidget.h"
 #include "Json.h"
+#include "ToolMenu.h"
 #include "Editor/PMSEditorSettings.h"
 #include "Slate/SlateVectorArtData.h"
 #include "Slate/SMeshWidget.h"
@@ -194,7 +195,7 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
     InGraphEvent.OnNodeDoubleClicked = FSingleNodeEvent::CreateSP(this,&FPMSEditor::OnTryOpenSubGraph);
 	InGraphEvent.OnDoubleClicked = SGraphEditor::FOnDoubleClicked::CreateStatic(&PushMenu);
-	// InGraphEvent.OnCreateActionMenu = SGraphEditor::FOnCreateActionMenu::CreateSP(this,&FPMSEditor::OnGetContextMenu);
+	InGraphEvent.OnCreateActionMenu = SGraphEditor::FOnCreateActionMenu::CreateSP(this,&FPMSEditor::OnGetContextMenu);
     // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
 
     GraphEditor = SNew(SVerticalBox);
@@ -383,12 +384,68 @@ void FPMSEditor::OnTryOpenSubGraph(UEdGraphNode* InNode)
     }
 }
 
+void AddSubMenuRecursively(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FMenuBuilder& MenuBuilder)
+{
+	for(auto Child :SubMenu->Children)
+	{
+		// TSharedPtr<FEdGraphSchemaAction> Test1 = MakeShareable(new FPMSEdGraphSchemaAction_ShelfToolSubMenu);
+		// TSharedPtr<FPMSEdGraphSchemaAction_ShelfToolSubMenu> Test2 = Test1;
+		
+		// bool bIsSubMenu = Child.Value->IsA(FPMSEdGraphSchemaAction_ShelfToolSubMenu::StaticStruct()->GetFName());
+		// bool bIsShelfTool = Child.Value->IsA(FPMSEdGraphSchemaAction_ShelfTool::StaticStruct()->GetFName());
+
+		bool bIsSubMenu = Child.Value->IsA(FName("FPMSEdGraphSchemaAction_ShelfToolSubMenu"));
+		bool bIsShelfTool = Child.Value->IsA(FName("FPMSEdGraphSchemaAction_ShelfTool"));
+		
+		FPMSEdGraphSchemaAction_ShelfToolSubMenu* NextSubMenu = static_cast<FPMSEdGraphSchemaAction_ShelfToolSubMenu*>(Child.Value);
+		FPMSEdGraphSchemaAction_ShelfTool* Action = static_cast<FPMSEdGraphSchemaAction_ShelfTool*>(Child.Value);
+		
+		if(bIsShelfTool)
+		{
+			FUIAction NewAction;
+			FName NodeName = FName("PMSEditor.NodeIcons."+Action->IconName);
+			MenuBuilder.AddMenuEntry(
+				FText::FromString(Action->Label),
+				FText::FromString("NoTip"),
+				FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName),
+				NewAction);
+		}
+		if(bIsSubMenu)
+		{
+			MenuBuilder.AddSubMenu(FText::FromString(Child.Key.ToString()),FText::FromString("NoTip"),FNewMenuDelegate::CreateLambda(
+				[NextSubMenu](FMenuBuilder& MenuBuilder)
+				{					
+					AddSubMenuRecursively(NextSubMenu,MenuBuilder);
+				}
+			));
+		}
+	}
+}
+
 FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector2D& NodePos, const TArray<UEdGraphPin*>& DragedPins, bool, SGraphEditor::FActionMenuClosed OnClosedHandle)
 {
 	
 	// FMenuBuilder MenuBuilder(true);
+	// UToolMenu有Context，且可通过当前Context类型动态修改其中内容
+	//InMenu->FindContext<UGraphNodeContextMenuContext>();
 	
-	return FActionMenuContent( SNew(STextBlock) .Text( NSLOCTEXT("GraphEditor", "GraphObjectIsNull", "Graph Object is Null") ) );
+	// UToolMenu* Test;
+	// FToolMenuSection& Section = Test->AddSection();
+	// Section.AddSubMenu()
+	// Section.AddEntry();
+
+	FMenuBuilder MenuBuilder(true, MakeShareable(new FUICommandList));
+	const UPMSEdGraphSchema* PMSSchema = Cast<UPMSEdGraphSchema>(InGraph->GetSchema());
+	if(PMSSchema)
+	{
+		UPMSEdGraphSchema::InitPMSToolShelfLib();
+		AddSubMenuRecursively(&(PMSSchema->PMSToolShelfLib),MenuBuilder);
+	}
+	
+	MenuBuilder.AddSearchWidget();
+	TSharedRef<SWidget> MenuWidget = MenuBuilder.MakeWidget();
+	
+	return FActionMenuContent( MenuWidget );
 }
 
 void FPMSEditor::OnFinishedChangingPMSProperties(const FPropertyChangedEvent& PropertyChangedEvent)
