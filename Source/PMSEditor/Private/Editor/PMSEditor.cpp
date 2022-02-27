@@ -386,6 +386,7 @@ void FPMSEditor::OnTryOpenSubGraph(UEdGraphNode* InNode)
 
 void AddSubMenuRecursively(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FMenuBuilder& MenuBuilder)
 {
+	MenuBuilder.SetStyle(&FPMSEditorStyle::Get(),"PMSMenu");
 	for(auto Child :SubMenu->Children)
 	{
 		// TSharedPtr<FEdGraphSchemaAction> Test1 = MakeShareable(new FPMSEdGraphSchemaAction_ShelfToolSubMenu);
@@ -404,6 +405,8 @@ void AddSubMenuRecursively(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FM
 		{
 			FUIAction NewAction;
 			FName NodeName = FName("PMSEditor.NodeIcons."+Action->IconName);
+			//Todo Check If Icon Exist
+			FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName);
 			MenuBuilder.AddMenuEntry(
 				FText::FromString(Action->Label),
 				FText::FromString("NoTip"),
@@ -442,7 +445,11 @@ FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector
 		AddSubMenuRecursively(&(PMSSchema->PMSToolShelfLib),MenuBuilder);
 	}
 	
-	MenuBuilder.AddSearchWidget();
+	// MenuBuilder.AddSearchWidget();
+	// FName Customization = MenuBuilder.GetCustomization().GetCustomizationName();
+	// UE_LOG(LogTemp,Log,TEXT("Custom Name %s"),*(Customization.ToString()));
+	
+	// MenuBuilder.SetStyle(&FEditorStyle::Get(),"LegacyViewportMenu");
 	TSharedRef<SWidget> MenuWidget = MenuBuilder.MakeWidget();
 	
 	return FActionMenuContent( MenuWidget );
