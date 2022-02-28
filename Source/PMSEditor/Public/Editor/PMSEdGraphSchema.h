@@ -93,7 +93,9 @@ struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfToolSubMenu : public FEdGraphS
 	static FName StaticGetTypeId() {static FName Type("FPMSEdGraphSchemaAction_ShelfToolSubMenu"); return Type;}
 	virtual FName GetTypeId() const override { return StaticGetTypeId(); }
 
-	
+	/*此处不可以换成变量，否则不能放子类*/
+	/*需要分离两种类型*/
+	/*需要更改继承对象*/
 	TMap<FName,FEdGraphSchemaAction*> Children;
 
 	FPMSEdGraphSchemaAction_ShelfToolSubMenu()
@@ -134,6 +136,7 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 	// void GetAllPMSNodeActionsWithMenu() const;
 	static FPMSEdGraphSchemaAction_ShelfToolSubMenu PMSToolShelfLib;
 	static void InitPMSToolShelfLib();
+	static void RecursivelySort(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu);
 private:
 	static void InitPMSGraphNodeClasses();
 

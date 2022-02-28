@@ -194,7 +194,7 @@ void FPMSEditor::InitPMSAssetEditor(const EToolkitMode::Type InMode, const TShar
     SGraphEditor::FGraphEditorEvents InGraphEvent;
     InGraphEvent.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FPMSEditor::OnSelectedPMSNodeChanged);
     InGraphEvent.OnNodeDoubleClicked = FSingleNodeEvent::CreateSP(this,&FPMSEditor::OnTryOpenSubGraph);
-	InGraphEvent.OnDoubleClicked = SGraphEditor::FOnDoubleClicked::CreateStatic(&PushMenu);
+	// InGraphEvent.OnDoubleClicked = SGraphEditor::FOnDoubleClicked::CreateStatic(&PushMenu);
 	InGraphEvent.OnCreateActionMenu = SGraphEditor::FOnCreateActionMenu::CreateSP(this,&FPMSEditor::OnGetContextMenu);
     // InGraphEvent.OnVerifyTextCommit = FOnNodeVerifyTextCommit::CreateLambda([](){});
 
@@ -406,11 +406,14 @@ void AddSubMenuRecursively(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FM
 			FUIAction NewAction;
 			FName NodeName = FName("PMSEditor.NodeIcons."+Action->IconName);
 			//Todo Check If Icon Exist
-			FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName);
+			FSlateIcon Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),"PMSEditor.NodeIcons.polyexpand2d");
+			
+			if(FPMSEditorStyle::Get().GetBrush(NodeName)!=FPMSEditorStyle::Get().GetDefaultBrush())
+				Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName);
 			MenuBuilder.AddMenuEntry(
 				FText::FromString(Action->Label),
 				FText::FromString("NoTip"),
-				FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName),
+				Icon,
 				NewAction);
 		}
 		if(bIsSubMenu)

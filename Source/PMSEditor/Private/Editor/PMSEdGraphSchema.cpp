@@ -244,8 +244,22 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 		}		
 	}
 	/*需要实现Sort*/
-	// PMSToolShelfLib.Children.KeyStableSort([](FName A,FName B){return !!A.Compare(B);});
+	RecursivelySort(&PMSToolShelfLib);
 	
+}
+void UPMSEdGraphSchema::RecursivelySort(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu)
+{
+	SubMenu->Children.KeyStableSort([](FName A,FName B){return !!A.Compare(B);});
+	for(auto Child :SubMenu->Children)
+	{
+		bool bIsSubMenu = Child.Value->IsA(FName("FPMSEdGraphSchemaAction_ShelfToolSubMenu"));
+		
+		FPMSEdGraphSchemaAction_ShelfToolSubMenu* NextSubMenu = static_cast<FPMSEdGraphSchemaAction_ShelfToolSubMenu*>(Child.Value);
+		if(bIsSubMenu)
+		{
+			RecursivelySort(NextSubMenu);
+		}
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
