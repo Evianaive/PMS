@@ -134,12 +134,21 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 		UEdGraph* InGraphObj) const override;
 
 	// void GetAllPMSNodeActionsWithMenu() const;
-	static FPMSEdGraphSchemaAction_ShelfToolSubMenu PMSToolShelfLib;
-	static void InitPMSToolShelfLib();
-	static void RecursivelySort(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu);
+	static void Init(bool bForce=false);
+	FPMSEdGraphSchemaAction_ShelfToolSubMenu* GetPMSToolShelfLib() const
+	{
+		return &PMSToolShelfLib;
+	} 
+
+	
 private:
 	static void InitPMSGraphNodeClasses();
+	static void InitPMSIconMapping();
+	static void InitPMSToolShelfLib();
+	static void RecursivelySort(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu);
 
+	static FPMSEdGraphSchemaAction_ShelfToolSubMenu PMSToolShelfLib;
 	static TArray<UClass*> PMSGraphNodeClasses;
 	static bool bPMSGraphNodeClassesInitialized;
+	static TMap<FName,FName> PMSIconMapping;
 };

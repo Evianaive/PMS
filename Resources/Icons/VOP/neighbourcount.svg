@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+   xmlns:i="http://ns.adobe.com/AdobeIllustrator/10.0/"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg36243"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docbase="e:\dev_clean\src\houdini\support\icons\pop"
+   sodipodi:docname="neighbourcount.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs36245">
+    <radialGradient
+       id="radialGradient20341"
+       cx="99.621597"
+       cy="-89.266098"
+       r="3.6470001"
+       fx="99.621597"
+       fy="-89.266098"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0"
+         style="stop-color:#fff55b;stop-opacity:1;"
+         id="stop20343" />
+      <stop
+         offset="1"
+         style="stop-color:#ffa81f;stop-opacity:1;"
+         id="stop20355" />
+      <a:midPointStop
+         offset="0"
+         style="stop-color:#BADBEA" />
+      <a:midPointStop
+         offset="0.376"
+         style="stop-color:#BADBEA" />
+      <a:midPointStop
+         offset="0.7079"
+         style="stop-color:#3A80B8" />
+      <a:midPointStop
+         offset="0.5"
+         style="stop-color:#3A80B8" />
+      <a:midPointStop
+         offset="1"
+         style="stop-color:#244A87" />
+    </radialGradient>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 24 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="48 : 24 : 1"
+       inkscape:persp3d-origin="24 : 16 : 1"
+       id="perspective19696" />
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       fy="24.125"
+       fx="67.6885"
+       r="24.041"
+       cy="24.125"
+       cx="67.6885"
+       id="XMLID_45_">
+      <stop
+         id="stop35208"
+         style="stop-color:#70be3e;stop-opacity:1;"
+         offset="0.0899" />
+      <stop
+         id="stop35210"
+         style="stop-color:#cae6b4;stop-opacity:0.79607844;"
+         offset="0.83748215" />
+      <stop
+         id="stop35214"
+         style="stop-color:white;stop-opacity:0;"
+         offset="1" />
+      <a:midPointStop
+         style="stop-color:#8ACB60"
+         offset="0.0899" />
+      <a:midPointStop
+         style="stop-color:#8ACB60"
+         offset="0.4889" />
+      <a:midPointStop
+         style="stop-color:#DCE5CB"
+         offset="0.7247" />
+      <a:midPointStop
+         style="stop-color:#DCE5CB"
+         offset="0.5" />
+      <a:midPointStop
+         style="stop-color:#FFFFFF"
+         offset="1" />
+    </radialGradient>
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       fy="-99.709503"
+       fx="113.6128"
+       r="3.6466999"
+       cy="-99.709503"
+       cx="113.6128"
+       id="XMLID_46_">
+      <stop
+         id="stop35237"
+         style="stop-color:#BADBEA"
+         offset="0" />
+      <stop
+         id="stop35239"
+         style="stop-color:#9EC6DF"
+         offset="0.1066" />
+      <stop
+         id="stop35241"
+         style="stop-color:#72A5CD"
+         offset="0.2975" />
+      <stop
+         id="stop35243"
+         style="stop-color:#5490C1"
+         offset="0.4682" />
+      <stop
+         id="stop35245"
+         style="stop-color:#4183BA"
+         offset="0.6108" />
+      <stop
+         id="stop35247"
+         style="stop-color:#3A80B8"
+         offset="0.7079" />
+      <stop
+         id="stop35249"
+         style="stop-color:#244A87"
+         offset="1" />
+      <a:midPointStop
+         style="stop-color:#BADBEA"
+         offset="0" />
+      <a:midPointStop
+         style="stop-color:#BADBEA"
+         offset="0.376" />
+      <a:midPointStop
+         style="stop-color:#3A80B8"
+         offset="0.7079" />
+      <a:midPointStop
+         style="stop-color:#3A80B8"
+         offset="0.5" />
+      <a:midPointStop
+         style="stop-color:#244A87"
+         offset="1" />
+    </radialGradient>
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       fy="-89.266098"
+       fx="99.621597"
+       r="3.6470001"
+       cy="-89.266098"
+       cx="99.621597"
+       id="XMLID_47_">
+      <stop
+         id="stop35258"
+         style="stop-color:#BADBEA"
+         offset="0" />
+      <stop
+         id="stop35260"
+         style="stop-color:#9EC6DF"
+         offset="0.1066" />
+      <stop
+         id="stop35262"
+         style="stop-color:#72A5CD"
+         offset="0.2975" />
+      <stop
+         id="stop35264"
+         style="stop-color:#5490C1"
+         offset="0.4682" />
+      <stop
+         id="stop35266"
+         style="stop-color:#4183BA"
+         offset="0.6108" />
+      <stop
+         id="stop35268"
+         style="stop-color:#3A80B8"
+         offset="0.7079" />
+      <stop
+         id="stop35270"
+         style="stop-color:#244A87"
+         offset="1" />
+      <a:midPointStop
+         style="stop-color:#BADBEA"
+         offset="0" />
+      <a:midPointStop
+         style="stop-color:#BADBEA"
+         offset="0.376" />
+      <a:midPointStop
+         style="stop-color:#3A80B8"
+         offset="0.7079" />
+      <a:midPointStop
+         style="stop-color:#3A80B8"
+         offset="0.5" />
+      <a:midPointStop
+         style="stop-color:#244A87"
+         offset="1" />
+    </radialGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#XMLID_47_"
+       id="radialGradient19744"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       cx="99.621597"
+       cy="-89.266098"
+       fx="99.621597"
+       fy="-89.266098"
+       r="3.6470001" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#XMLID_47_"
+       id="radialGradient19792"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       cx="99.621597"
+       cy="-89.266098"
+       fx="99.621597"
+       fy="-89.266098"
+       r="3.6470001" />
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       fy="-89.266098"
+       fx="99.621597"
+       r="3.6470001"
+       cy="-89.266098"
+       cx="99.621597"
+       id="radialGradient19702">
+      <stop
+         id="stop19704"
+         style="stop-color:#BADBEA"
+         offset="0" />
+      <stop
+         id="stop19706"
+         style="stop-color:#9EC6DF"
+         offset="0.1066" />
+      <stop
+         id="stop19708"
+         style="stop-color:#72A5CD"
+         offset="0.2975" />
+      <stop
+         id="stop19710"
+         style="stop-color:#5490C1"
+         offset="0.4682" />
+      <stop
+         id="stop19712"
+         style="stop-color:#4183BA"
+         offset="0.6108" />
+      <stop
+         id="stop19714"
+         style="stop-color:#3A80B8"
+         offset="0.7079" />
+      <stop
+         id="stop19716"
+         style="stop-color:#244A87"
+         offset="1" />
+      <a:midPointStop
+         style="stop-color:#BADBEA"
+         offset="0" />
+      <a:midPointStop
+         style="stop-color:#BADBEA"
+         offset="0.376" />
+      <a:midPointStop
+         style="stop-color:#3A80B8"
+         offset="0.7079" />
+      <a:midPointStop
+         style="stop-color:#3A80B8"
+         offset="0.5" />
+      <a:midPointStop
+         style="stop-color:#244A87"
+         offset="1" />
+    </radialGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient20341"
+       id="radialGradient20357"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       cx="99.621597"
+       cy="-89.266098"
+       fx="99.621597"
+       fy="-89.266098"
+       r="3.6470001" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#XMLID_47_"
+       id="radialGradient20359"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       cx="99.621597"
+       cy="-89.266098"
+       fx="99.621597"
+       fy="-89.266098"
+       r="3.6470001" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#XMLID_47_"
+       id="radialGradient20932"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+       cx="99.621597"
+       cy="-89.266098"
+       fx="99.621597"
+       fy="-89.266098"
+       r="3.6470001" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7"
+     inkscape:cx="7.7142854"
+     inkscape:cy="23.285714"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1115"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4" />
+  <metadata
+     id="metadata36248">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <circle
+       transform="translate(-43.647,-0.267862)"
+       sodipodi:ry="24.041"
+       sodipodi:rx="24.041"
+       sodipodi:cy="24.125"
+       sodipodi:cx="67.688004"
+       style="fill:url(#XMLID_45_)"
+       id="circle35216"
+       r="24.041"
+       cy="24.125"
+       cx="67.688004"
+       i:knockout="Off" />
+    <circle
+       transform="translate(-43.647,-0.696433)"
+       style="fill:none;stroke:#8ccd55;stroke-width:0.5"
+       sodipodi:ry="16.038"
+       sodipodi:rx="16.038"
+       sodipodi:cy="24.125"
+       sodipodi:cx="67.688004"
+       id="circle35218"
+       r="16.038"
+       cy="24.125"
+       cx="67.688004"
+       i:knockout="Off" />
+    <path
+       style="fill:none;stroke:#a9d960;stroke-width:0.5"
+       id="path35220"
+       d="M 44.386993,14.448571 C 46.322993,18.762571 46.889993,23.730571 45.682993,28.680571 C 43.328993,38.327571 34.962993,44.929571 25.538993,45.471571"
+       i:knockout="Off" />
+    <path
+       style="fill:none;stroke:#a9d960;stroke-width:0.5"
+       id="path35222"
+       d="M 5.4449928,34.944571 C 2.4979928,30.116571 1.3969928,24.162571 2.8429928,18.231571 C 4.7969928,10.221571 10.897993,4.3095715 18.306993,2.2235712"
+       i:knockout="Off" />
+    <circle
+       transform="translate(-43.647,-0.696433)"
+       style="fill:none;stroke:#6db146;stroke-width:0.5"
+       sodipodi:ry="11.188"
+       sodipodi:rx="11.188"
+       sodipodi:cy="24.125"
+       sodipodi:cx="67.688004"
+       id="circle35224"
+       r="11.188"
+       cy="24.125"
+       cx="67.688004"
+       i:knockout="Off" />
+    <circle
+       transform="translate(-43.647,-0.696433)"
+       style="fill:none;stroke:#4e8033;stroke-width:0.5"
+       sodipodi:ry="6.9640002"
+       sodipodi:rx="6.9640002"
+       sodipodi:cy="24.125"
+       sodipodi:cx="67.688004"
+       id="circle35226"
+       r="6.9640002"
+       cy="24.125"
+       cx="67.688004"
+       i:knockout="Off" />
+    <g
+       transform="translate(-43.647,-0.696433)"
+       id="g35232">
+      <circle
+         style="fill:none;stroke:#152a4c;stroke-width:2"
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="24.125"
+         sodipodi:cx="67.689003"
+         id="circle35234"
+         r="2.605"
+         cy="24.125"
+         cx="67.689003"
+         i:knockout="Off" />
+      <radialGradient
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+         fy="-99.709503"
+         fx="113.6128"
+         r="3.6466999"
+         cy="-99.709503"
+         cx="113.6128"
+         id="radialGradient36282">
+        <stop
+           id="stop36284"
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <stop
+           id="stop36286"
+           style="stop-color:#9EC6DF"
+           offset="0.1066" />
+        <stop
+           id="stop36288"
+           style="stop-color:#72A5CD"
+           offset="0.2975" />
+        <stop
+           id="stop36290"
+           style="stop-color:#5490C1"
+           offset="0.4682" />
+        <stop
+           id="stop36292"
+           style="stop-color:#4183BA"
+           offset="0.6108" />
+        <stop
+           id="stop36294"
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <stop
+           id="stop36296"
+           style="stop-color:#244A87"
+           offset="1" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0.376" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.5" />
+        <a:midPointStop
+           style="stop-color:#244A87"
+           offset="1" />
+      </radialGradient>
+      <circle
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="24.125"
+         sodipodi:cx="67.689003"
+         style="fill:url(#XMLID_46_)"
+         id="circle35251"
+         r="2.605"
+         cy="24.125"
+         cx="67.689003"
+         i:knockout="Off" />
+    </g>
+    <g
+       transform="translate(-67.361285,10.589281)"
+       id="g35253">
+      <circle
+         style="fill:none;stroke:#152a4c;stroke-width:2"
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="26.634001"
+         sodipodi:cx="84.967003"
+         id="circle35255"
+         r="2.605"
+         cy="26.634001"
+         cx="84.967003"
+         i:knockout="Off" />
+      <radialGradient
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+         fy="-89.266098"
+         fx="99.621597"
+         r="3.6470001"
+         cy="-89.266098"
+         cx="99.621597"
+         id="radialGradient36301">
+        <stop
+           id="stop36303"
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <stop
+           id="stop36305"
+           style="stop-color:#9EC6DF"
+           offset="0.1066" />
+        <stop
+           id="stop36307"
+           style="stop-color:#72A5CD"
+           offset="0.2975" />
+        <stop
+           id="stop36309"
+           style="stop-color:#5490C1"
+           offset="0.4682" />
+        <stop
+           id="stop36311"
+           style="stop-color:#4183BA"
+           offset="0.6108" />
+        <stop
+           id="stop36313"
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <stop
+           id="stop36315"
+           style="stop-color:#244A87"
+           offset="1" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0.376" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.5" />
+        <a:midPointStop
+           style="stop-color:#244A87"
+           offset="1" />
+      </radialGradient>
+      <circle
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="26.634001"
+         sodipodi:cx="84.967003"
+         style="fill:url(#radialGradient20359)"
+         id="circle35272"
+         r="2.605"
+         cy="26.634001"
+         cx="84.967003"
+         i:knockout="Off" />
+    </g>
+    <g
+       transform="translate(-80.361286,-12.83929)"
+       id="g19722">
+      <circle
+         style="fill:none;stroke:#152a4c;stroke-width:2"
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="26.634001"
+         sodipodi:cx="84.967003"
+         id="circle19724"
+         r="2.605"
+         cy="26.634001"
+         cx="84.967003"
+         i:knockout="Off" />
+      <radialGradient
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+         fy="-89.266098"
+         fx="99.621597"
+         r="3.6470001"
+         cy="-89.266098"
+         cx="99.621597"
+         id="radialGradient19726">
+        <stop
+           id="stop19728"
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <stop
+           id="stop19730"
+           style="stop-color:#9EC6DF"
+           offset="0.1066" />
+        <stop
+           id="stop19732"
+           style="stop-color:#72A5CD"
+           offset="0.2975" />
+        <stop
+           id="stop19734"
+           style="stop-color:#5490C1"
+           offset="0.4682" />
+        <stop
+           id="stop19736"
+           style="stop-color:#4183BA"
+           offset="0.6108" />
+        <stop
+           id="stop19738"
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <stop
+           id="stop19740"
+           style="stop-color:#244A87"
+           offset="1" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0.376" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.5" />
+        <a:midPointStop
+           style="stop-color:#244A87"
+           offset="1" />
+      </radialGradient>
+      <circle
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="26.634001"
+         sodipodi:cx="84.967003"
+         style="fill:url(#radialGradient19744)"
+         id="circle19742"
+         r="2.605"
+         cy="26.634001"
+         cx="84.967003"
+         i:knockout="Off" />
+    </g>
+    <g
+       transform="translate(-60.075572,-20.696432)"
+       id="g19770">
+      <circle
+         style="fill:none;stroke:#152a4c;stroke-width:2"
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="26.634001"
+         sodipodi:cx="84.967003"
+         id="circle19772"
+         r="2.605"
+         cy="26.634001"
+         cx="84.967003"
+         i:knockout="Off" />
+      <radialGradient
+         gradientUnits="userSpaceOnUse"
+         gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+         fy="-89.266098"
+         fx="99.621597"
+         r="3.6470001"
+         cy="-89.266098"
+         cx="99.621597"
+         id="radialGradient19774">
+        <stop
+           id="stop19776"
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <stop
+           id="stop19778"
+           style="stop-color:#9EC6DF"
+           offset="0.1066" />
+        <stop
+           id="stop19780"
+           style="stop-color:#72A5CD"
+           offset="0.2975" />
+        <stop
+           id="stop19782"
+           style="stop-color:#5490C1"
+           offset="0.4682" />
+        <stop
+           id="stop19784"
+           style="stop-color:#4183BA"
+           offset="0.6108" />
+        <stop
+           id="stop19786"
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <stop
+           id="stop19788"
+           style="stop-color:#244A87"
+           offset="1" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0" />
+        <a:midPointStop
+           style="stop-color:#BADBEA"
+           offset="0.376" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.7079" />
+        <a:midPointStop
+           style="stop-color:#3A80B8"
+           offset="0.5" />
+        <a:midPointStop
+           style="stop-color:#244A87"
+           offset="1" />
+      </radialGradient>
+      <circle
+         sodipodi:ry="2.605"
+         sodipodi:rx="2.605"
+         sodipodi:cy="26.634001"
+         sodipodi:cx="84.967003"
+         style="fill:url(#radialGradient19792)"
+         id="circle19790"
+         r="2.605"
+         cy="26.634001"
+         cx="84.967003"
+         i:knockout="Off" />
+    </g>
+    <g
+       id="g20910"
+       transform="translate(-45.789858,-5.1250034)">
+      <circle
+         i:knockout="Off"
+         cx="84.967003"
+         cy="26.634001"
+         r="2.605"
+         id="circle20912"
+         sodipodi:cx="84.967003"
+         sodipodi:cy="26.634001"
+         sodipodi:rx="2.605"
+         sodipodi:ry="2.605"
+         style="fill:none;stroke:#152a4c;stroke-width:2" />
+      <radialGradient
+         id="radialGradient20914"
+         cx="99.621597"
+         cy="-89.266098"
+         r="3.6470001"
+         fx="99.621597"
+         fy="-89.266098"
+         gradientTransform="matrix(-0.7071,-0.7071,0.7071,-0.7071,217.7758,32.8748)"
+         gradientUnits="userSpaceOnUse">
+        <stop
+           offset="0"
+           style="stop-color:#BADBEA"
+           id="stop20916" />
+        <stop
+           offset="0.1066"
+           style="stop-color:#9EC6DF"
+           id="stop20918" />
+        <stop
+           offset="0.2975"
+           style="stop-color:#72A5CD"
+           id="stop20920" />
+        <stop
+           offset="0.4682"
+           style="stop-color:#5490C1"
+           id="stop20922" />
+        <stop
+           offset="0.6108"
+           style="stop-color:#4183BA"
+           id="stop20924" />
+        <stop
+           offset="0.7079"
+           style="stop-color:#3A80B8"
+           id="stop20926" />
+        <stop
+           offset="1"
+           style="stop-color:#244A87"
+           id="stop20928" />
+        <a:midPointStop
+           offset="0"
+           style="stop-color:#BADBEA" />
+        <a:midPointStop
+           offset="0.376"
+           style="stop-color:#BADBEA" />
+        <a:midPointStop
+           offset="0.7079"
+           style="stop-color:#3A80B8" />
+        <a:midPointStop
+           offset="0.5"
+           style="stop-color:#3A80B8" />
+        <a:midPointStop
+           offset="1"
+           style="stop-color:#244A87" />
+      </radialGradient>
+      <circle
+         i:knockout="Off"
+         cx="84.967003"
+         cy="26.634001"
+         r="2.605"
+         id="circle20930"
+         style="fill:url(#radialGradient20932)"
+         sodipodi:cx="84.967003"
+         sodipodi:cy="26.634001"
+         sodipodi:rx="2.605"
+         sodipodi:ry="2.605" />
+    </g>
+  </g>
+</svg>

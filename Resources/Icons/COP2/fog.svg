@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:i="http://ns.adobe.com/AdobeIllustrator/10.0/"
+   xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg9144"
+   sodipodi:version="0.32"
+   inkscape:version="0.45.1"
+   sodipodi:docbase="C:\dev\src\houdini\support\icons\OBJ"
+   sodipodi:docname="fog.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <metadata
+     id="metadata2619">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs9146">
+    <linearGradient
+       id="linearGradient3596"
+       gradientUnits="userSpaceOnUse"
+       x1="99.4624"
+       y1="270.6895"
+       x2="99.4624"
+       y2="310.6905">
+      <stop
+         offset="0"
+         style="stop-color:#081323;stop-opacity:1;"
+         id="stop3598" />
+      <stop
+         id="stop3600"
+         style="stop-color:#92aaca;stop-opacity:1;"
+         offset="0.64367819" />
+      <stop
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0;"
+         id="stop3602" />
+      <a:midPointStop
+         offset="0"
+         style="stop-color:#265596" />
+      <a:midPointStop
+         offset="0.5"
+         style="stop-color:#265596" />
+      <a:midPointStop
+         offset="1"
+         style="stop-color:#FFFFFF" />
+    </linearGradient>
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       fy="287.15039"
+       fx="100.9844"
+       r="23.9133"
+       cy="287.15039"
+       cx="100.9844"
+       id="XMLID_244_">
+      <stop
+         id="stop7941"
+         style="stop-color:#939393;stop-opacity:1;"
+         offset="0" />
+      <stop
+         offset="0.7303161"
+         style="stop-color:#e3e4e4;stop-opacity:1;"
+         id="stop3590" />
+      <stop
+         id="stop7945"
+         style="stop-color:#dbdede;stop-opacity:0;"
+         offset="0.97750002" />
+      <a:midPointStop
+         style="stop-color:#FFFFFF"
+         offset="0" />
+      <a:midPointStop
+         style="stop-color:#FFFFFF"
+         offset="0.548" />
+      <a:midPointStop
+         style="stop-color:#DBDEDE"
+         offset="0.9775" />
+    </radialGradient>
+    <linearGradient
+       y2="310.6905"
+       x2="99.4624"
+       y1="270.6895"
+       x1="99.4624"
+       gradientUnits="userSpaceOnUse"
+       id="XMLID_245_">
+      <stop
+         id="stop7950"
+         style="stop-color:#265596"
+         offset="0" />
+      <stop
+         offset="0.5"
+         style="stop-color:#92aaca;stop-opacity:1;"
+         id="stop3594" />
+      <stop
+         id="stop7952"
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1" />
+      <a:midPointStop
+         style="stop-color:#265596"
+         offset="0" />
+      <a:midPointStop
+         style="stop-color:#265596"
+         offset="0.5" />
+      <a:midPointStop
+         style="stop-color:#FFFFFF"
+         offset="1" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3596"
+       id="linearGradient3592"
+       gradientUnits="userSpaceOnUse"
+       x1="99.462402"
+       y1="270.68951"
+       x2="99.462402"
+       y2="310.69049" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="10.141602"
+     inkscape:cx="25.455844"
+     inkscape:cy="22.627417"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="1122"
+     inkscape:window-height="981"
+     inkscape:window-x="512"
+     inkscape:window-y="44" />
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <circle
+       transform="translate(-77.071,-263.063)"
+       sodipodi:ry="23.913"
+       sodipodi:rx="23.913"
+       sodipodi:cy="287.14999"
+       sodipodi:cx="100.985"
+       style="fill:url(#XMLID_244_);fill-opacity:1.0"
+       id="circle7947"
+       r="23.913"
+       cy="287.14999"
+       cx="100.985"
+       i:knockout="Off" />
+    <polyline
+       transform="translate(-77.071,-263.063)"
+       style="fill:url(#XMLID_245_)"
+       id="polyline7954"
+       points="121.853,292.486 121.853,291.543 116.568,291.543 116.568,293.053      107.981,293.053 107.981,292.016 95.903,292.016 95.903,285.881 84.768,285.881 84.768,292.864 81.088,292.864 81.088,297.11      77.071,297.11 77.071,302.395 121.853,302.395 121.853,292.486 "
+       i:knockout="Off" />
+    <polygon
+       transform="translate(-77.071,-263.063)"
+       style="fill:url(#linearGradient3592);fill-opacity:1.0;opacity:1;color:#000000;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="polygon7961"
+       points="125.072,300.62 122.986,300.62 122.986,294.864 119.683,294.864 119.683,297.035 118.457,297.035 118.457,299.677 116.002,299.677 116.002,298.072 114.776,298.072 114.776,285.711 108.737,285.711 108.737,289.485 105.623,289.485 105.623,294.015 103.263,294.015 103.263,282.125 92.978,282.125 92.978,295.808 92.318,295.808 92.318,287.598 87.505,287.598 87.505,297.506 86.373,297.506 86.373,294.676 79.012,294.676 79.012,300.62 77.071,300.62 77.071,310.889 125.072,310.889 125.072,300.62 "
+       i:knockout="Off" />
+  </g>
+</svg>

@@ -384,7 +384,7 @@ void FPMSEditor::OnTryOpenSubGraph(UEdGraphNode* InNode)
     }
 }
 
-void AddSubMenuRecursively(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FMenuBuilder& MenuBuilder)
+void AddSubMenuRecursively(const FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FMenuBuilder& MenuBuilder)
 {
 	MenuBuilder.SetStyle(&FPMSEditorStyle::Get(),"PMSMenu");
 	for(auto Child :SubMenu->Children)
@@ -406,13 +406,13 @@ void AddSubMenuRecursively(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FM
 			FUIAction NewAction;
 			FName NodeName = FName("PMSEditor.NodeIcons."+Action->IconName);
 			//Todo Check If Icon Exist
-			FSlateIcon Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),"PMSEditor.NodeIcons.polyexpand2d");
+			FSlateIcon Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),"PMSEditor.NodeIcons.Sop_polyexpand2d");
 			
 			if(FPMSEditorStyle::Get().GetBrush(NodeName)!=FPMSEditorStyle::Get().GetDefaultBrush())
 				Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName);
 			MenuBuilder.AddMenuEntry(
 				FText::FromString(Action->Label),
-				FText::FromString("NoTip"),
+				FText::FromString(Action->IconName),
 				Icon,
 				NewAction);
 		}
@@ -444,8 +444,8 @@ FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector
 	const UPMSEdGraphSchema* PMSSchema = Cast<UPMSEdGraphSchema>(InGraph->GetSchema());
 	if(PMSSchema)
 	{
-		UPMSEdGraphSchema::InitPMSToolShelfLib();
-		AddSubMenuRecursively(&(PMSSchema->PMSToolShelfLib),MenuBuilder);
+		UPMSEdGraphSchema::Init();
+		AddSubMenuRecursively((PMSSchema->GetPMSToolShelfLib()),MenuBuilder);
 	}
 	
 	// MenuBuilder.AddSearchWidget();

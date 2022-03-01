@@ -92,10 +92,10 @@ namespace PMSEditorStyleImpl {
 		// Style->Set("PMSEditor.Message.CustomNote", new IMAGE_PLUGIN_BRUSH("Icons/icon_custom_note_16x", Icon16x16));
 
 		TArray<FString> SvgIcons;
-		IFileManager::Get().FindFilesRecursive(SvgIcons,*(Style->GetContentRootDir()/TEXT("Icons")),TEXT("*.svg"),true,false);
+		IFileManager::Get().FindFilesRecursive(SvgIcons,*(Style->GetContentRootDir()/TEXT("Icons")),TEXT("*.svg"),true,true);
 		for (FString SvgIcon : SvgIcons)
 		{
-			FString StyleName = FString("PMSEditor.NodeIcons.") + FPaths::GetBaseFilename(SvgIcon);
+			FString StyleName = FString("PMSEditor.NodeIcons.") + FPaths::GetPathLeaf(FPaths::GetPath(SvgIcon)) +"_"+ FPaths::GetBaseFilename(SvgIcon);
 			Style->Set(FName(StyleName),new IMAGE_BRUSH_SVG_ABS(SvgIcon,Icon64x64));
 		}
 		// Style->Set("PMSEditor.NodeIcons.add",new IMAGE_BRUSH_SVG(SvgIcons[0],Icon64x64));

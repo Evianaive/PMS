@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg3113"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="add_image.svg">
+  <metadata
+     id="metadata3137">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1537"
+     id="namedview3135"
+     showgrid="false"
+     inkscape:zoom="20.85965"
+     inkscape:cx="0.37762859"
+     inkscape:cy="5.5061511"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3113" />
+  <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title3115">add_image</title>
+  <desc
+     id="desc3117">Created with Sketch.</desc>
+  <defs
+     id="defs3119">
+    <linearGradient
+       id="linearGradient3924">
+      <stop
+         style="stop-color:#5c9ae6;stop-opacity:1;"
+         offset="0"
+         id="stop3926" />
+      <stop
+         style="stop-color:#2171ce;stop-opacity:1;"
+         offset="1"
+         id="stop3928" />
+    </linearGradient>
+    <rect
+       id="path-1"
+       x="1"
+       y="1"
+       width="12"
+       height="12" />
+    <mask
+       id="mask-2"
+       maskContentUnits="userSpaceOnUse"
+       maskUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       width="12"
+       height="12"
+       fill="white">
+      <use
+         xlink:href="#path-1"
+         id="use3123"
+         x="0"
+         y="0"
+         width="16"
+         height="16" />
+    </mask>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3924"
+       id="radialGradient3930"
+       cx="3.4524813"
+       cy="4.2674518"
+       fx="3.4524813"
+       fy="4.2674518"
+       r="7"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.6369437,0.00873303,-0.00836729,1.5683898,-2.1633294,-2.4557267)" />
+  </defs>
+  <rect
+     height="13"
+     width="13"
+     y="0.49999997"
+     x="0.5"
+     id="Rectangle-24"
+     style="fill:url(#radialGradient3930);stroke:#c9c9c9;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1" />
+  <polygon
+     id="Path"
+     points="8.5941558,4.8035714 11,7.8214286 11,11.071429 2.8571429,11.071429 2.8571429,9.6785714 4.7077922,7.3571429 5.6331169,8.5178571 "
+     style="fill:#87d0cc;stroke:none"
+     transform="matrix(1.3355761,0,0,1.3355761,-2.3250628,-2.4688812)" />
+  <path
+     d="m 5.67734,4.1608194 c 0,0.5167434 -0.1808576,0.9559686 -0.5425779,1.3176889 C 4.7730419,5.8402286 4.3338167,6.0210861 3.8170733,6.0210861 3.30033,6.0210861 2.8611046,5.8402286 2.4993844,5.4785083 2.1376641,5.116788 1.9568067,4.6775628 1.9568067,4.1608194 c 0,-0.5167433 0.1808574,-0.9559686 0.5425777,-1.3176889 C 2.8611046,2.4814103 3.30033,2.3005527 3.8170733,2.3005527 c 0.5167434,0 0.9559686,0.1808576 1.3176888,0.5425778 C 5.4964824,3.2048508 5.67734,3.6440761 5.67734,4.1608194 l 0,0 z"
+     id="path3129"
+     inkscape:connector-curvature="0"
+     style="fill:#f8e81c;stroke:none" />
+  <rect
+     id="Rectangle-2"
+     x="9"
+     y="11"
+     width="7"
+     height="3"
+     style="fill:#000000;stroke:none" />
+  <rect
+     id="Rectangle-2-Copy"
+     x="11"
+     y="9"
+     width="3"
+     height="7"
+     style="fill:#000000;stroke:none" />
+  <rect
+     id="Rectangle"
+     x="10"
+     y="12"
+     width="5"
+     height="1"
+     style="fill:#ffffff;stroke:none" />
+  <rect
+     id="Rectangle-3"
+     x="12"
+     y="10"
+     width="1"
+     height="5"
+     style="fill:#ffffff;stroke:none" />
+</svg>

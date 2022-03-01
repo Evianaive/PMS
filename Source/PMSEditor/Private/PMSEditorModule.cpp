@@ -8,6 +8,7 @@
 
 #include "ISettingsModule.h"
 #include "AssetTypeActions/AssetTypeActions_PMS.h"
+#include "Editor/PMSEdGraphSchema.h"
 #include "Editor/PMSEditorSettings.h"
 #include "Editor/Style/PMSEditorStyle.h"
 #include "Editor/Utilities/FNodeShape.h"
@@ -27,7 +28,8 @@ void FPMSEditorModule::StartupModule()
 	FPMSEditorStyle::Initialize();
 	FPMSEditorStyle::ReloadTextures();
 	FNodeShapeCollection::Initialize();
-
+	UPMSEdGraphSchema::Init(true);
+	
 	//Register InputPreProcessor hacker
 	if(FSlateApplication::IsInitialized())
 	{

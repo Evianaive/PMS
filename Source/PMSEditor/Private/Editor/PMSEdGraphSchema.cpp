@@ -10,6 +10,7 @@
 #include "Editor/PMSEdSubGraphNode.h"
 #include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
 #include "Interfaces/IPluginManager.h"
+#include "Misc/FileHelper.h"
 #include "Utilities/tinyxml2.h"
 
 #define LOCTEXT_NAMESPACE "PMSEdGraphSchema"
@@ -17,6 +18,7 @@
 //Static Member of UPMSEdGraphSchema
 TArray<UClass*> UPMSEdGraphSchema::PMSGraphNodeClasses;
 FPMSEdGraphSchemaAction_ShelfToolSubMenu UPMSEdGraphSchema::PMSToolShelfLib;
+TMap<FName,FName> UPMSEdGraphSchema::PMSIconMapping;
 bool UPMSEdGraphSchema::bPMSGraphNodeClassesInitialized = false;
 
 UEdGraphNode* FPMSEdGraphSchemaAction_NewNode::PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode /* = true */) {
@@ -145,10 +147,19 @@ FConnectionDrawingPolicy* UPMSEdGraphSchema::CreateConnectionDrawingPolicy(int32
 	//return UEdGraphSchema::CreateConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, InZoomFactor, InClippingRect, InDrawElements, InGraphObj);
 }
 
+void UPMSEdGraphSchema::Init(bool bForce)
+{
+	if(bForce)
+		bPMSGraphNodeClassesInitialized = false;	
+	InitPMSGraphNodeClasses();
+	InitPMSIconMapping();
+	InitPMSToolShelfLib();	
+	bPMSGraphNodeClassesInitialized = true;
+}
+
 void UPMSEdGraphSchema::GetAllPMSNodeActions(FGraphContextMenuBuilder& ContexMenuBuilder) const
 {
-	InitPMSGraphNodeClasses();
-	InitPMSToolShelfLib();
+	Init();
 	for (UClass* PMSGraphNodeClass : PMSGraphNodeClasses) {
 		//it seems there is no need to add the next line.
 		//if(PMSGraphNodeClass){
@@ -184,7 +195,34 @@ void UPMSEdGraphSchema::InitPMSGraphNodeClasses()
 		}
 	}
 	PMSGraphNodeClasses.Sort();
-	bPMSGraphNodeClassesInitialized = true;
+}
+
+void UPMSEdGraphSchema::InitPMSIconMapping()
+{
+	if (bPMSGraphNodeClassesInitialized) {
+		return;
+	}
+	FString IconsDir = IPluginManager::Get().FindPlugin(TEXT("PMS"))->GetBaseDir() / TEXT("Resources/Icons/");
+	FString IconMapping = IconsDir+"IconMapping";
+	TArray<FString> Lines;
+	FFileHelper::LoadFileToStringArray(Lines,*IconMapping);
+	for(FString& Line: Lines)
+	{
+		if(!Line.StartsWith("#"))
+		{
+			TArray<FString> SrcDst;
+			Line.RemoveSpacesInline();
+			Line.ParseIntoArray(SrcDst,L":=");
+			if(SrcDst.Num()==2)
+			{
+				FName Src(SrcDst[0]);
+				SrcDst[1].LeftChopInline(1);
+				FName Dst(SrcDst[1]);
+				PMSIconMapping.FindOrAdd(Src,Dst);
+			}			
+		}
+	}
+	
 }
 
 void UPMSEdGraphSchema::InitPMSToolShelfLib()
@@ -192,7 +230,7 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 	if (bPMSGraphNodeClassesInitialized) {
 		return;
 	}
-	static FString ToolShelfsDir = IPluginManager::Get().FindPlugin(TEXT("PMS"))->GetBaseDir() / TEXT("Resources/ToolShelfs");
+	FString ToolShelfsDir = IPluginManager::Get().FindPlugin(TEXT("PMS"))->GetBaseDir() / TEXT("Resources/ToolShelfs");
 	TArray<FString> AllToolShelfFilesPath;
 	IFileManager::Get().FindFilesRecursive(AllToolShelfFilesPath,*ToolShelfsDir,TEXT("*.shelf"),true,false);
 	
@@ -208,11 +246,25 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 		auto NodeTool = RootNodeShelfDocument->FirstChildElement();
 		while (NodeTool)
 		{
-			FString ToolName(NodeTool->Attribute("name"));
+			FName ToolName(NodeTool->Attribute("name"));
 			FString ToolLabel(NodeTool->Attribute("label"));
-			FString ToolIcon(NodeTool->Attribute("icon"));
-			ToolIcon.RightChopInline(4);
+			FName ToolIconName(NodeTool->Attribute("icon"));
 
+			if(auto Value = PMSIconMapping.Find(ToolIconName))
+			{
+				ToolIconName = *Value;
+			}
+			FString ToolIcon = ToolIconName.ToString();
+			if(ToolName.ToString().Find("::"))
+			{
+				TArray<FString> SmallVersion;
+				ToolName.ToString().ParseIntoArray(SmallVersion,L"::");
+				
+				if(SmallVersion.Num()>1 &&ToolIcon.Find(SmallVersion[SmallVersion.Num()-1])>0)
+					ToolIcon.LeftInline(ToolIcon.Find(SmallVersion[1])-1);
+			}
+			
+			
 			FString ToolPath = TEXT("Unkown");
 			FString ToolScriptType = TEXT("python");
 			FString ToolScript = TEXT("No Script");
@@ -238,7 +290,7 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 				CurSubMenu = (FPMSEdGraphSchemaAction_ShelfToolSubMenu*)(NextSubMenu);
 			}
 			auto InClass = UPMSGraphNode::StaticClass();
-			CurSubMenu->Children.FindOrAdd(FName(ToolName),new FPMSEdGraphSchemaAction_ShelfTool(InClass,ToolIcon,ToolLabel));
+			CurSubMenu->Children.FindOrAdd(ToolName,new FPMSEdGraphSchemaAction_ShelfTool(InClass,ToolIcon,ToolLabel));
 			
 			NodeTool = NodeTool->NextSiblingElement();
 		}		

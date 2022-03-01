@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>take_badge</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0.280106583" y="1.85198488" width="14" height="4"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="14" height="4" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="take_badge">
+            <rect id="Rectangle-11" stroke="#979797" stroke-width="2" fill="#000000" x="2" y="6" width="12" height="8"></rect>
+            <use id="Rectangle-11-Copy" stroke="#979797" mask="url(#mask-2)" stroke-width="2" fill="#000000" transform="translate(7.280107, 3.851985) rotate(-16.000000) translate(-7.280107, -3.851985) " xlink:href="#path-1"></use>
+            <path d="M2.06848145,7.38842773 C2.08325195,7.24389648 2.6973877,3.06274414 2.6973877,3.06274414 L5.00439453,2.48022461 L4.3223877,6.82702637 C4.3223877,6.82702637 2.05371094,7.53295898 2.06848145,7.38842773 Z" id="Path-10" fill="#D8D8D8"></path>
+            <path d="M6.28430176,6.16491699 C6.29907227,6.02038574 6.91320801,1.8392334 6.91320801,1.8392334 L9.22021484,1.25671387 L8.53820801,5.60351562 C8.53820801,5.60351562 6.26953125,6.30944824 6.28430176,6.16491699 Z" id="Path-10-Copy" fill="#D8D8D8"></path>
+            <path d="M10.4586182,4.96655273 C10.4733887,4.82202148 11.0875244,0.640869141 11.0875244,0.640869141 L13.3945312,0.0583496094 L12.7125244,4.40515137 C12.7125244,4.40515137 10.4438477,5.11108398 10.4586182,4.96655273 Z" id="Path-10-Copy-2" fill="#D8D8D8"></path>
+        </g>
+    </g>
+</svg>

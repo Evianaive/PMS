@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>switch_slider</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <radialGradient cx="61.107337%" cy="63.3831522%" fx="61.107337%" fy="63.3831522%" r="59.0820312%" id="radialGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0.1" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0.0972829625" offset="56.7425272%"></stop>
+            <stop stop-color="#000000" stop-opacity="0.1" offset="100%"></stop>
+        </radialGradient>
+        <linearGradient x1="11.7257254%" y1="19.2871094%" x2="86.8791853%" y2="83.8030134%" id="linearGradient-2">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#B7B7B7" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="iPad" transform="translate(-62.000000, -41.000000)" fill-rule="nonzero">
+            <g id="Off" transform="translate(62.000000, 41.000000)">
+                <g id="switch_slider" transform="translate(0.500000, 0.500000)">
+                    <circle id="Oval-Copy-3" stroke="#272727" fill="#858585" cx="11.5" cy="11.5" r="11.5"></circle>
+                    <circle id="Oval-Copy-4" fill="url(#radialGradient-1)" cx="11.5" cy="11.5" r="11.5"></circle>
+                    <circle id="Oval-Copy-2" stroke="url(#linearGradient-2)" cx="11.5" cy="11.5" r="10.5"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

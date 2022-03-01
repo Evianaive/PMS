@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <tool name="sop_tube" label="Tube" icon="SOP_tube">
+    <helpURL>operator:Sop/tube</helpURL>
+    <toolMenuContext name="viewer">
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextNetType>OBJ</contextNetType>
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolSubmenu>Primitive</toolSubmenu>
+    <script scriptType="python"><![CDATA[
+    import soptoolutils
+from soptoolutils import OrientInfo
+
+if hou.ui.orientationUpAxis() == hou.orientUpAxis.Z:
+    kwargs['bbox'] = hou.BoundingBox(-1.0, -1.0, -0.5, 1.0, 1.0, 0.5)
+else:
+    kwargs['bbox'] = hou.BoundingBox(-1.0, -0.5, -1.0, 1.0, 0.5, 1.0)
+soptoolutils.genericTool(kwargs, 'tube', orient=OrientInfo('orient'))
+]]></script>
+  </tool>
+
+  <tool name="sop_volumeslice" label="Volume Slice" icon="SOP_volumeslice">
+    <helpURL>operator:Sop/volumeslice</helpURL>
+    <toolMenuContext name="viewer">
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextOpType>Sop/volumeslice</contextOpType>
+    </toolMenuContext>
+    <toolSubmenu>Sop</toolSubmenu>
+    <script scriptType="python"><![CDATA[                                                                                                                                                                                                                                                                                                                                                               [
+    import soptoolutils
+
+soptoolutils.genericTool(kwargs, 'volumeslice')
+]]></script>
+  </tool>
+
+  <tool name="sop_volumetrail" label="Volume Trail" icon="SOP_volumetrail">
+    <helpURL>operator:Sop/volumetrail</helpURL>
+    <toolMenuContext name="viewer">
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextOpType>Sop/volumetrail</contextOpType>
+    </toolMenuContext>
+    <toolSubmenu>Sop/uvlayout</toolSubmenu>
+    <script scriptType="python"><![CDATA[
+    import soptoolutils
+
+soptoolutils.genericTool(kwargs, 'volumetrail')
+]]></script>
+  </tool>
+
+    <tool name="sop_vdbtopologytosdf" label="VDB Topology to SDF" icon="SOP_OpenVDB">
+    <helpURL>operator:Sop/vdbtopologytosdf</helpURL>
+    <toolMenuContext name="viewer">
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextOpType>Sop/vdbtopologytosdf</contextOpType>
+    </toolMenuContext>
+    <toolSubmenu>VDB</toolSubmenu>
+    <script scriptType="python"><![CDATA[import soptoolutils
+
+soptoolutils.genericTool(kwargs, 'vdbtopologytosdf')]]></script>
+  </tool>
+
+    <tool name="TTTTTT" label="TTTTTTT" icon="SOP_OpenVDB">
+    <helpURL>operator:Sop/vdbtopologytosdf</helpURL>
+    <toolMenuContext name="viewer">
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextOpType>Sop/vdbtopologytosdf</contextOpType>
+    </toolMenuContext>
+    <toolSubmenu></toolSubmenu>
+    <script scriptType="python"><![CDATA[import soptoolutils
+
+soptoolutils.genericTool(kwargs, 'vdbtopologytosdf')]]></script>
+  </tool>
+ </shelfDocument>
