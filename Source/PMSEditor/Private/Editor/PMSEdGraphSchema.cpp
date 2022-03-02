@@ -301,7 +301,12 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 }
 void UPMSEdGraphSchema::RecursivelySort(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu)
 {
-	SubMenu->Children.KeyStableSort([](FName A,FName B){return !!A.Compare(B);});
+	SubMenu->Children.KeySort(
+		[](FName A,FName B)
+		{
+			return A.Compare(B)<0;
+		}
+	);
 	for(auto Child :SubMenu->Children)
 	{
 		bool bIsSubMenu = Child.Value->IsA(FName("FPMSEdGraphSchemaAction_ShelfToolSubMenu"));
