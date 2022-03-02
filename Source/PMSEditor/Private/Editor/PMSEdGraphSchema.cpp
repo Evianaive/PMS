@@ -236,10 +236,6 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 	
 	for (const auto ToolShelfFilePath : AllToolShelfFilesPath)
 	{
-
-		// if(ToolShelfFilePath!=FString(L"../../../../../../UnrealProject/ProceduralModeling/Plugins/PMS/Resources/ToolShelfs/SopToolsTest.shelf"))
-		// 	continue;
-		
 		tinyxml2::XMLDocument ToolShelfFile;
 		ToolShelfFile.LoadFile(TCHAR_TO_ANSI(*ToolShelfFilePath));
 		auto RootNodeShelfDocument = ToolShelfFile.RootElement();
@@ -264,7 +260,6 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 					ToolIcon.LeftInline(ToolIcon.Find(SmallVersion[1])-1);
 			}
 			
-			
 			FString ToolPath = TEXT("Unkown");
 			FString ToolScriptType = TEXT("python");
 			FString ToolScript = TEXT("No Script");
@@ -286,11 +281,10 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 			FPMSEdGraphSchemaAction_ShelfToolSubMenu* CurSubMenu = &PMSToolShelfLib;
 			for(auto CurToolPath:ToolPathArray)
 			{
-				FEdGraphSchemaAction* NextSubMenu = CurSubMenu->Children.FindOrAdd(FName(CurToolPath),new FPMSEdGraphSchemaAction_ShelfToolSubMenu());
-				CurSubMenu = (FPMSEdGraphSchemaAction_ShelfToolSubMenu*)(NextSubMenu);
+				CurSubMenu = CurSubMenu->ChildrenSubMenu.FindOrAdd(FName(CurToolPath),new FPMSEdGraphSchemaAction_ShelfToolSubMenu());
 			}
 			auto InClass = UPMSGraphNode::StaticClass();
-			CurSubMenu->Children.FindOrAdd(ToolName,new FPMSEdGraphSchemaAction_ShelfTool(InClass,ToolIcon,ToolLabel));
+			CurSubMenu->ChildrenToolAction.FindOrAdd(ToolName,new FPMSEdGraphSchemaAction_ShelfTool(InClass,ToolIcon,ToolLabel));
 			
 			NodeTool = NodeTool->NextSiblingElement();
 		}		
@@ -301,21 +295,21 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 }
 void UPMSEdGraphSchema::RecursivelySort(FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu)
 {
-	SubMenu->Children.KeySort(
+	SubMenu->ChildrenSubMenu.KeySort(
 		[](FName A,FName B)
 		{
 			return A.Compare(B)<0;
 		}
 	);
-	for(auto Child :SubMenu->Children)
-	{
-		bool bIsSubMenu = Child.Value->IsA(FName("FPMSEdGraphSchemaAction_ShelfToolSubMenu"));
-		
-		FPMSEdGraphSchemaAction_ShelfToolSubMenu* NextSubMenu = static_cast<FPMSEdGraphSchemaAction_ShelfToolSubMenu*>(Child.Value);
-		if(bIsSubMenu)
+	SubMenu->ChildrenToolAction.KeySort(
+		[](FName A,FName B)
 		{
-			RecursivelySort(NextSubMenu);
+			return A.Compare(B)<0;
 		}
+	);
+	for(auto Child :SubMenu->ChildrenSubMenu)
+	{
+		RecursivelySort(Child.Value);
 	}
 }
 

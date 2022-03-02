@@ -96,7 +96,8 @@ struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfToolSubMenu : public FEdGraphS
 	/*此处不可以换成变量，否则不能放子类*/
 	/*需要分离两种类型*/
 	/*需要更改继承对象*/
-	TMap<FName,FEdGraphSchemaAction*> Children;
+	TMap<FName,FPMSEdGraphSchemaAction_ShelfToolSubMenu*> ChildrenSubMenu;
+	TMap<FName,FPMSEdGraphSchemaAction_ShelfTool*> ChildrenToolAction;
 
 	FPMSEdGraphSchemaAction_ShelfToolSubMenu()
 		: FEdGraphSchemaAction()
@@ -135,9 +136,9 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 
 	// void GetAllPMSNodeActionsWithMenu() const;
 	static void Init(bool bForce=false);
-	FPMSEdGraphSchemaAction_ShelfToolSubMenu* GetPMSToolShelfLib() const
+	FPMSEdGraphSchemaAction_ShelfToolSubMenu& GetPMSToolShelfLib() const
 	{
-		return &PMSToolShelfLib;
+		return PMSToolShelfLib;
 	} 
 
 	

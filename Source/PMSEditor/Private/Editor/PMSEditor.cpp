@@ -387,44 +387,30 @@ void FPMSEditor::OnTryOpenSubGraph(UEdGraphNode* InNode)
 void AddSubMenuRecursively(const FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FMenuBuilder& MenuBuilder)
 {
 	MenuBuilder.SetStyle(&FPMSEditorStyle::Get(),"PMSMenu");
-	for(auto Child :SubMenu->Children)
+	for(auto Child :SubMenu->ChildrenSubMenu)
+	{		
+		FPMSEdGraphSchemaAction_ShelfToolSubMenu* NextSubMenu = Child.Value;
+		MenuBuilder.AddSubMenu(FText::FromString(Child.Key.ToString()),FText::FromString("NoTip"),FNewMenuDelegate::CreateLambda(
+			[NextSubMenu](FMenuBuilder& MenuBuilder)
+			{					
+				AddSubMenuRecursively(NextSubMenu,MenuBuilder);
+			}
+		));		
+	}
+	for(auto Child : SubMenu->ChildrenToolAction)
 	{
-		// TSharedPtr<FEdGraphSchemaAction> Test1 = MakeShareable(new FPMSEdGraphSchemaAction_ShelfToolSubMenu);
-		// TSharedPtr<FPMSEdGraphSchemaAction_ShelfToolSubMenu> Test2 = Test1;
-		
-		// bool bIsSubMenu = Child.Value->IsA(FPMSEdGraphSchemaAction_ShelfToolSubMenu::StaticStruct()->GetFName());
-		// bool bIsShelfTool = Child.Value->IsA(FPMSEdGraphSchemaAction_ShelfTool::StaticStruct()->GetFName());
-
-		bool bIsSubMenu = Child.Value->IsA(FName("FPMSEdGraphSchemaAction_ShelfToolSubMenu"));
-		bool bIsShelfTool = Child.Value->IsA(FName("FPMSEdGraphSchemaAction_ShelfTool"));
-		
-		FPMSEdGraphSchemaAction_ShelfToolSubMenu* NextSubMenu = static_cast<FPMSEdGraphSchemaAction_ShelfToolSubMenu*>(Child.Value);
-		FPMSEdGraphSchemaAction_ShelfTool* Action = static_cast<FPMSEdGraphSchemaAction_ShelfTool*>(Child.Value);
-		
-		if(bIsShelfTool)
-		{
-			FUIAction NewAction;
-			FName NodeName = FName("PMSEditor.NodeIcons."+Action->IconName);
-			//Todo Check If Icon Exist
-			FSlateIcon Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),"PMSEditor.NodeIcons.Sop_polyexpand2d");
+		FPMSEdGraphSchemaAction_ShelfTool* Action = Child.Value;
+		FUIAction NewAction;
+		FName NodeName = FName("PMSEditor.NodeIcons."+Action->IconName);
+		FSlateIcon Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),"PMSEditor.NodeIcons.Sop_polyexpand2d");
 			
-			if(FPMSEditorStyle::Get().GetBrush(NodeName)!=FPMSEditorStyle::Get().GetDefaultBrush())
-				Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName);
-			MenuBuilder.AddMenuEntry(
-				FText::FromString(Action->Label),
-				FText::FromString(Action->IconName),
-				Icon,
-				NewAction);
-		}
-		if(bIsSubMenu)
-		{
-			MenuBuilder.AddSubMenu(FText::FromString(Child.Key.ToString()),FText::FromString("NoTip"),FNewMenuDelegate::CreateLambda(
-				[NextSubMenu](FMenuBuilder& MenuBuilder)
-				{					
-					AddSubMenuRecursively(NextSubMenu,MenuBuilder);
-				}
-			));
-		}
+		if(FPMSEditorStyle::Get().GetBrush(NodeName)!=FPMSEditorStyle::Get().GetDefaultBrush())
+			Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName);
+		MenuBuilder.AddMenuEntry(
+			FText::FromString(Action->Label),
+			FText::FromString(Action->IconName),
+			Icon,
+			NewAction);
 	}
 }
 
@@ -445,7 +431,7 @@ FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector
 	if(PMSSchema)
 	{
 		UPMSEdGraphSchema::Init();
-		AddSubMenuRecursively((PMSSchema->GetPMSToolShelfLib()),MenuBuilder);
+		AddSubMenuRecursively(&(PMSSchema->GetPMSToolShelfLib()),MenuBuilder);
 	}
 	
 	// MenuBuilder.AddSearchWidget();
