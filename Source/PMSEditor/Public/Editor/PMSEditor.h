@@ -67,5 +67,5 @@ private:
 	void UpdateEditorByGraph(UPMSEdGraph* InGraph);
 	void UpdateHirechyNavigation(UPMSEdGraph* InGraph);
 	void OnTryOpenSubGraph(UEdGraphNode* InNode);
-	FActionMenuContent OnGetContextMenu( UEdGraph* InGraph, const FVector2D& NodePos, const TArray<UEdGraphPin*>& DragedPins, bool, SGraphEditor::FActionMenuClosed OnClosedHandle);
+	FActionMenuContent OnGetContextMenu( UEdGraph* InGraph, const FVector2D& NodePos, const TArray<UEdGraphPin*>& DragedPins, bool bAutoExpandActionMenu, SGraphEditor::FActionMenuClosed OnClosedHandle);
 };

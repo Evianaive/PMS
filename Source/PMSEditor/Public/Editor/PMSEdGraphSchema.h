@@ -42,72 +42,57 @@ public:
 /*既要用来构建菜单的Node，也要用于点击时执行操作
  * 此处不必继承自FEdGraphSchemaAction
  */
-USTRUCT()
-struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FEdGraphSchemaAction
-{
-	GENERATED_USTRUCT_BODY()
 
-	// Simple type info
-	static FName StaticGetTypeId() {static FName Type("FPMSEdGraphSchemaAction_ShelfTool"); return Type;}
-	virtual FName GetTypeId() const override { return StaticGetTypeId(); }
-	
-	UPROPERTY()
+struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FUIAction
+{
 	class UClass* PMSGraphNodeClass;
-	UPROPERTY()
 	FString IconName;
-	UPROPERTY()
 	FString Label;
+	UEdGraph* CurGraph;
+	FVector2D SpawnPos;
 	
 	FPMSEdGraphSchemaAction_ShelfTool()
-		: FEdGraphSchemaAction()
+		: FUIAction()
 		, PMSGraphNodeClass(nullptr)
 		, IconName(L"polyexpand2d")
 		, Label(L"Unknown")
-	{}
+		, CurGraph(nullptr)
+		, SpawnPos(FVector2D::ZeroVector)
+	{
+		Bind();
+	}
 
 	FPMSEdGraphSchemaAction_ShelfTool(UClass* InPMSGraphNodeClass,FString InIconName,FString InLabel)
-		: FEdGraphSchemaAction()
+		: FUIAction()
 		, PMSGraphNodeClass(InPMSGraphNodeClass)
 		, IconName(InIconName)
 		, Label(InLabel)
-	{}
-
-	FPMSEdGraphSchemaAction_ShelfTool(FText InNodeCategory, FText InMenuDesc, FText InToolTip, const int32 InGrouping)
-		: FEdGraphSchemaAction(MoveTemp(InNodeCategory), MoveTemp(InMenuDesc), MoveTemp(InToolTip), InGrouping)
-		, PMSGraphNodeClass(nullptr)	
-		, IconName("polyexpand2d")
-		, Label(L"Unknown")
-	{}
-
-	virtual UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override;
-
-	static UPMSEdGraphNode* SpawnNode(UClass* PMSGraphNodeClass, UEdGraph* ParentGraph, UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode);
+		, CurGraph(nullptr)
+		, SpawnPos(FVector2D::ZeroVector)
+	{
+		Bind();
+	}
+	
+	void Bind()
+	{
+		ExecuteAction.BindRaw(this,&FPMSEdGraphSchemaAction_ShelfTool::BindedAction);
+	}
+	void BindedAction();
+	// UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true);
+	// static UPMSEdGraphNode* SpawnNode(UClass* PMSGraphNodeClass, UEdGraph* ParentGraph, UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode);
 };
 
-USTRUCT()
-struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfToolSubMenu : public FEdGraphSchemaAction
-{
-	GENERATED_USTRUCT_BODY()
 
-	// Simple type info
-	static FName StaticGetTypeId() {static FName Type("FPMSEdGraphSchemaAction_ShelfToolSubMenu"); return Type;}
-	virtual FName GetTypeId() const override { return StaticGetTypeId(); }
-
-	/*此处不可以换成变量，否则不能放子类*/
-	/*需要分离两种类型*/
+struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfToolSubMenu
+{	
 	/*需要更改继承对象*/
 	TMap<FName,FPMSEdGraphSchemaAction_ShelfToolSubMenu*> ChildrenSubMenu;
 	TMap<FName,FPMSEdGraphSchemaAction_ShelfTool*> ChildrenToolAction;
 
 	FPMSEdGraphSchemaAction_ShelfToolSubMenu()
-		: FEdGraphSchemaAction()
 	{}
 
-	FPMSEdGraphSchemaAction_ShelfToolSubMenu(FText InNodeCategory, FText InMenuDesc, FText InToolTip, const int32 InGrouping)
-		: FEdGraphSchemaAction(MoveTemp(InNodeCategory), MoveTemp(InMenuDesc), MoveTemp(InToolTip), InGrouping)
-	{}
-
-	virtual UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override;
+	// virtual UEdGraphNode* PerformAction(class UEdGraph* ParentGraph, UEdGraphPin* FromPin, const FVector2D Location, bool bSelectNewNode = true) override;
 
 };
 
@@ -139,8 +124,7 @@ class PMSEDITOR_API UPMSEdGraphSchema : public UEdGraphSchema
 	FPMSEdGraphSchemaAction_ShelfToolSubMenu& GetPMSToolShelfLib() const
 	{
 		return PMSToolShelfLib;
-	} 
-
+	}
 	
 private:
 	static void InitPMSGraphNodeClasses();
@@ -153,3 +137,17 @@ private:
 	static bool bPMSGraphNodeClassesInitialized;
 	static TMap<FName,FName> PMSIconMapping;
 };
+
+// struct FPMSUIAction : public FUIAction
+// {
+// 	FString test = L"test";
+// 	UEdGraph* Graph;
+// 	FPMSUIAction()
+// 	{
+// 		ExecuteAction.BindSP(this,&FPMSUIAction::PeformAction);
+// 	}
+// 	void PeformAction()
+// 	{
+// 		
+// 	}
+// };

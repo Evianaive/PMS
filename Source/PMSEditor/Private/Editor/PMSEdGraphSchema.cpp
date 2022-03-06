@@ -63,28 +63,47 @@ UPMSEdGraphNode* FPMSEdGraphSchemaAction_NewNode::SpawnNode(UClass* InPMSGraphNo
 	return PMSEdGraphNodeToSpawn;
 }
 
-UEdGraphNode* FPMSEdGraphSchemaAction_ShelfTool::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin,
-	const FVector2D Location, bool bSelectNewNode)
+void FPMSEdGraphSchemaAction_ShelfTool::BindedAction()
 {
-	return FEdGraphSchemaAction::PerformAction(ParentGraph, FromPin, Location, bSelectNewNode);
-}
+	if(!PMSGraphNodeClass || !CurGraph)
+		return;
+	// MakeUniqueObjectName()
+	UPMSEdGraphNode* PMSEdGraphNodeToSpawn;
+	if(PMSGraphNodeClass->IsChildOf(UPMSSubGraphNode::StaticClass()))
+	{
+		PMSEdGraphNodeToSpawn = NewObject<UPMSEdSubGraphNode>(CurGraph);
+	}
+	else
+	{
+		PMSEdGraphNodeToSpawn = NewObject<UPMSEdGraphNode>(CurGraph);		
+	}
+	
+	const FScopedTransaction Transaction(LOCTEXT("ProceduralModelingSystemEditorNewPMSEdGraphNode", "PMSEditor: New PMSEdGraphNode"));
+	CurGraph->Modify();
 
-UPMSEdGraphNode* FPMSEdGraphSchemaAction_ShelfTool::SpawnNode(UClass* PMSGraphNodeClass, UEdGraph* ParentGraph,
-	UEdGraphPin* FromPin, FVector2D Location, bool bSelectNewNode)
-{
-	return nullptr;
+	PMSEdGraphNodeToSpawn->NodePosX = SpawnPos.X-PMSEdGraphNodeToSpawn->NodeSize.X/2;
+	PMSEdGraphNodeToSpawn->NodePosY = SpawnPos.Y-PMSEdGraphNodeToSpawn->NodeSize.Y/2;
+	PMSEdGraphNodeToSpawn->CreateNewGuid();
+	PMSEdGraphNodeToSpawn->PostPasteNode();
+	PMSEdGraphNodeToSpawn->AllocateDefaultPins();
+	PMSEdGraphNodeToSpawn->IconName = IconName;
+	//PMSEdGraphNodeToSpawn->GetNodeTitleColor()
+	//NodeTile is the class name of node
+	//PMSEdGraphNodeToSpawn->GetName();
+	//PMSEdGraphNodeToSpawn->GetNodeTitle();
+	PMSEdGraphNodeToSpawn->NodeLabel = FText::FromString(PMSEdGraphNodeToSpawn->IconName);
+	CurGraph->AddNode(PMSEdGraphNodeToSpawn);
+	if(!IsValid(Cast<UPMSEdGraph>(CurGraph)->DisplayNode))
+	{
+		Cast<UPMSEdGraph>(CurGraph)->DisplayNode = PMSEdGraphNodeToSpawn;
+		PMSEdGraphNodeToSpawn->DisplayState = true;
+	}
 }
 
 UPMSEdGraphSchema::UPMSEdGraphSchema(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
 	
-}
-
-UEdGraphNode* FPMSEdGraphSchemaAction_ShelfToolSubMenu::PerformAction(UEdGraph* ParentGraph, UEdGraphPin* FromPin,
-	const FVector2D Location, bool bSelectNewNode)
-{
-	return FEdGraphSchemaAction::PerformAction(ParentGraph, FromPin, Location, bSelectNewNode);
 }
 
 void UPMSEdGraphSchema::CreateDefaultNodesForGraph(UEdGraph& Graph) const 

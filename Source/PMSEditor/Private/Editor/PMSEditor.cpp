@@ -384,25 +384,35 @@ void FPMSEditor::OnTryOpenSubGraph(UEdGraphNode* InNode)
     }
 }
 
-void AddSubMenuRecursively(const FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FMenuBuilder& MenuBuilder)
+//Todo 除去此处的引用，否则会引起SGraphPin.cpp中GetPinObj()报错
+void AddSubMenuRecursively(const FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMenu, FMenuBuilder& MenuBuilder, UEdGraph* InGraph, const FVector2D& NodePos, const TArray<UEdGraphPin*>& DragedPins)
 {
 	MenuBuilder.SetStyle(&FPMSEditorStyle::Get(),"PMSMenu");
 	for(auto Child :SubMenu->ChildrenSubMenu)
 	{		
 		FPMSEdGraphSchemaAction_ShelfToolSubMenu* NextSubMenu = Child.Value;
 		MenuBuilder.AddSubMenu(FText::FromString(Child.Key.ToString()),FText::FromString("NoTip"),FNewMenuDelegate::CreateLambda(
-			[NextSubMenu](FMenuBuilder& MenuBuilder)
+			[NextSubMenu,InGraph,NodePos,DragedPins](FMenuBuilder& MenuBuilder)
 			{					
-				AddSubMenuRecursively(NextSubMenu,MenuBuilder);
+				AddSubMenuRecursively(NextSubMenu,MenuBuilder, InGraph, NodePos, DragedPins);
 			}
 		));		
 	}
 	for(auto Child : SubMenu->ChildrenToolAction)
 	{
-		FPMSEdGraphSchemaAction_ShelfTool* Action = Child.Value;
-		FUIAction NewAction;
+		Child.Value->CurGraph = InGraph;
+		Child.Value->SpawnPos = NodePos;
+		// Child.Value->DragedPins = DragedPins;
+		const FPMSEdGraphSchemaAction_ShelfTool* Action = Child.Value;
+		// FUIAction NewAction;
+		// NewAction.ExecuteAction.BindLambda(
+		// 	[InGraph,NodePos,&Action]()
+		// 	{
+		// 		UE_LOG(LogTemp,Log,TEXT("Pos:%s,Label:%s"),*(NodePos.ToString()),*(Action->Label));
+		// 	}
+		// );
 		FName NodeName = FName("PMSEditor.NodeIcons."+Action->IconName);
-		FSlateIcon Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),"PMSEditor.NodeIcons.Sop_polyexpand2d");
+		FSlateIcon Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),"PMSEditor.NodeIcons.COMMON_subnet");
 			
 		if(FPMSEditorStyle::Get().GetBrush(NodeName)!=FPMSEditorStyle::Get().GetDefaultBrush())
 			Icon = FSlateIcon(FPMSEditorStyle::GetStyleSetName(),NodeName);
@@ -410,11 +420,11 @@ void AddSubMenuRecursively(const FPMSEdGraphSchemaAction_ShelfToolSubMenu* SubMe
 			FText::FromString(Action->Label),
 			FText::FromString(Action->IconName),
 			Icon,
-			NewAction);
+			*Action);
 	}
 }
 
-FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector2D& NodePos, const TArray<UEdGraphPin*>& DragedPins, bool, SGraphEditor::FActionMenuClosed OnClosedHandle)
+FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector2D& NodePos, const TArray<UEdGraphPin*>& DragedPins, bool bAutoExpandActionMenu, SGraphEditor::FActionMenuClosed OnClosedHandle)
 {
 	
 	// FMenuBuilder MenuBuilder(true);
@@ -431,7 +441,7 @@ FActionMenuContent FPMSEditor::OnGetContextMenu(UEdGraph* InGraph, const FVector
 	if(PMSSchema)
 	{
 		UPMSEdGraphSchema::Init();
-		AddSubMenuRecursively(&(PMSSchema->GetPMSToolShelfLib()),MenuBuilder);
+		AddSubMenuRecursively(&(PMSSchema->GetPMSToolShelfLib()),MenuBuilder, InGraph, NodePos, DragedPins);
 	}
 	
 	// MenuBuilder.AddSearchWidget();

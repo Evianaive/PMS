@@ -91,7 +91,7 @@ void SPMSEdGraphNode::UpdateGraphNode()
 	int32 FontSize = 30;
 	FSlateFontInfo FontDefault = FCoreStyle::GetDefaultFontStyle("Regular", FontSize);
 	
-	FString NodeNameFString = IconName->LeftChop(4);
+	FString NodeNameFString = *IconName;
 	FName NodeName = FName("PMSEditor.NodeIcons."+NodeNameFString);
 	FVector2D PinHorizontalBoxSize = FVector2D(NodeSize->X*0.6,NodeSize->Y*0.25);
 	
