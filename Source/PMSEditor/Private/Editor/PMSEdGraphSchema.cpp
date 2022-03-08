@@ -9,6 +9,7 @@
 #include "Editor/PMSEdGraphNode.h"
 #include "Editor/PMSEdSubGraphNode.h"
 #include "Editor/SlateWidgets/PMSConnectionDrawingPolicy.h"
+#include "Editor/Style/PMSEditorStyle.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/FileHelper.h"
 #include "Utilities/tinyxml2.h"
@@ -91,7 +92,7 @@ void FPMSEdGraphSchemaAction_ShelfTool::BindedAction()
 	//NodeTile is the class name of node
 	//PMSEdGraphNodeToSpawn->GetName();
 	//PMSEdGraphNodeToSpawn->GetNodeTitle();
-	PMSEdGraphNodeToSpawn->NodeLabel = FText::FromString(PMSEdGraphNodeToSpawn->IconName);
+	PMSEdGraphNodeToSpawn->NodeLabel = FText::FromString(ToolName.RightChop(4));
 	CurGraph->AddNode(PMSEdGraphNodeToSpawn);
 	if(!IsValid(Cast<UPMSEdGraph>(CurGraph)->DisplayNode))
 	{
@@ -261,7 +262,7 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 		auto NodeTool = RootNodeShelfDocument->FirstChildElement();
 		while (NodeTool)
 		{
-			FName ToolName(NodeTool->Attribute("name"));
+			FString ToolName(NodeTool->Attribute("name"));
 			FString ToolLabel(NodeTool->Attribute("label"));
 			FName ToolIconName(NodeTool->Attribute("icon"));
 
@@ -270,15 +271,21 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 				ToolIconName = *Value;
 			}
 			FString ToolIcon = ToolIconName.ToString();
-			if(ToolName.ToString().Find("::"))
+			if(ToolName.Find("::"))
 			{
 				TArray<FString> SmallVersion;
-				ToolName.ToString().ParseIntoArray(SmallVersion,L"::");
+				ToolName.ParseIntoArray(SmallVersion,L"::");
 				
 				if(SmallVersion.Num()>1 &&ToolIcon.Find(SmallVersion[SmallVersion.Num()-1])>0)
 					ToolIcon.LeftInline(ToolIcon.Find(SmallVersion[1])-1);
 			}
 			
+			FName NodeName = FName("PMSEditor.NodeIcons."+ToolIcon);			
+			if(FPMSEditorStyle::Get().GetBrush(NodeName)==FPMSEditorStyle::Get().GetDefaultBrush())
+			{
+				ToolIcon = TEXT("COMMON_subnet");
+			}
+				
 			FString ToolPath = TEXT("Unkown");
 			FString ToolScriptType = TEXT("python");
 			FString ToolScript = TEXT("No Script");
@@ -303,7 +310,7 @@ void UPMSEdGraphSchema::InitPMSToolShelfLib()
 				CurSubMenu = CurSubMenu->ChildrenSubMenu.FindOrAdd(FName(CurToolPath),new FPMSEdGraphSchemaAction_ShelfToolSubMenu());
 			}
 			auto InClass = UPMSGraphNode::StaticClass();
-			CurSubMenu->ChildrenToolAction.FindOrAdd(ToolName,new FPMSEdGraphSchemaAction_ShelfTool(InClass,ToolIcon,ToolLabel));
+			CurSubMenu->ChildrenToolAction.FindOrAdd(FName(ToolName),new FPMSEdGraphSchemaAction_ShelfTool(InClass,ToolName,ToolIcon,ToolLabel));
 			
 			NodeTool = NodeTool->NextSiblingElement();
 		}		

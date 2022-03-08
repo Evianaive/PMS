@@ -48,6 +48,7 @@ struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FUIAction
 	class UClass* PMSGraphNodeClass;
 	FString IconName;
 	FString Label;
+	FString ToolName;
 	UEdGraph* CurGraph;
 	FVector2D SpawnPos;
 	
@@ -56,17 +57,19 @@ struct PMSEDITOR_API FPMSEdGraphSchemaAction_ShelfTool : public FUIAction
 		, PMSGraphNodeClass(nullptr)
 		, IconName(L"polyexpand2d")
 		, Label(L"Unknown")
+		, ToolName(L"Unknown")
 		, CurGraph(nullptr)
 		, SpawnPos(FVector2D::ZeroVector)
 	{
 		Bind();
 	}
 
-	FPMSEdGraphSchemaAction_ShelfTool(UClass* InPMSGraphNodeClass,FString InIconName,FString InLabel)
+	FPMSEdGraphSchemaAction_ShelfTool(UClass* InPMSGraphNodeClass,FString InToolName,FString InIconName,FString InLabel)
 		: FUIAction()
 		, PMSGraphNodeClass(InPMSGraphNodeClass)
 		, IconName(InIconName)
 		, Label(InLabel)
+		, ToolName(InToolName)
 		, CurGraph(nullptr)
 		, SpawnPos(FVector2D::ZeroVector)
 	{
