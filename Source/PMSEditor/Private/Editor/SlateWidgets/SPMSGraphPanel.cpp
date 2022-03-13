@@ -42,6 +42,7 @@
 #include "Json.h"
 #include "GeomTools.h"
 #include "Editor/Style/PMSEditorStyle.h"
+#include "Types/SlateAttributeMetaData.h"
 
 namespace NodePanelDefs
 {
@@ -1138,7 +1139,7 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 
 								// Handle bouncing during PIE
 								const float BounceValue = FMath::Sin(2.0f * PI * BounceCurve.GetLerp());
-								BouncedGeometry.DrawPosition += (OverlayInfo.AnimationEnvelope * BounceValue * ZoomFactor);
+								BouncedGeometry.DrawPosition += FVector2f(OverlayInfo.AnimationEnvelope * BounceValue * ZoomFactor);
 
 								FLinearColor FinalColorAndOpacity(InWidgetStyle.GetColorAndOpacityTint()* OverlayBrush->GetTint(InWidgetStyle));
 								//FinalColorAndOpacity.A = Alpha;
@@ -1163,14 +1164,18 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 						for (int32 WidgetIndex = 0; WidgetIndex < OverlayWidgets.Num(); ++WidgetIndex)
 						{
 							FOverlayWidgetInfo& OverlayInfo = OverlayWidgets[WidgetIndex];
-							if(OverlayInfo.Widget->GetVisibility() == EVisibility::Visible)
+							if (SWidget* Widget = OverlayInfo.Widget.Get())
 							{
-								// call SlatePrepass as these widgets are not in the 'normal' child hierarchy
-								OverlayInfo.Widget->SlatePrepass(AllottedGeometry.GetAccumulatedLayoutTransform().GetScale());
+								FSlateAttributeMetaData::UpdateOnlyVisibilityAttributes(*Widget, FSlateAttributeMetaData::EInvalidationPermission::AllowInvalidationIfConstructed);
+								if (Widget->GetVisibility() == EVisibility::Visible)
+								{
+									// call SlatePrepass as these widgets are not in the 'normal' child hierarchy
+									Widget->SlatePrepass(AllottedGeometry.GetAccumulatedLayoutTransform().GetScale());
 
-								const FGeometry WidgetGeometry = CurWidget.Geometry.MakeChild(OverlayInfo.OverlayOffset, OverlayInfo.Widget->GetDesiredSize());
+									const FGeometry WidgetGeometry = CurWidget.Geometry.MakeChild(OverlayInfo.OverlayOffset, Widget->GetDesiredSize());
 
-								OverlayInfo.Widget->Paint(NewArgs, WidgetGeometry, MyCullingRect, OutDrawElements, CurWidgetsMaxLayerId, InWidgetStyle, bParentEnabled);
+									Widget->Paint(NewArgs, WidgetGeometry, MyCullingRect, OutDrawElements, CurWidgetsMaxLayerId, InWidgetStyle, bParentEnabled);
+								}
 							}
 						}
 					}
@@ -1224,7 +1229,7 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 				ChildNode->GetPins(NodePins);
 
 				const FVector2D NodeLoc = ChildNode->GetPosition();
-				const FGeometry SynthesizedNodeGeometry(GraphCoordToPanelCoord(NodeLoc) * AllottedGeometry.Scale, AllottedGeometry.AbsolutePosition, FVector2D::ZeroVector, 1.f);
+				const FGeometry SynthesizedNodeGeometry(GraphCoordToPanelCoord(NodeLoc) * AllottedGeometry.Scale, FVector2D(AllottedGeometry.AbsolutePosition), FVector2D::ZeroVector, 1.f);
 
 				for (TArray< TSharedRef<SWidget> >::TConstIterator NodePinIterator(NodePins); NodePinIterator; ++NodePinIterator)
 				{
@@ -1233,7 +1238,7 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 					{
 						FVector2D PinLoc = NodeLoc + PinWidget.GetNodeOffset();
 
-						const FGeometry SynthesizedPinGeometry(GraphCoordToPanelCoord(PinLoc) * AllottedGeometry.Scale, AllottedGeometry.AbsolutePosition, FVector2D::ZeroVector, 1.f);
+						const FGeometry SynthesizedPinGeometry(GraphCoordToPanelCoord(PinLoc) * AllottedGeometry.Scale, FVector2D(AllottedGeometry.AbsolutePosition), FVector2D::ZeroVector, 1.f);
 						PinGeometries.Add(*NodePinIterator, FArrangedWidget(*NodePinIterator, SynthesizedPinGeometry));
 					}
 				}
@@ -1383,10 +1388,10 @@ int32 SPMSGraphPanel::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
 		);
 		//UE_LOG(LogTemp,Log,TEXT(""))
 	}
-	FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/light.json");
-	PaintNodeShape(AllottedGeometry, MyCullingRect, OutDrawElements, MaxLayerId, NodeShape);
-	++MaxLayerId;
-	++MaxLayerId;
+	// FString NodeShape = FPaths::ProjectPluginsDir()/TEXT("PMS/Resources/NodeShapes/light.json");
+	// PaintNodeShape(AllottedGeometry, MyCullingRect, OutDrawElements, MaxLayerId, NodeShape);
+	// ++MaxLayerId;
+	// ++MaxLayerId;
 
 	return MaxLayerId;
 }
@@ -1504,8 +1509,8 @@ void SPMSGraphPanel::PaintNodeShape(const FGeometry& AllottedGeometry, const FSl
 		auto Brush =  FEditorStyle::GetBrush("Graph.StateNode.Body");
 		auto RenderingResourceHandle = Brush->GetRenderingResource();
 		auto ResourceProxy = RenderingResourceHandle.GetResourceProxy();
-		FVector2D UVCenter = FVector2D::ZeroVector;
-		FVector2D UVRadius = FVector2D(1,1);
+		FVector2f UVCenter = FVector2f::ZeroVector;
+		FVector2f UVRadius = FVector2f(1,1);
 		if (ResourceProxy != nullptr)
 		{
 			UVRadius = 0.5f * ResourceProxy->SizeUV;

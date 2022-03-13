@@ -27,8 +27,8 @@ static void SlateMeshToSlateRenderData(const TArray<FClipSMTriangle>& DataSource
 
 	const FSlateShaderResourceProxy* ResourceProxy = Handle.GetResourceProxy();
 
-	FVector2D UVCenter = FVector2D::ZeroVector;
-	FVector2D UVRadius = FVector2D(1,1);
+	FVector2f UVCenter = FVector2f::ZeroVector;
+	FVector2f UVRadius = FVector2f(1,1);
 	if (ResourceProxy != nullptr)
 	{
 		UVRadius = 0.5f * ResourceProxy->SizeUV;
@@ -113,7 +113,7 @@ void S2DMeshWidget::ClearRuns(int32 NumRuns)
 
 int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
-	const FVector2D Center = AllottedGeometry.AbsolutePosition + AllottedGeometry.GetLocalSize() * 0.5f;
+	const FVector2D Center = FVector2D(AllottedGeometry.AbsolutePosition) + AllottedGeometry.GetLocalSize() * 0.5f;
 		
 	if (RenderRuns.Num() > 0)
 	{

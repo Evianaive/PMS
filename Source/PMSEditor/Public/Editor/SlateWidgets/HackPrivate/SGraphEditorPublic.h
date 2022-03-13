@@ -93,7 +93,7 @@ public:
 	 *
 	 * @param InArgs   Declaration params from which to construct the widget.
 	 */
-	void Construct( const FArguments& InArgs );
+	UNREALED_API void Construct( const FArguments& InArgs );
 
 	/** @return The current graph being edited */
 	UEdGraph* GetCurrentGraph() const
@@ -105,12 +105,11 @@ public:
 	{
 		if (Implementation.IsValid())
 		{
-			return FVector2D(0,0);
-			// return Implementation->GetPasteLocation();
+			return Implementation->GetPasteLocation();
 		}
 		else
 		{
-			return FVector2D(0,0);
+			return FVector2D::ZeroVector;
 		}
 	}
 
@@ -210,7 +209,7 @@ public:
 	{
 		if (Implementation.IsValid())
 		{
-			//Implementation->SetPinVisibility(InVisibility);
+			// Implementation->SetPinVisibility(InVisibility);
 		}
 	}
 
@@ -344,13 +343,13 @@ public:
 	}
 
 	// Invoked to let this widget know that the GraphEditor module has been reloaded
-	void OnModuleReloaded();
+	UNREALED_API void OnModuleReloaded();
 
 	// Invoked to let this widget know that the GraphEditor module is being unloaded.
-	void OnModuleUnloading();
+	UNREALED_API void OnModuleUnloading();
 
-	void NotifyPrePropertyChange(const FString& PropertyName);
-	void NotifyPostPropertyChange(const FPropertyChangedEvent& PropertyChangeEvent, const FString& PropertyName);
+	UNREALED_API void NotifyPrePropertyChange(const FString& PropertyName);
+	UNREALED_API void NotifyPostPropertyChange(const FPropertyChangedEvent& PropertyChangeEvent, const FString& PropertyName);
 
 	/** Invoked when the Graph being edited changes in some way. */
 	virtual void NotifyGraphChanged()
@@ -399,9 +398,9 @@ public:
 	}
 	
 	/** Common methods for MaterialEditor and BlueprintEditor's focusing related nodes feature */
-	void ResetAllNodesUnrelatedStates();
+	UNREALED_API void ResetAllNodesUnrelatedStates();
 
-	void FocusCommentNodes(TArray<UEdGraphNode*> &CommentNodes, TArray<UEdGraphNode*> &RelatedNodes);
+	UNREALED_API void FocusCommentNodes(TArray<UEdGraphNode*> &CommentNodes, TArray<UEdGraphNode*> &RelatedNodes);
 
 	virtual void OnCollapseNodes()
 	{
@@ -525,11 +524,11 @@ public:
 	}
 
 	// Returns the first graph editor that is viewing the specified graph
-	static TSharedPtr<SGraphEditor> FindGraphEditorForGraph(const UEdGraph* Graph);
+	UNREALED_API static TSharedPtr<SGraphEditor> FindGraphEditorForGraph(const UEdGraph* Graph);
 
 
 	/** Returns the graph panel used for this graph editor */
-	virtual SGraphPanel* GetGraphPanel() const
+	UNREALED_API virtual SGraphPanel* GetGraphPanel() const
 	{
 		if (Implementation.IsValid())
 		{
@@ -544,7 +543,7 @@ public:
 	{
 		if (Implementation.IsValid())
 		{
-			//Implementation->OnGraphChanged(InAction);
+			// Implementation->OnGraphChanged(InAction);
 		}
 	}
 
@@ -562,7 +561,7 @@ public:
 	TSharedPtr<SGraphEditor> Implementation;
 
 	/** Active GraphEditor wrappers; we will notify these about the module being unloaded so they can handle it gracefully. */
-	static TArray< TWeakPtr<SGraphEditor> > AllInstances;
+	UNREALED_API static TArray< TWeakPtr<SGraphEditor> > AllInstances;
 
 	// This callback is triggered whenever the graph module is reloaded
 	FEdGraphEvent OnGraphModuleReloadedCallback;

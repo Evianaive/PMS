@@ -257,7 +257,7 @@ private:
 	int32 TestCustomVerts(const FOnPaintHandlerParams& InParams)
 	{
 		const float Radius = FMath::Min(InParams.Geometry.GetLocalSize().X, InParams.Geometry.GetLocalSize().Y) * 0.5f;
-		const FVector2D Center = InParams.Geometry.AbsolutePosition + InParams.Geometry.GetLocalSize() * 0.5f;
+		const FVector2D Center = FVector2D(InParams.Geometry.AbsolutePosition) + InParams.Geometry.GetLocalSize() * 0.5f;
 		
 		// const float Radius = 50;
 		// const FVector2D Center = FVector2D::ZeroVector;
@@ -270,8 +270,8 @@ private:
 		FSlateResourceHandle Handle = MyBrush->GetRenderingResource();
 		const FSlateShaderResourceProxy* ResourceProxy = Handle.GetResourceProxy();
 
-		FVector2D UVCenter = FVector2D::ZeroVector;
-		FVector2D UVRadius = FVector2D(1,1);
+		FVector2f UVCenter = FVector2f::ZeroVector;
+		FVector2f UVRadius = FVector2f(1,1);
 		if (ResourceProxy != nullptr)
 		{
 			UVRadius = 0.5f * ResourceProxy->SizeUV;
