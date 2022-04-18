@@ -23,4 +23,7 @@ y- 1.6 Draw cutting curve in graph panel（在节点图中画切割线，但目�
 - 1.7 Nodes Menu（非蓝图式的节点菜单）
 
 ![image](https://user-images.githubusercontent.com/73771239/163822548-25e81dc0-5068-430c-8ec0-95d4b9852e4e.png)
-- 1.8 SubGraph（子图）
+- 1.8 Subnet（子图）
+
+Unable to use in current conmmit, because subnet is not contained in Resources/ToolShelfs/SopTools.shelf. If you want to check this feature, add 
+a FPMSEdGraphSchemaAction_ShelfTool(UPMSSubGraphNode::StaticClass(),.....) to root menu in the line 317 of PMSEdGraphSchema.cpp.（目前不可用，因为Resources/ToolShelfs/SopTools.shelf中没有subnet，如果你想尝试这一功能，需要在PMSEdGraphSchema.cpp中的317行手动添加一个FPMSEdGraphSchemaAction_ShelfTool(UPMSSubGraphNode::StaticClass(),.....) 到菜单根节点）
