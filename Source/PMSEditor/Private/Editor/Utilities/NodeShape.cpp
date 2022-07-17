@@ -4,6 +4,7 @@
 #include "Editor/Utilities/FNodeShape.h"
 #include "Json.h"
 #include "GeomTools.h"
+#include "Editor/Style/PMSEditorStyle.h"
 #include "Misc/Paths.h"
 
 TSharedPtr<FNodeShapeCollection> FNodeShapeCollection::Instance = nullptr;
@@ -119,7 +120,7 @@ void FNodeShape::UpdataByJsonValue(TArray<FVector2D>& ShapeLine, FSlateVertexArr
 	// }
 	
 	
-	auto Brush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
+	auto Brush = FPMSEditorStyle::Get().GetBrush("NodeShape.Blue");
 	auto Handle = Brush->GetRenderingResource();
 	const FSlateShaderResourceProxy* ResourceProxy = Handle.GetResourceProxy();
 
@@ -153,8 +154,8 @@ void FNodeShape::UpdataByJsonValue(TArray<FVector2D>& ShapeLine, FSlateVertexArr
 			NewVert.TexCoords[2] = 1.0f;
 			NewVert.TexCoords[3] = 1.0f;
 	
-			// NewVert.MaterialTexCoords[0] = vtx.UVs[2].X;
-			// NewVert.MaterialTexCoords[1] = vtx.UVs[2].Y;
+			NewVert.MaterialTexCoords[0] = UVCenter.X;
+			NewVert.MaterialTexCoords[1] = UVCenter.Y;
 		}
 		ShapeIndexes.Add(vtxid);
 		vtxid++;

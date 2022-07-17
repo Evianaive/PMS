@@ -97,11 +97,20 @@ uint32 S2DMeshWidget::AddMesh(const FNodeShape* InMeshData)
 	//NewRenderData.Brush = MakeShareable(new FSlateBrush(ESlateBrushDrawType::Image, NAME_None, FMargin(0.0f), ESlateBrushTileType::NoTile, ESlateBrushImageType::NoImage, FVector2D::ZeroVector, FLinearColor(255,255,255)));
 	//NewRenderData.Brush = MakeShareable(new FSlateBoxBrush(FPaths::ProjectPluginsDir() / TEXT("PMS/Resources/NodeBrush/StateNode_Node_Button_Center.png"), FMargin(16.f/64.f, 25.f/64.f, 16.f/64.f, 16.f/64.f)));
 	//wRenderData.RenderingResourceHandle = FSlateApplication::Get().GetRenderer()->GetResourceHandle( *NewRenderData.Brush );
-	NewRenderData.Brush = FCoreStyle::Get().GetBrush("ColorWheel.HueValueCircle");
+	NewRenderData.Brush = FPMSEditorStyle::Get().GetBrush("NodeShape.Blue");
 	NewRenderData.RenderingResourceHandle = NewRenderData.Brush->GetRenderingResource();
-
+	
 	NewRenderData.VertexData = InMeshData->OutLineVertices;
 	NewRenderData.IndexData = InMeshData->OutlineIndex;
+	
+	auto UV = NewRenderData.RenderingResourceHandle.GetResourceProxy()->StartUV + NewRenderData.RenderingResourceHandle.GetResourceProxy()->SizeUV;
+	for(auto& Vert:NewRenderData.VertexData)
+	{
+		Vert.TexCoords[0] = UV.X;
+		Vert.TexCoords[1] = UV.Y;
+	}
+	
+		
 	// SlateMeshToSlateRenderData(InMeshData, NewRenderData.VertexData, NewRenderData.IndexData, NewRenderData.RenderingResourceHandle);
 	return RenderData.Num()-1;
 }
@@ -167,6 +176,15 @@ int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 				else
 				{
 					// Drawing a single widget, no instancing
+					auto Type = RunRenderData.RenderingResourceHandle.GetResourceProxy()->Resource->GetType();
+
+					/** Texture resource. */
+					TArray<FString> Strings = {"NativeTexture","TextureObject","Material","PostProcess","Invalid"};
+					TArray<ESlateShaderResource::Type> Enums = {ESlateShaderResource::NativeTexture,ESlateShaderResource::TextureObject,ESlateShaderResource::Material,ESlateShaderResource::PostProcess,ESlateShaderResource::Invalid};
+
+					const int index = Enums.Find(Type);
+					if(index!=INDEX_NONE)
+						UE_LOG(LogTemp,Log,TEXT("Render Resource Type is%s"),*Strings[index]);
 					FSlateDrawElement::MakeCustomVerts(
 						OutDrawElements,
 						LayerId,
@@ -203,6 +221,21 @@ int32 S2DMeshWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 FVector2D S2DMeshWidget::ComputeDesiredSize(float) const
 {
 	return FVector2D(256,256);
+}
+
+void S2DMeshWidget::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	SLeafWidget::OnMouseEnter(MyGeometry, MouseEvent);
+}
+
+void S2DMeshWidget::OnMouseLeave(const FPointerEvent& MouseEvent)
+{
+	SLeafWidget::OnMouseLeave(MouseEvent);
+}
+
+FReply S2DMeshWidget::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	return SLeafWidget::OnMouseMove(MyGeometry, MouseEvent);
 }
 
 void STestLeafWidget::Construct(const FArguments& Args)

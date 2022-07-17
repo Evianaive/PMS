@@ -3,6 +3,7 @@
 #include "Editor/Style/PMSEditorStyle.h"
 
 #include "EditorStyleSet.h"
+#include "SlateMaterialBrush.h"
 #include "Styling/SlateTypes.h"
 #include "Styling/CoreStyle.h"
 #include "Classes/EditorStyleSettings.h"
@@ -668,6 +669,24 @@ namespace PMSEditorStyleImpl {
 		}
 		Style->SetContentRoot(IPluginManager::Get().FindPlugin("PMS")->GetBaseDir() / TEXT("Resources"));
 	}
+	void InitCustomNodeShapeImageBrush(TSharedPtr<FSlateStyleSet> Style)
+	{
+		Style->Set( "NodeShape.White",
+			new FSlateImageBrush(
+				Style->RootToContentDir( "NodeBrushes/White", TEXT(".png") ),
+				Icon64x64 ,
+				FLinearColor::White));
+		Style->Set( "NodeShape.Blue",
+			new FSlateImageBrush(
+				Style->RootToContentDir( "NodeBrushes/White", TEXT(".png") ),
+				Icon64x64 ,
+				FLinearColor::Blue));
+
+		Style->Set("NodeShape.WhiteColorBrush",
+			new FSlateColorBrush(FLinearColor::White));
+
+		// Style->Set("NodeShape.Material",new FSlateMaterialBrush())
+	}
 } // namespace PMSEditorStyleImpl
 
 TSharedRef< FSlateStyleSet > FPMSEditorStyle::Create()
@@ -685,6 +704,7 @@ TSharedRef< FSlateStyleSet > FPMSEditorStyle::Create()
 	InitToolBarStyle(Style);
 	// InitToolMenuStyle(Style);
 	InitToolMenuStyleCopy(Style);
+	InitCustomNodeShapeImageBrush(Style);
 	return Style;
 }
 

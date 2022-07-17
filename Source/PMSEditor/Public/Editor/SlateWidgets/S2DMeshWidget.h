@@ -65,6 +65,10 @@ protected:
 	virtual FVector2D ComputeDesiredSize(float) const override;
 	// END SLeafWidget interface
 
+	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
+	virtual FReply OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+
 protected:
 	struct FRenderData
 	{
