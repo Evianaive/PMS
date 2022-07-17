@@ -44,3 +44,8 @@ void UPMSEdGraphNode::PMSSnapToGrid(float GridSnapSize, float Snapthreshold, TAr
 	}
 	
 }
+
+void UPMSEdGraphNode::AddPin()
+{
+	CreatePin(EGPD_Output,"PMSNodeOutput",FName(),TEXT("Output1"));
+}
