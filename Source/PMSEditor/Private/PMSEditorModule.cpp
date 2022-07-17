@@ -10,9 +10,11 @@
 #include "AssetTypeActions/AssetTypeActions_PMS.h"
 #include "Editor/PMSEdGraphSchema.h"
 #include "Editor/PMSEditorSettings.h"
+#include "Editor/SlateWidgets/PMSGraphEditorWidgets/SGraphEditor_PMS.h"
 #include "Editor/Style/PMSEditorStyle.h"
 #include "Editor/Utilities/FNodeShape.h"
 #include "Editor/Utilities/PMSEdGraphPanelInputPreProcessor.h"
+#include "Editor/SlateWidgets/PMSGraphEditorWidgets/SGraphEditorImpl_PMS.h"
 
 #define LOCTEXT_NAMESPACE "FPMSEditorModule"
 
@@ -47,6 +49,16 @@ void FPMSEditorModule::StartupModule()
 			NSLOCTEXT("PMS","SettingsDescription", "Procedual Modeling System Setting"),
 			GetMutableDefault<UPMSEditorSettings>());
 	}
+
+	TArray< TWeakPtr<SGraphEditor_PMS> >& Instances = SGraphEditor_PMS::AllInstances_PMS;
+	for (auto InstanceIt = SGraphEditor_PMS::AllInstances_PMS.CreateIterator(); InstanceIt; ++InstanceIt)
+	{
+		TWeakPtr<SGraphEditor_PMS>& Instance = *InstanceIt;
+		if (Instance.IsValid())
+		{
+			Instance.Pin()->OnModuleReloaded();
+		}		
+	}
 }
 
 void FPMSEditorModule::ShutdownModule()
@@ -67,6 +79,40 @@ void FPMSEditorModule::ShutdownModule()
 		PMSInputPreProcessor.Reset();
 		//Todo 如果前面注册了config setting 这里需要unregister
 	}
+
+	// Notify all the instances of GraphEditor that their code is about to be unloaded.
+	for (auto InstanceIt = SGraphEditor_PMS::AllInstances_PMS.CreateIterator(); InstanceIt; ++InstanceIt)
+	{
+		TWeakPtr<SGraphEditor_PMS>& Instance = *InstanceIt;
+		if (Instance.IsValid())
+		{
+			Instance.Pin()->OnModuleUnloading();
+		}		
+	}
+}
+
+TSharedRef<SGraphEditor_PMS> FPMSEditorModule::PRIVATE_MakeGraphEditor_PMS(
+	const TSharedPtr<FUICommandList>& InAdditionalCommands, const TAttribute<bool>& InIsEditable,
+	const TAttribute<bool>& InDisplayAsReadOnly, const TAttribute<bool>& InIsEmpty,
+	TAttribute<FGraphAppearanceInfo> Appearance, TSharedPtr<SWidget> InTitleBar, UEdGraph* InGraphToEdit,
+	SGraphEditor::FGraphEditorEvents InGraphEvents, bool InAutoExpandActionMenu, UEdGraph* InGraphToDiff,
+	FSimpleDelegate InOnNavigateHistoryBack, FSimpleDelegate InOnNavigateHistoryForward,
+	TAttribute<bool> ShowGraphStateOverlay)
+{
+	return
+		SNew(SGraphEditorImpl_PMS)
+		.AdditionalCommands(InAdditionalCommands)
+		.IsEditable(InIsEditable)
+		.DisplayAsReadOnly(InDisplayAsReadOnly)
+		.Appearance(Appearance)
+		.TitleBar(InTitleBar)
+		.GraphToEdit(InGraphToEdit)
+		.GraphEvents(InGraphEvents)
+		.AutoExpandActionMenu(InAutoExpandActionMenu)
+		.GraphToDiff(InGraphToDiff)
+		.OnNavigateHistoryBack(InOnNavigateHistoryBack)
+		.OnNavigateHistoryForward(InOnNavigateHistoryForward)
+		.ShowGraphStateOverlay(ShowGraphStateOverlay);
 }
 
 #undef LOCTEXT_NAMESPACE

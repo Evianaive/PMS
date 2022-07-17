@@ -39,6 +39,7 @@ public:
 
 private:
 	UPMS_Graph* PMSGraphAsset;
+	/*Todo Merge to one*/
 	UPMSEdGraph* PMSGraph;
 	UPMSEdGraph* GraphToShow;
 	
@@ -46,7 +47,8 @@ private:
 	static const FName PMSGraphTabId;
 	static const FName PMSViewportTabId;
 	static const FName PMSSpreadSheetTabId;
-	
+
+	SGraphEditor::FGraphEditorEvents InGraphEvent;
 	SGraphEditor::FArguments InArgs;
 	TSharedPtr<IDetailsView> DetailsWidget;
 	TSharedPtr<SPMSEditorViewport> PMSEditorViewport;

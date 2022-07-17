@@ -292,7 +292,7 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 	}
 
 	/*OnSpace Click*/
-	//Todo MouseEnterState == EMouseEnterState::Right时还有一些问题
+	//Todo MouseEnterState == EMouseEnterState::Right时还有一些问题，缩放不为1时中键移动会光标会飘
 	{	
 		ContextEnterState = EContextEnterState::OnSpace;
 		if(MouseEnterState == EMouseEnterState::Right)
@@ -356,9 +356,9 @@ FReply SPMSGraphPanel::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoi
 		
 			FReply ReplyState = FReply::Handled();
 			ReplyState.CaptureMouse(SharedThis(this));
-			ReplyState.UseHighPrecisionMouseMovement(SharedThis(this));
+			//ReplyState.UseHighPrecisionMouseMovement(SharedThis(this));
 		
-			SoftwareCursorPosition = PanelCoordToGraphCoord(MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition()));
+			//SoftwareCursorPosition = PanelCoordToGraphCoord(MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition()));
 		
 			DeferredMovementTargetObject = nullptr; // clear any interpolation when you manually pan
 			CancelZoomToFit();
